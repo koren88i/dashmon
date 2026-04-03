@@ -1,0 +1,11 @@
+probe_interval_seconds: 15
+thresholds:
+  slow_query_seconds: 5.0
+  slow_dashboard_seconds: 15.0
+  stale_data_multiplier: 3.0
+  cardinality_spike_ratio: 1.5
+  query_timeout_seconds: 25.0
+datasources:
+  - uid: "prometheus-main"
+    url: "http://localhost:9090"
+    type: prometheus
