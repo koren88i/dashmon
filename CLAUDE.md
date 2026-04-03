@@ -195,6 +195,61 @@ When debugging:
 - explain cause before proposing broad cleanup,
 - prefer evidence over guesswork.
 
+## Git conventions
+
+### Commit messages
+Use [Conventional Commits](https://conventionalcommits.org/en/v1.0.0/):
+
+```
+<type>(<scope>): <description>
+
+[optional body — explain WHY, not WHAT]
+```
+
+**Types:** `feat`, `fix`, `refactor`, `docs`, `test`, `chore`, `perf`, `ci`, `build`, `style`
+
+**Scopes** map to project subsystems: `mock-backend`, `parser`, `probe`, `engine`, `metrics`, `generator`, `demo`, `docker`, `config`
+
+**Rules:**
+- One logical change per commit. Do not bundle unrelated changes.
+- Write the "why" in the message body; the diff shows the "what".
+- Breaking changes: append `!` before colon (`feat!: ...`) or add `BREAKING CHANGE:` footer.
+- Always include `Co-Authored-By` trailer when AI generates or substantially writes the code.
+
+**Examples:**
+```
+feat(probe): add staleness detection for panel data
+
+Checks max timestamp vs now() to detect stale data that would
+show outdated values to a dashboard viewer.
+
+Co-Authored-By: Claude Opus 4.6 (1M context) <noreply@anthropic.com>
+```
+```
+fix(mock-backend): prevent fault injection from crashing on empty target
+```
+
+### Branching
+- **Trunk-based with short-lived feature branches.** Keep `main` always in a working state.
+- Branch naming: `<type>/<short-description>` (e.g., `feat/staleness-probe`, `fix/timeout-handling`, `chore/docker-setup`).
+- Merge and delete branches after they land. Do not accumulate stale branches.
+
+### Pull requests
+- Keep PRs small and focused — one feature or fix per PR.
+- PR title follows the same conventional commit format: `feat(probe): add staleness detection`.
+- PR body must include a summary (what + why) and a test/verification plan.
+- Self-review the diff (`git diff main...HEAD`) before merging.
+
+### Safety rules
+- Never force-push to `main`.
+- Never use `--no-verify` to skip hooks.
+- Never commit secrets, `.env` files, or credentials.
+- Prefer creating a new commit over amending, especially after hook failures.
+- Stage files explicitly by name — avoid `git add .` or `git add -A` which can catch unintended files.
+
+### .gitignore
+The repo `.gitignore` covers Python, Docker, and IDE artifacts. Keep it updated when adding new tooling.
+
 ## Skills available
 - `.claude/skills/bug-investigation/SKILL.md`
 - `.claude/skills/refactor-safely/SKILL.md`
