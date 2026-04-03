@@ -229,16 +229,44 @@ Co-Authored-By: Claude Opus 4.6 (1M context) <noreply@anthropic.com>
 fix(mock-backend): prevent fault injection from crashing on empty target
 ```
 
-### Branching
+### Branching — one branch per plan step
 - **Trunk-based with short-lived feature branches.** Keep `main` always in a working state.
-- Branch naming: `<type>/<short-description>` (e.g., `feat/staleness-probe`, `fix/timeout-handling`, `chore/docker-setup`).
-- Merge and delete branches after they land. Do not accumulate stale branches.
+- Branch naming: `<type>/<short-description>` (e.g., `feat/mock-backend`, `feat/parser`, `fix/timeout-handling`).
+- **One branch per major plan step**, not per sub-step. Sub-steps within a step are tightly coupled and share files. Example: `feat/mock-backend` covers 1A + 1B + 1C.
+- Merge to `main` when the full step is verified (all sub-steps working together). Delete the branch after merge.
 
-### Pull requests
-- Keep PRs small and focused — one feature or fix per PR.
-- PR title follows the same conventional commit format: `feat(probe): add staleness detection`.
-- PR body must include a summary (what + why) and a test/verification plan.
+### Committing — after each verified sub-step
+- Complete a sub-step → run its verification → commit. One commit = one verified slice.
+- **Bug found during implementation?** Fix in a separate `fix()` commit. Do not fold it into the feature commit.
+- **Refactoring triggered by a step?** Separate `refactor()` commit after the feature lands.
+- This keeps history honest and makes `git bisect` useful.
+
+### Pushing — after every commit
+- Push after each commit. For a solo project, there is no reason to batch. Pushing is cheap insurance against losing work.
+
+### Pull requests — one per plan step
+- One PR per major plan step. PR title follows conventional commit format: `feat(mock-backend): mock Prometheus API with fault injection`.
+- PR body must include: summary (what + why), verification results, and anything still not covered.
 - Self-review the diff (`git diff main...HEAD`) before merging.
+- PRs serve as documentation milestones — a record of what each step accomplished.
+
+### Bug fixes on main (post-merge)
+- Create a hotfix branch (`fix/<description>`), fix, verify, merge back. Same trunk-based workflow.
+
+### Workflow example (tied to PLAN.md)
+```
+main ─────●────────────────●────────────────●───
+          │                │                │
+          └─ feat/mock-backend              └─ feat/query-probe
+             ├─ commit: 1A (mock API)          ├─ commit: Step 3
+             ├─ commit: 1B (fault injection)   └─ merge → main
+             ├─ commit: 1C (grafana stub)
+             └─ merge → main
+                           └─ feat/parser
+                              ├─ commit: 2A (example dashboard)
+                              ├─ commit: 2B (parser)
+                              └─ merge → main
+```
 
 ### Safety rules
 - Never force-push to `main`.
