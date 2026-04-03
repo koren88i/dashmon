@@ -40,7 +40,10 @@ from probe.metrics import (
     VARIABLE_STATUS,
 )
 from probe.parser import parse_dashboard
+from probe.probes.cardinality_probe import CardinalityProbe
 from probe.probes.query_probe import QueryProbe
+from probe.probes.staleness_probe import StalenessProbe
+from probe.probes.variable_probe import VariableProbe
 
 # ---------------------------------------------------------------------------
 # Engine state
@@ -73,6 +76,9 @@ state = EngineState()
 
 # Probe instances
 query_probe = QueryProbe()
+staleness_probe = StalenessProbe()
+cardinality_probe = CardinalityProbe()
+variable_probe = VariableProbe()
 
 # Max issues to keep in the log.
 MAX_ISSUES = 50
@@ -207,8 +213,35 @@ async def _run_probes() -> None:
 
 
 async def _probe_panel(spec: PanelProbeSpec, ds_url: str) -> ProbeResult:
+    """Run query, staleness, and cardinality probes; return worst result."""
     try:
-        return await query_probe.probe(spec, ds_url, state.config)
+        results = await asyncio.gather(
+            query_probe.probe(spec, ds_url, state.config),
+            staleness_probe.probe(spec, ds_url, state.config),
+            cardinality_probe.probe(spec, ds_url, state.config),
+            return_exceptions=True,
+        )
+        # Pick the worst non-exception result (degraded > unknown > healthy).
+        worst: ProbeResult | None = None
+        for r in results:
+            if isinstance(r, Exception):
+                continue
+            if r.status == ProbeStatus.UNKNOWN:
+                continue
+            if worst is None or r.status == ProbeStatus.DEGRADED:
+                worst = r
+                if r.status == ProbeStatus.DEGRADED:
+                    break  # degraded is the worst; stop early.
+        if worst is not None:
+            return worst
+        # Fallback: return query_probe result or error.
+        return results[0] if not isinstance(results[0], Exception) else ProbeResult(
+            panel_id=spec.panel_id,
+            panel_title=spec.panel_title,
+            status=ProbeStatus.DEGRADED,
+            error_type=ErrorType.PANEL_ERROR,
+            message="All probes failed",
+        )
     except Exception as exc:
         return ProbeResult(
             panel_id=spec.panel_id,
@@ -220,47 +253,15 @@ async def _probe_panel(spec: PanelProbeSpec, ds_url: str) -> ProbeResult:
 
 
 async def _probe_variable(vspec: VariableProbeSpec, ds_url: str) -> dict:
-    """Probe a template variable by querying its label values."""
-    import httpx
-
-    start = time.monotonic()
+    """Probe a template variable using the dedicated VariableProbe."""
     try:
-        # Extract label name from label_values(metric, label) query.
-        query = vspec.query
-        label_name = _extract_label_name(query)
-
-        async with httpx.AsyncClient(timeout=5.0) as client:
-            resp = await client.get(
-                f"{ds_url}/api/v1/label/{label_name}/values",
-            )
-            resp.raise_for_status()
-            body = resp.json()
-            values = body.get("data", [])
-
-        duration = time.monotonic() - start
-        if not values:
-            _add_issue(None, f"${vspec.name}", ErrorType.VAR_RESOLUTION_FAIL,
-                       f"Variable ${vspec.name} returned empty values")
-            return {"name": vspec.name, "status": "degraded",
-                    "error": "var_resolution_fail", "duration": duration, "values_count": 0}
-
-        return {"name": vspec.name, "status": "healthy",
-                "duration": duration, "values_count": len(values)}
-
+        result = await variable_probe.probe(vspec, ds_url, state.config)
+        if result.status == ProbeStatus.DEGRADED:
+            _add_issue(None, f"${vspec.name}", result.error_type, result.message)
+        return result.to_dict()
     except Exception as exc:
-        duration = time.monotonic() - start
         return {"name": vspec.name, "status": "degraded",
-                "error": str(exc), "duration": duration, "values_count": 0}
-
-
-def _extract_label_name(query: str) -> str:
-    """Extract label name from label_values(metric, label) or label_values(label)."""
-    # label_values(metric{...}, label) or label_values(label)
-    if "," in query:
-        return query.rsplit(",", 1)[1].strip().rstrip(")")
-    # label_values(label)
-    inner = query.replace("label_values(", "").rstrip(")")
-    return inner.strip()
+                "error": str(exc), "duration": 0, "values_count": 0}
 
 
 def _add_issue(
