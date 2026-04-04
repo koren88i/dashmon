@@ -1,0 +1,32 @@
+{
+  "id": null,
+  "uid": "mini-dash-01",
+  "title": "Mini Dashboard",
+  "schemaVersion": 39,
+  "templating": {
+    "list": [
+      {
+        "name": "env",
+        "type": "query",
+        "datasource": {"uid": "prometheus-main", "type": "prometheus"},
+        "query": "label_values(up, job)"
+      }
+    ]
+  },
+  "panels": [
+    {
+      "id": 1,
+      "title": "Up Status",
+      "type": "timeseries",
+      "datasource": {"uid": "prometheus-main", "type": "prometheus"},
+      "targets": [{"refId": "A", "expr": "up{job=~\"$env\"}"}]
+    },
+    {
+      "id": 2,
+      "title": "Empty Panel",
+      "type": "text",
+      "datasource": {"uid": "prometheus-main", "type": "prometheus"},
+      "targets": []
+    }
+  ]
+}
