@@ -109,6 +109,10 @@ Follow `DASHBOARD_SRE_BRIEF.md` §"Start here" for sequencing. In short: mock_ba
 - If the implementation deviated from the plan, add a short **"Deviation"** note under that step explaining what changed and why.
 - If something was learned that affects future steps, update the relevant future step in `PLAN.md` and/or add it to this file under the appropriate section.
 
+## Session management
+End a session after completing and verifying a full plan step — never mid-step.
+To close gracefully, use the `session-close` skill.
+
 ## Purpose (engineering behavior)
 Keep it short, stable, and high-signal. Put reusable deep playbooks in `.claude/skills/*/SKILL.md`.
 
@@ -282,3 +286,4 @@ The repo `.gitignore` covers Python, Docker, and IDE artifacts. Keep it updated 
 - `.claude/skills/bug-investigation/SKILL.md`
 - `.claude/skills/refactor-safely/SKILL.md`
 - `.claude/skills/deliverable-verification/SKILL.md`
+- `.claude/skills/docker/SKILL.md` — port management, resource sizing, networking, Dockerfile rules, dev/prod patterns

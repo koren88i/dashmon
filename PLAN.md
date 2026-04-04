@@ -7,7 +7,7 @@ Building a service that monitors the user experience of Grafana dashboards. The 
 
 ---
 
-## Step 1: Mock Backend (`mock_backend/`)
+## ✅ Step 1: Mock Backend (`mock_backend/`)
 
 ### 1A: Mock Prometheus API
 **Files:** `mock_backend/__init__.py`, `mock_backend/requirements.txt`, `mock_backend/fixtures/__init__.py`, `mock_backend/fixtures/metrics.py`, `mock_backend/prometheus_api.py`
@@ -46,7 +46,7 @@ curl -s -X POST http://localhost:9090/faults/clear -H "Content-Type: application
 
 ---
 
-## Step 2: Parser + Example Dashboard
+## ✅ Step 2: Parser + Example Dashboard
 
 ### 2A: Example Dashboard
 **Files:** `demo/example_dashboard.json`
@@ -74,7 +74,7 @@ for x in v: print(f'  Var {x.name}: chained={x.is_chained}')
 
 ---
 
-## Step 3: Query Probe
+## ✅ Step 3: Query Probe
 **Files:** `probe/probes/__init__.py`, `probe/probes/query_probe.py`, `probe/requirements.txt`
 
 - `QueryProbe.probe(spec, url, config) → ProbeResult`
@@ -96,7 +96,7 @@ print(f'{r.status}, error={r.error_type}, series={r.series_count}')
 
 ---
 
-## Step 4: Engine + Metrics
+## ✅ Step 4: Engine + Metrics
 
 ### 4A: Metrics Module
 **Files:** `probe/metrics.py`
@@ -124,7 +124,7 @@ curl -s http://localhost:8000/health | python -m json.tool
 
 ---
 
-## Step 5: Remaining Probes
+## ✅ Step 5: Remaining Probes
 
 ### 5A: Staleness Probe (`probe/probes/staleness_probe.py`)
 - Checks max timestamp vs now(). Fault: stale_data
@@ -151,7 +151,7 @@ done
 
 ---
 
-## Step 6: Generators
+## ✅ Step 6: Generators
 
 ### 6A: Meta-Dashboard (`generator/meta_dashboard.py`)
 - `generate_meta_dashboard(dash, panels, vars) → dict` (importable Grafana JSON)
@@ -169,7 +169,7 @@ python -c "import yaml; yaml.safe_load(open('examples/generated_alert_rules.yaml
 
 ---
 
-## Step 7: Demo UI Simulator (`demo/simulator.html`)
+## ✅ Step 7: Demo UI Simulator (`demo/simulator.html`)
 
 Single self-contained HTML file (Chart.js from CDN). Three sections:
 - **Top:** Target dashboard panels with sparklines, visual degradation on fault
