@@ -185,7 +185,7 @@ Single self-contained HTML file (Chart.js from CDN). Three sections:
 
 ---
 
-## Step 8: Docker Compose + README
+## ✅ Step 8: Docker Compose + README
 
 **Files:** `mock_backend/Dockerfile`, `Dockerfile.probe`, `docker-compose.yml`, `README.md`
 
@@ -202,13 +202,13 @@ curl -s http://localhost:8080/simulator.html  # 200
 
 ---
 
-## Step 9: Example Outputs
+## ✅ Step 9: Example Outputs
 Run generators, save to `examples/`. Validate JSON + YAML.
 
-## Step 10: ARCHITECTURE.md
+## ✅ Step 10: ARCHITECTURE.md
 Document the system as built.
 
-## Step 11: Update CLAUDE.md
+## ✅ Step 11: Update CLAUDE.md
 Final commands, ports, gotchas.
 
 ---

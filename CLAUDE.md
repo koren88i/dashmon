@@ -25,18 +25,40 @@ The repo also ships a **self-contained demo** with a mock Prometheus backend, fa
 ## Commands
 
 ```bash
-# Run everything
-docker compose up
+# Run everything (Docker)
+docker compose up --build
 
-# UI simulator
-open http://localhost:8080
+# UI simulator (after compose up)
+open http://localhost:8080/simulator.html
 
 # Probe engine health endpoint (JSON summary)
-curl http://localhost:PORT/health
+curl http://localhost:8000/health
 
 # Probe engine metrics (Prometheus format)
-curl http://localhost:PORT/metrics
+curl http://localhost:8000/metrics
+
+# Mock backend health
+curl http://localhost:9090/-/healthy
+
+# Inject a fault (docker or local)
+curl -s -X POST http://localhost:9090/faults/inject \
+  -H "Content-Type: application/json" \
+  -d '{"type":"no_data","target":"http_requests_total","duration_seconds":60}'
+
+# Clear all faults
+curl -s -X POST http://localhost:9090/faults/clear \
+  -H "Content-Type: application/json" -d '{"target":"all"}'
 ```
+
+## Ports
+
+| Port | Service |
+|---|---|
+| 8080 | Demo UI simulator (nginx) |
+| 8000 | Probe engine (`/health`, `/metrics`) |
+| 9090 | Mock Prometheus backend + fault injection |
+
+Override via `.env` (copy from `.env.example`): `SIMULATOR_PORT`, `PROBE_ENGINE_PORT`, `MOCK_BACKEND_PORT`.
 
 ## Architecture
 
@@ -287,3 +309,4 @@ The repo `.gitignore` covers Python, Docker, and IDE artifacts. Keep it updated 
 - `.claude/skills/refactor-safely/SKILL.md`
 - `.claude/skills/deliverable-verification/SKILL.md`
 - `.claude/skills/docker/SKILL.md` — port management, resource sizing, networking, Dockerfile rules, dev/prod patterns
+- `.claude/skills/session-close/SKILL.md` — end-of-session checklist: PLAN.md, CLAUDE.md, memory, git, handoff
