@@ -29,6 +29,7 @@ from probe.config import (
 )
 from probe.metrics import (
     HEALTH_SCORE,
+    LAST_PROBE_TIMESTAMP,
     LOAD_TIME,
     PANEL_ERROR_TOTAL,
     PANEL_QUERY_DURATION,
@@ -213,6 +214,7 @@ async def _run_probes() -> None:
     score = healthy_count / total if total > 0 else 1.0
     HEALTH_SCORE.labels(uid).set(score)
     LOAD_TIME.labels(uid).set(max_duration)
+    LAST_PROBE_TIMESTAMP.labels(uid).set(time.time())
 
     # Check slow dashboard.
     if max_duration > state.config.slow_dashboard_seconds:

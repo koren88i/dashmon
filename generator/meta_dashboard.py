@@ -278,7 +278,7 @@ def _overview_panels(uid: str, y: int) -> list[dict]:
         ),
         _stat_panel(
             "Last Probe Run",
-            f'time() - dashboard_health_score{{dashboard_uid="{uid}"}}',
+            f'time() - dashboard_last_probe_timestamp{{dashboard_uid="{uid}"}}',
             {"h": 4, "w": 6, "x": 18, "y": y},
             unit="s",
             decimals=0,

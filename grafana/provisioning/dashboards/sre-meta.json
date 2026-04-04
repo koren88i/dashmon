@@ -225,7 +225,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "time() - dashboard_health_score{dashboard_uid=\"service-health-01\"}"
+          "expr": "time() - dashboard_last_probe_timestamp{dashboard_uid=\"service-health-01\"}"
         }
       ],
       "options": {

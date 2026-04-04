@@ -87,3 +87,10 @@ LOAD_TIME = Gauge(
     ["dashboard_uid"],
     registry=REGISTRY,
 )
+
+LAST_PROBE_TIMESTAMP = Gauge(
+    "dashboard_last_probe_timestamp",
+    "Unix epoch of the most recent completed probe run",
+    ["dashboard_uid"],
+    registry=REGISTRY,
+)
