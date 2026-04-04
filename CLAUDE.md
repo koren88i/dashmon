@@ -107,7 +107,7 @@ Grafana Dashboard JSON
 - Docker Compose must work on Mac and Linux
 - Probe engine handles errors gracefully — one panel failure doesn't crash others
 - No external databases, no heavy frameworks
-- Mock backend must support both GET and POST for Prometheus query endpoints (Grafana uses POST by default)
+- Mock APIs must implement the spec, not just the subset our own code uses. Real consumers (e.g. Grafana) will exercise different parts of the contract (e.g. POST instead of GET). If we only test against our own code, we miss what breaks for everyone else.
 - Grafana alert rule UIDs must be ≤40 characters; rule titles must not contain `$` (interpreted as template variables)
 
 ## Step verification approach
