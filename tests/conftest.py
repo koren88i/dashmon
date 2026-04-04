@@ -18,8 +18,9 @@ import yaml
 
 REPO_ROOT = Path(__file__).parent.parent
 
-# Ports that avoid colliding with a running Docker stack (9090 / 8000).
-MOCK_PORT = 9091
+# Ports that avoid colliding with a running Docker stack
+# (9090=mock-prometheus, 8000=probe-engine, 9091=real-prometheus, 3000=grafana).
+MOCK_PORT = 9092
 ENGINE_PORT = 8001
 
 
