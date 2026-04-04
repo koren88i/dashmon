@@ -54,11 +54,13 @@ curl -s -X POST http://localhost:9090/faults/clear \
 
 | Port | Service |
 |---|---|
+| 3000 | Grafana (anonymous auth, provisioned dashboards + alerts) |
 | 8080 | Demo UI simulator (nginx) |
 | 8000 | Probe engine (`/health`, `/metrics`) |
+| 9091 | Real Prometheus (scrapes probe engine) |
 | 9090 | Mock Prometheus backend + fault injection |
 
-Override via `.env` (copy from `.env.example`): `SIMULATOR_PORT`, `PROBE_ENGINE_PORT`, `MOCK_BACKEND_PORT`.
+Override via `.env` (copy from `.env.example`): `GRAFANA_PORT`, `PROMETHEUS_PORT`, `SIMULATOR_PORT`, `PROBE_ENGINE_PORT`, `MOCK_BACKEND_PORT`.
 
 ## Architecture
 

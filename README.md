@@ -18,9 +18,11 @@ Then open **http://localhost:8080/simulator.html** in your browser.
 
 | Service | URL | Purpose |
 |---|---|---|
+| **Grafana** | http://localhost:3000 | Real Grafana with provisioned dashboards + alerts |
 | Demo UI | http://localhost:8080/simulator.html | Visual simulator + fault injection |
 | Probe engine | http://localhost:8000/health | JSON health summary |
 | Probe metrics | http://localhost:8000/metrics | Prometheus exposition |
+| Prometheus | http://localhost:9091 | Real Prometheus scraping probe engine |
 | Mock Prometheus | http://localhost:9090/-/healthy | Mock backend status |
 
 ---
@@ -37,6 +39,15 @@ The simulator has three sections:
 1. Click a fault button (e.g. "No Data").
 2. Watch the panel go red and the health score drop within 30s.
 3. Click "Clear All" — everything returns to green within 30s.
+
+### Grafana (real dashboards)
+
+Open **http://localhost:3000** (no login required). Two dashboards are pre-provisioned:
+
+- **Service Health** — the target dashboard with live panels powered by the mock Prometheus
+- **[SRE] Service Health** — the meta-dashboard showing probe results from real Prometheus
+
+40 alert rules are also provisioned. Inject a fault in the simulator, then check the meta-dashboard and Alerting page in Grafana to see them fire.
 
 ---
 

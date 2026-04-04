@@ -198,28 +198,42 @@ Environment variables consumed by `engine.py`:
 ## Docker Compose topology
 
 ```
-┌─────────────────────────────────────┐
-│  Host                               │
-│  :9090 ──→ mock-prometheus          │
-│  :8000 ──→ probe-engine             │
-│  :8080 ──→ demo-ui (nginx)          │
-│                                     │
-│  ┌─────────────────────────────┐    │
-│  │  dashmon_default network    │    │
-│  │                             │    │
-│  │  mock-prometheus:9090       │    │
-│  │         ▲                   │    │
-│  │         │ HTTP              │    │
-│  │  probe-engine:8000          │    │
-│  │                             │    │
-│  │  demo-ui:80                 │    │
-│  └─────────────────────────────┘    │
-└─────────────────────────────────────┘
+┌──────────────────────────────────────────────┐
+│  Host                                        │
+│  :9090 ──→ mock-prometheus                   │
+│  :8000 ──→ probe-engine                      │
+│  :9091 ──→ prometheus (real)                 │
+│  :3000 ──→ grafana                           │
+│  :8080 ──→ demo-ui (nginx)                   │
+│                                              │
+│  ┌──────────────────────────────────────┐    │
+│  │  dashmon_default network             │    │
+│  │                                      │    │
+│  │  mock-prometheus:9090                │    │
+│  │         ▲              ▲             │    │
+│  │         │ HTTP         │ datasource  │    │
+│  │  probe-engine:8000     │             │    │
+│  │         ▲              │             │    │
+│  │         │ scrape /metrics            │    │
+│  │  prometheus:9090───────│─────┐       │    │
+│  │                        │     │       │    │
+│  │                    grafana:3000      │    │
+│  │                  (2 datasources,     │    │
+│  │                   2 dashboards,      │    │
+│  │                   40 alert rules)    │    │
+│  │                                      │    │
+│  │  demo-ui:80                          │    │
+│  └──────────────────────────────────────┘    │
+└──────────────────────────────────────────────┘
 ```
 
-Services start in dependency order: `mock-prometheus` (healthy) → `probe-engine` (healthy) → `demo-ui`.
+Services start in dependency order: `mock-prometheus` (healthy) → `probe-engine` (healthy) → `prometheus` (healthy) → `grafana` + `demo-ui`.
 
-The browser talks directly to `localhost:9090` and `localhost:8000` — it is not proxied through nginx.
+Grafana connects to two datasources:
+- **Mock Prometheus** (`prometheus-main`) — powers the target "Service Health" dashboard
+- **Probe Metrics** (`probe-metrics`) — real Prometheus scraping probe engine; powers the "[SRE] Service Health" meta-dashboard
+
+The browser talks directly to `localhost:9090` and `localhost:8000` for the simulator — it is not proxied through nginx.
 
 ---
 
