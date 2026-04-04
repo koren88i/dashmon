@@ -119,14 +119,23 @@ async def range_query_post(
     return await _handle_range(query, start, end, step)
 
 
-@app.get("/api/v1/label/{label_name}/values")
-async def label_values(label_name: str):
+async def _handle_label_values(label_name: str) -> dict:
     fault = injector.get_fault_for_label(label_name)
     if fault is not None:
         return {"status": "success", "data": []}
 
     values = get_label_values(label_name)
     return {"status": "success", "data": values}
+
+
+@app.get("/api/v1/label/{label_name}/values")
+async def label_values_get(label_name: str):
+    return await _handle_label_values(label_name)
+
+
+@app.post("/api/v1/label/{label_name}/values")
+async def label_values_post(label_name: str):
+    return await _handle_label_values(label_name)
 
 
 # ---------------------------------------------------------------------------
