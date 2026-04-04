@@ -12,7 +12,7 @@ from __future__ import annotations
 import asyncio
 import time
 
-from fastapi import FastAPI, Query
+from fastapi import FastAPI, Form, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
@@ -56,8 +56,7 @@ async def healthy():
     return "Prometheus Server is Healthy.\n"
 
 
-@app.get("/api/v1/query")
-async def instant_query(query: str = Query(...)):
+async def _handle_instant(query: str) -> dict:
     metric_name = extract_metric_name(query)
     fault = injector.get_fault_for_metric(metric_name) if metric_name else None
 
@@ -72,13 +71,7 @@ async def instant_query(query: str = Query(...)):
     }
 
 
-@app.get("/api/v1/query_range")
-async def range_query(
-    query: str = Query(...),
-    start: float = Query(...),
-    end: float = Query(...),
-    step: float = Query(15),
-):
+async def _handle_range(query: str, start: float, end: float, step: float) -> dict:
     metric_name = extract_metric_name(query)
     fault = injector.get_fault_for_metric(metric_name) if metric_name else None
 
@@ -91,6 +84,39 @@ async def range_query(
         "status": "success",
         "data": {"resultType": "matrix", "result": result},
     }
+
+
+# Prometheus HTTP API accepts both GET and POST for query endpoints.
+# Grafana uses POST with form-encoded body by default.
+
+@app.get("/api/v1/query")
+async def instant_query_get(query: str = Query(...)):
+    return await _handle_instant(query)
+
+
+@app.post("/api/v1/query")
+async def instant_query_post(query: str = Form(...)):
+    return await _handle_instant(query)
+
+
+@app.get("/api/v1/query_range")
+async def range_query_get(
+    query: str = Query(...),
+    start: float = Query(...),
+    end: float = Query(...),
+    step: float = Query(15),
+):
+    return await _handle_range(query, start, end, step)
+
+
+@app.post("/api/v1/query_range")
+async def range_query_post(
+    query: str = Form(...),
+    start: float = Form(...),
+    end: float = Form(...),
+    step: float = Form(15),
+):
+    return await _handle_range(query, start, end, step)
 
 
 @app.get("/api/v1/label/{label_name}/values")
