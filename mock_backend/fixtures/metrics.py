@@ -201,6 +201,17 @@ def get_range_query_result(
     return results
 
 
+def get_series(match_metric: str) -> list[dict]:
+    """Return all series label sets for the metric matched by *match_metric*."""
+    name = extract_metric_name(match_metric)
+    if name is None:
+        return []
+    family = find_metric_family(name)
+    if family is None:
+        return []
+    return [{"__name__": family.name, **labels} for labels in family.label_sets]
+
+
 def get_label_values(label_name: str) -> list[str]:
     """Return all unique values for *label_name* across all metric families."""
     values: set[str] = set()

@@ -24,6 +24,7 @@ from mock_backend.fixtures.metrics import (
     get_instant_query_result,
     get_label_values,
     get_range_query_result,
+    get_series,
 )
 
 app = FastAPI(title="Mock Prometheus")
@@ -136,6 +137,29 @@ async def label_values_get(label_name: str):
 @app.post("/api/v1/label/{label_name}/values")
 async def label_values_post(label_name: str):
     return await _handle_label_values(label_name)
+
+
+# Grafana resolves label_values(metric, label) by fetching all series
+# for the metric via /api/v1/series, then extracting label values client-side.
+
+@app.get("/api/v1/series")
+async def series_get(request: Request):
+    match = request.query_params.getlist("match[]")
+    return _handle_series(match)
+
+
+@app.post("/api/v1/series")
+async def series_post(request: Request):
+    form = await request.form()
+    match = form.getlist("match[]")
+    return _handle_series(match)
+
+
+def _handle_series(match: list[str]) -> dict:
+    results: list[dict] = []
+    for m in match:
+        results.extend(get_series(m))
+    return {"status": "success", "data": results}
 
 
 # ---------------------------------------------------------------------------
