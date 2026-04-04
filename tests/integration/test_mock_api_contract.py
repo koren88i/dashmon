@@ -46,3 +46,20 @@ async def test_post_range_query_supported(mock_backend_url):
     assert body["status"] == "success"
     assert len(body["data"]["result"]) > 0
     assert len(body["data"]["result"][0]["values"]) > 0
+
+
+async def test_post_label_values_supported(mock_backend_url):
+    """Grafana resolves template variables via POST to /api/v1/label/{name}/values.
+
+    The mock originally only had a GET handler, so the $pod dropdown in
+    Grafana's Service Health dashboard was always empty — even without
+    any fault injected.
+    """
+    async with httpx.AsyncClient() as client:
+        resp = await client.post(
+            f"{mock_backend_url}/api/v1/label/instance/values",
+        )
+    assert resp.status_code == 200
+    body = resp.json()
+    assert body["status"] == "success"
+    assert len(body["data"]) > 0, "Expected at least one label value for 'instance'"
