@@ -58,14 +58,20 @@ Look for:
 Explain the likely root cause in plain language.
 
 ### 4) Protect against recurrence
-When practical, add a failing test before the fix.
-Preferred order:
+**Always add a failing test before applying the fix.** This is not optional, even when the bug feels obvious. Run the test and confirm it fails — this proves the test actually catches the bug.
+
+The test name and comments must explain **why the test exists** — what broke and what assumption it guards against. A reader who sees the test a year from now should understand the story without reading git blame.
+
+Bad: `test_post_query`
+Good: `test_post_query_supported` with a comment: "Grafana sends POST by default; mock originally only handled GET, breaking all Grafana panels."
+
+Preferred test type:
 - unit test,
 - integration test,
 - end-to-end test,
 - deterministic repro script if automated test is not practical.
 
-If a test is not feasible, explain why and provide the next-best verification method.
+If a test is truly not feasible, explain why and provide the next-best verification method. Do not proceed to step 5 without completing this step.
 
 ### 5) Apply the smallest safe fix
 - Fix the identified cause, not only the symptom.
