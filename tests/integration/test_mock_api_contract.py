@@ -63,3 +63,36 @@ async def test_post_label_values_supported(mock_backend_url):
     body = resp.json()
     assert body["status"] == "success"
     assert len(body["data"]) > 0, "Expected at least one label value for 'instance'"
+
+
+async def test_get_series_supported(mock_backend_url):
+    """Grafana resolves label_values(metric, label) via /api/v1/series?match[]=metric.
+
+    It fetches all series matching the metric, then extracts the desired label
+    values client-side. Without this endpoint, template variable dropdowns
+    are empty in Grafana even though /api/v1/label/.../values works fine.
+    """
+    async with httpx.AsyncClient() as client:
+        resp = await client.get(
+            f"{mock_backend_url}/api/v1/series",
+            params={"match[]": "up"},
+        )
+    assert resp.status_code == 200
+    body = resp.json()
+    assert body["status"] == "success"
+    assert len(body["data"]) > 0, "Expected at least one series for 'up'"
+    # Each series should have __name__ and label keys.
+    assert "__name__" in body["data"][0]
+
+
+async def test_post_series_supported(mock_backend_url):
+    """POST variant of /api/v1/series — Grafana may use either method."""
+    async with httpx.AsyncClient() as client:
+        resp = await client.post(
+            f"{mock_backend_url}/api/v1/series",
+            data={"match[]": "up"},
+        )
+    assert resp.status_code == 200
+    body = resp.json()
+    assert body["status"] == "success"
+    assert len(body["data"]) > 0
