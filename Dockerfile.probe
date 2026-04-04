@@ -1,0 +1,22 @@
+FROM python:3.11-slim
+
+RUN apt-get update && apt-get install -y --no-install-recommends curl \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN groupadd --system --gid 1001 appgroup \
+    && useradd --system --uid 1001 --gid appgroup --no-create-home appuser
+
+WORKDIR /app
+
+COPY probe/requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY --chown=appuser:appgroup probe/ ./probe/
+COPY --chown=appuser:appgroup generator/ ./generator/
+COPY --chown=appuser:appgroup demo/example_dashboard.json ./demo/example_dashboard.json
+COPY --chown=appuser:appgroup config.yaml .
+COPY --chown=appuser:appgroup config.docker.yaml .
+
+USER appuser
+
+CMD ["uvicorn", "probe.engine:app", "--host", "0.0.0.0", "--port", "8000"]
