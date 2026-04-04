@@ -70,6 +70,7 @@ class EngineState:
     last_probe_time: float = 0.0
     issues: list[IssueRecord] = field(default_factory=list)
     _previous_status: dict[int, ProbeStatus] = field(default_factory=dict)
+    _seen_probe_types: dict[int, set[str]] = field(default_factory=dict)
 
 
 state = EngineState()
@@ -165,6 +166,17 @@ async def _run_probes() -> None:
         status_val = 1.0 if r.status == ProbeStatus.HEALTHY else 0.0
         probe_type = r.error_type.value if r.error_type else "query"
         PANEL_STATUS.labels(uid, pid, r.panel_title, probe_type).set(status_val)
+
+        # Track probe_type labels we've emitted for this panel.
+        seen = state._seen_probe_types.setdefault(r.panel_id, set())
+        seen.add(probe_type)
+
+        # On recovery, reset all previously-seen degraded probe_type series
+        # back to 1.0 so Prometheus doesn't retain stale zeros.
+        if r.status == ProbeStatus.HEALTHY:
+            for old_type in seen:
+                if old_type != probe_type:
+                    PANEL_STATUS.labels(uid, pid, r.panel_title, old_type).set(1.0)
         PANEL_QUERY_DURATION.labels(uid, pid, r.panel_title).observe(r.duration_seconds)
         PANEL_SERIES_COUNT.labels(uid, pid, r.panel_title).set(r.series_count)
 
