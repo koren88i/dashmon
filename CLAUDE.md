@@ -25,18 +25,40 @@ The repo also ships a **self-contained demo** with a mock Prometheus backend, fa
 ## Commands
 
 ```bash
-# Run everything
-docker compose up
+# Run everything (Docker)
+docker compose up --build
 
-# UI simulator
-open http://localhost:8080
+# UI simulator (after compose up)
+open http://localhost:8080/simulator.html
 
 # Probe engine health endpoint (JSON summary)
-curl http://localhost:PORT/health
+curl http://localhost:8000/health
 
 # Probe engine metrics (Prometheus format)
-curl http://localhost:PORT/metrics
+curl http://localhost:8000/metrics
+
+# Mock backend health
+curl http://localhost:9090/-/healthy
+
+# Inject a fault (docker or local)
+curl -s -X POST http://localhost:9090/faults/inject \
+  -H "Content-Type: application/json" \
+  -d '{"type":"no_data","target":"http_requests_total","duration_seconds":60}'
+
+# Clear all faults
+curl -s -X POST http://localhost:9090/faults/clear \
+  -H "Content-Type: application/json" -d '{"target":"all"}'
 ```
+
+## Ports
+
+| Port | Service |
+|---|---|
+| 8080 | Demo UI simulator (nginx) |
+| 8000 | Probe engine (`/health`, `/metrics`) |
+| 9090 | Mock Prometheus backend + fault injection |
+
+Override via `.env` (copy from `.env.example`): `SIMULATOR_PORT`, `PROBE_ENGINE_PORT`, `MOCK_BACKEND_PORT`.
 
 ## Architecture
 
@@ -108,6 +130,10 @@ Follow `DASHBOARD_SRE_BRIEF.md` §"Start here" for sequencing. In short: mock_ba
 - After completing a plan step, mark it done in `PLAN.md` (e.g., `✅` prefix).
 - If the implementation deviated from the plan, add a short **"Deviation"** note under that step explaining what changed and why.
 - If something was learned that affects future steps, update the relevant future step in `PLAN.md` and/or add it to this file under the appropriate section.
+
+## Session management
+End a session after completing and verifying a full plan step — never mid-step.
+To close gracefully, use the `session-close` skill.
 
 ## Purpose (engineering behavior)
 Keep it short, stable, and high-signal. Put reusable deep playbooks in `.claude/skills/*/SKILL.md`.
@@ -278,7 +304,24 @@ main ─────●────────────────●──
 ### .gitignore
 The repo `.gitignore` covers Python, Docker, and IDE artifacts. Keep it updated when adding new tooling.
 
+## Tests
+
+```bash
+# Install test deps (once)
+pip install -r tests/requirements.txt
+
+# Run by layer
+pytest -m unit          # 36 tests, no network, <1s
+pytest -m integration   # 14 tests, mock backend subprocess, ~90s
+pytest -m e2e           # 8 tests, full engine + mock backend, ~115s
+pytest                  # all 58
+```
+
+See `TEST_PLAN.md` for what is and isn't covered.
+
 ## Skills available
 - `.claude/skills/bug-investigation/SKILL.md`
 - `.claude/skills/refactor-safely/SKILL.md`
 - `.claude/skills/deliverable-verification/SKILL.md`
+- `.claude/skills/docker/SKILL.md` — port management, resource sizing, networking, Dockerfile rules, dev/prod patterns
+- `.claude/skills/session-close/SKILL.md` — end-of-session checklist: PLAN.md, CLAUDE.md, memory, git, handoff

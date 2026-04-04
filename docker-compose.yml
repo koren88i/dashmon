@@ -1,0 +1,81 @@
+# PORT REGISTRY (host ports this project binds)
+# 9090  — mock-prometheus API     (override: MOCK_BACKEND_PORT)
+# 8000  — probe-engine API        (override: PROBE_ENGINE_PORT)
+# 8080  — demo UI / simulator     (override: SIMULATOR_PORT)
+
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+services:
+
+  mock-prometheus:
+    build: ./mock_backend
+    ports:
+      - "${MOCK_BACKEND_PORT:-9090}:9090"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9090/-/healthy"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+    logging: *default-logging
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 128M
+        reservations:
+          cpus: "0.1"
+          memory: 32M
+
+  probe-engine:
+    build:
+      context: .
+      dockerfile: Dockerfile.probe
+    ports:
+      - "${PROBE_ENGINE_PORT:-8000}:8000"
+    environment:
+      CONFIG_PATH: /app/config.docker.yaml
+      DASHBOARD_PATH: /app/demo/example_dashboard.json
+    depends_on:
+      mock-prometheus:
+        condition: service_healthy
+        restart: true
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+    restart: unless-stopped
+    logging: *default-logging
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 256M
+        reservations:
+          cpus: "0.25"
+          memory: 64M
+
+  demo-ui:
+    build: ./demo
+    ports:
+      - "${SIMULATOR_PORT:-8080}:80"
+    depends_on:
+      probe-engine:
+        condition: service_healthy
+    restart: unless-stopped
+    logging: *default-logging
+    deploy:
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: 64M
+        reservations:
+          cpus: "0.05"
+          memory: 16M

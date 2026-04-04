@@ -1,0 +1,943 @@
+{
+  "id": null,
+  "uid": "sre-service-health-01",
+  "title": "[SRE] Service Health",
+  "description": "Meta-dashboard monitoring the health of 'Service Health'",
+  "schemaVersion": 39,
+  "version": 1,
+  "timezone": "browser",
+  "editable": true,
+  "graphTooltip": 1,
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "refresh": "10s",
+  "templating": {
+    "list": [
+      {
+        "name": "datasource",
+        "type": "datasource",
+        "query": "prometheus",
+        "current": {},
+        "hide": 0
+      }
+    ]
+  },
+  "panels": [
+    {
+      "id": 1,
+      "title": "Overview",
+      "type": "row",
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "collapsed": false,
+      "panels": []
+    },
+    {
+      "id": 2,
+      "title": "Health Score",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 0,
+        "y": 1
+      },
+      "datasource": {
+        "uid": "${datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "dashboard_health_score{dashboard_uid=\"service-health-01\"}"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 0.8
+              },
+              {
+                "color": "green",
+                "value": 1.0
+              }
+            ]
+          },
+          "noValue": "N/A",
+          "unit": "percentunit",
+          "decimals": 0
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 3,
+      "title": "Active Issues",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 6,
+        "y": 1
+      },
+      "datasource": {
+        "uid": "${datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "count(dashboard_panel_status{dashboard_uid=\"service-health-01\", probe_type!=\"query\"} == 0) or vector(0)"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 1
+              },
+              {
+                "color": "red",
+                "value": 3
+              }
+            ]
+          },
+          "noValue": "N/A"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 4,
+      "title": "Estimated Load Time",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 12,
+        "y": 1
+      },
+      "datasource": {
+        "uid": "${datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "dashboard_load_time_seconds{dashboard_uid=\"service-health-01\"}"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 5
+              },
+              {
+                "color": "red",
+                "value": 15
+              }
+            ]
+          },
+          "noValue": "N/A",
+          "unit": "s",
+          "decimals": 1
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 5,
+      "title": "Last Probe Run",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 18,
+        "y": 1
+      },
+      "datasource": {
+        "uid": "${datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "time() - dashboard_health_score{dashboard_uid=\"service-health-01\"}"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 30
+              },
+              {
+                "color": "red",
+                "value": 60
+              }
+            ]
+          },
+          "noValue": "No data yet",
+          "unit": "s",
+          "decimals": 0
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 6,
+      "title": "Panel Health",
+      "type": "row",
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 5
+      },
+      "collapsed": false,
+      "panels": []
+    },
+    {
+      "id": 7,
+      "title": "Request Rate",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 0,
+        "y": 6
+      },
+      "datasource": {
+        "uid": "${datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "min(dashboard_panel_status{dashboard_uid=\"service-health-01\", panel_id=\"1\"}) or vector(1)"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "noValue": "N/A"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 8,
+      "title": "Error Rate %",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 4,
+        "y": 6
+      },
+      "datasource": {
+        "uid": "${datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "min(dashboard_panel_status{dashboard_uid=\"service-health-01\", panel_id=\"2\"}) or vector(1)"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "noValue": "N/A"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 9,
+      "title": "P99 Latency",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 8,
+        "y": 6
+      },
+      "datasource": {
+        "uid": "${datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "min(dashboard_panel_status{dashboard_uid=\"service-health-01\", panel_id=\"3\"}) or vector(1)"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "noValue": "N/A"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 10,
+      "title": "Memory Usage",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 12,
+        "y": 6
+      },
+      "datasource": {
+        "uid": "${datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "min(dashboard_panel_status{dashboard_uid=\"service-health-01\", panel_id=\"4\"}) or vector(1)"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "noValue": "N/A"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 11,
+      "title": "Pod Readiness",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 16,
+        "y": 6
+      },
+      "datasource": {
+        "uid": "${datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "min(dashboard_panel_status{dashboard_uid=\"service-health-01\", panel_id=\"5\"}) or vector(1)"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "noValue": "N/A"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 12,
+      "title": "Active Instances",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 20,
+        "y": 6
+      },
+      "datasource": {
+        "uid": "${datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "min(dashboard_panel_status{dashboard_uid=\"service-health-01\", panel_id=\"6\"}) or vector(1)"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "noValue": "N/A"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 13,
+      "title": "Query Performance",
+      "type": "row",
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 10
+      },
+      "collapsed": false,
+      "panels": []
+    },
+    {
+      "id": 14,
+      "title": "Query Duration \u2014 p50 / p95",
+      "type": "timeseries",
+      "gridPos": {
+        "h": 8,
+        "w": 16,
+        "x": 0,
+        "y": 11
+      },
+      "datasource": {
+        "uid": "${datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "p50_1",
+          "expr": "histogram_quantile(0.5, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"service-health-01\", panel_id=\"1\"}[5m]))",
+          "legendFormat": "Request Rate p50"
+        },
+        {
+          "refId": "p50_2",
+          "expr": "histogram_quantile(0.5, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"service-health-01\", panel_id=\"2\"}[5m]))",
+          "legendFormat": "Error Rate % p50"
+        },
+        {
+          "refId": "p50_3",
+          "expr": "histogram_quantile(0.5, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"service-health-01\", panel_id=\"3\"}[5m]))",
+          "legendFormat": "P99 Latency p50"
+        },
+        {
+          "refId": "p50_4",
+          "expr": "histogram_quantile(0.5, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"service-health-01\", panel_id=\"4\"}[5m]))",
+          "legendFormat": "Memory Usage p50"
+        },
+        {
+          "refId": "p50_5",
+          "expr": "histogram_quantile(0.5, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"service-health-01\", panel_id=\"5\"}[5m]))",
+          "legendFormat": "Pod Readiness p50"
+        },
+        {
+          "refId": "p50_6",
+          "expr": "histogram_quantile(0.5, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"service-health-01\", panel_id=\"6\"}[5m]))",
+          "legendFormat": "Active Instances p50"
+        },
+        {
+          "refId": "p95_1",
+          "expr": "histogram_quantile(0.95, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"service-health-01\", panel_id=\"1\"}[5m]))",
+          "legendFormat": "Request Rate p95"
+        },
+        {
+          "refId": "p95_2",
+          "expr": "histogram_quantile(0.95, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"service-health-01\", panel_id=\"2\"}[5m]))",
+          "legendFormat": "Error Rate % p95"
+        },
+        {
+          "refId": "p95_3",
+          "expr": "histogram_quantile(0.95, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"service-health-01\", panel_id=\"3\"}[5m]))",
+          "legendFormat": "P99 Latency p95"
+        },
+        {
+          "refId": "p95_4",
+          "expr": "histogram_quantile(0.95, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"service-health-01\", panel_id=\"4\"}[5m]))",
+          "legendFormat": "Memory Usage p95"
+        },
+        {
+          "refId": "p95_5",
+          "expr": "histogram_quantile(0.95, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"service-health-01\", panel_id=\"5\"}[5m]))",
+          "legendFormat": "Pod Readiness p95"
+        },
+        {
+          "refId": "p95_6",
+          "expr": "histogram_quantile(0.95, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"service-health-01\", panel_id=\"6\"}[5m]))",
+          "legendFormat": "Active Instances p95"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "options": {
+        "tooltip": {
+          "mode": "multi"
+        }
+      }
+    },
+    {
+      "id": 15,
+      "title": "Query Duration Heatmap",
+      "type": "heatmap",
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 11
+      },
+      "datasource": {
+        "uid": "${datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(increase(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"service-health-01\"}[5m])) by (le)",
+          "format": "heatmap",
+          "legendFormat": "{{le}}"
+        }
+      ],
+      "options": {
+        "calculate": false,
+        "yAxis": {
+          "unit": "s"
+        }
+      }
+    },
+    {
+      "id": 16,
+      "title": "Variable Health",
+      "type": "row",
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 19
+      },
+      "collapsed": false,
+      "panels": []
+    },
+    {
+      "id": 17,
+      "title": "$pod",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 8,
+        "x": 0,
+        "y": 20
+      },
+      "datasource": {
+        "uid": "${datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "dashboard_variable_status{dashboard_uid=\"service-health-01\", variable_name=\"pod\"}"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "noValue": "N/A"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 18,
+      "title": "$namespace",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 8,
+        "x": 8,
+        "y": 20
+      },
+      "datasource": {
+        "uid": "${datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "dashboard_variable_status{dashboard_uid=\"service-health-01\", variable_name=\"namespace\"}"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "noValue": "N/A"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 19,
+      "title": "Variable Query Duration",
+      "type": "timeseries",
+      "gridPos": {
+        "h": 4,
+        "w": 24,
+        "x": 0,
+        "y": 24
+      },
+      "datasource": {
+        "uid": "${datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "pod",
+          "expr": "histogram_quantile(0.95, rate(dashboard_variable_query_duration_seconds_bucket{dashboard_uid=\"service-health-01\", variable_name=\"pod\"}[5m]))",
+          "legendFormat": "$pod p95"
+        },
+        {
+          "refId": "namespace",
+          "expr": "histogram_quantile(0.95, rate(dashboard_variable_query_duration_seconds_bucket{dashboard_uid=\"service-health-01\", variable_name=\"namespace\"}[5m]))",
+          "legendFormat": "$namespace p95"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "options": {
+        "tooltip": {
+          "mode": "multi"
+        }
+      }
+    },
+    {
+      "id": 20,
+      "title": "Issue Log",
+      "type": "row",
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 28
+      },
+      "collapsed": false,
+      "panels": []
+    },
+    {
+      "id": 21,
+      "title": "Recent State Transitions",
+      "type": "table",
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 29
+      },
+      "datasource": {
+        "uid": "${datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "increase(dashboard_panel_error_total{dashboard_uid=\"service-health-01\"}[5m])",
+          "format": "table",
+          "instant": true
+        }
+      ],
+      "options": {},
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      }
+    },
+    {
+      "id": 22,
+      "title": "Alerts",
+      "type": "row",
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 37
+      },
+      "collapsed": false,
+      "panels": []
+    },
+    {
+      "id": 23,
+      "title": "Active Alerts",
+      "type": "alertlist",
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 38
+      },
+      "datasource": {
+        "uid": "-- Grafana --",
+        "type": "datasource"
+      },
+      "options": {
+        "showOptions": "current",
+        "maxItems": 20,
+        "sortOrder": 1,
+        "alertName": "",
+        "dashboardAlerts": false,
+        "stateFilter": {
+          "firing": true,
+          "pending": true,
+          "noData": true,
+          "normal": false,
+          "error": true
+        },
+        "folder": null,
+        "alertInstanceLabelFilter": "dashboard_uid=\"service-health-01\""
+      }
+    }
+  ]
+}
