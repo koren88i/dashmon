@@ -31,7 +31,7 @@ The simulator has three sections:
 
 - **Target dashboard** — live sparklines for each panel. Degrades visually when a fault is active.
 - **SRE view** — polls `/health` every 5s. Shows health score, per-panel badges, variable badges, and a scrolling issue log.
-- **Fault injection** — buttons to inject each failure mode. The probe engine detects faults within ~20s.
+- **Fault injection** — buttons to inject each failure mode, each with an info icon ("i") explaining the fault and expected behavior. The probe engine detects faults within ~20s.
 
 **Try it:**
 1. Click a fault button (e.g. "No Data").
@@ -50,6 +50,9 @@ curl -s -X POST http://localhost:9090/faults/inject \
 
 # Check active faults
 curl -s http://localhost:9090/faults/active
+
+# List fault types with descriptions
+curl -s http://localhost:9090/faults/types
 
 # Clear all faults
 curl -s -X POST http://localhost:9090/faults/clear \

@@ -115,10 +115,11 @@ FastAPI app with two concerns:
 - `GET /api/v1/query_range` — range query
 - `GET /api/v1/label/{label}/values` — label values (for variable probes)
 - `GET /-/healthy`
+- `GET /faults/types` — fault type metadata (descriptions and expected behavior)
 
 Fixtures generate synthetic time series (sinusoidal + noise) for 5 metric families: `http_requests_total`, `http_request_duration_seconds`, `node_memory_MemAvailable_bytes`, `process_cpu_seconds_total`, `kube_pod_status_ready`.
 
-**Fault injector** (`fault_injector.py`) — in-memory fault dict with auto-expiry. Each fault targets a metric name and applies one of:
+**Fault injector** (`fault_injector.py`) — in-memory fault dict with auto-expiry. `FAULT_INFO` dict provides human-readable descriptions for each fault type, served via `GET /faults/types`. Each fault targets a metric name and applies one of:
 
 | Fault type | Effect on Prometheus response |
 |---|---|
@@ -136,7 +137,7 @@ Single self-contained HTML file (Chart.js from CDN). No build step, works opened
 Three sections:
 - **Target dashboard** — 6 panels with live sparklines polling the mock backend every 10s. Degrades visually (red border, error badge, faded chart) when a probe reports degraded status.
 - **SRE view** — polls `/health` every 5s. Shows health score, per-panel badges, per-variable badges, scrolling issue log.
-- **Fault injection** — one button per fault type + "Clear All".
+- **Fault injection** — one button per fault type + "Clear All". Each button has an info icon ("i") that shows a tooltip explaining the fault and what to expect; descriptions are fetched from `GET /faults/types`.
 
 ---
 
