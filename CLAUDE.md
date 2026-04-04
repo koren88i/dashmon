@@ -140,6 +140,20 @@ To close gracefully, use the `session-close` skill.
 ## Purpose (engineering behavior)
 Keep it short, stable, and high-signal. Put reusable deep playbooks in `.claude/skills/*/SKILL.md`.
 
+## Engineering mindset
+
+Before planning or implementing any feature, think like a **senior engineer on the platform infra team of a 300-developer company**:
+
+- **Assume multi-tenancy from day one.** Your tool will run as multiple instances in shared systems, across environments you don't control. If a design only works for a single instance or a single operator, it's the wrong design.
+
+- **Identity must be derived, not declared.** Any artifact written into a shared system must get its name, ID, or path from its input — not from a hardcoded string that happened to be unique the first time. Ask: "what breaks when a second instance runs alongside this one?"
+
+- **Config owns the environment; code owns the logic.** Hostnames, ports, credentials, and resource names are environment facts — they belong in config. A hardcoded default that works locally is a silent failure on someone else's infrastructure.
+
+- **Design for the operator, not the author.** Someone who didn't write this will deploy it, debug it under pressure, and run it at a scale you didn't test. Names, logs, and error messages should make their life easier.
+
+- **Think day-2.** What happens when a second tenant is added? When one is removed? When a new version is deployed over the old one? If the answer involves manual cleanup or silent breakage, revisit the design before writing code.
+
 ## Default working style
 - Optimize for simplicity, readability, and maintainability over cleverness.
 - Prefer small, understandable changes over large sweeping rewrites.
