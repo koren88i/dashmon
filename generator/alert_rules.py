@@ -11,6 +11,13 @@ from typing import Any
 
 from probe.config import PanelProbeSpec, VariableProbeSpec
 
+# Short codes for UIDs — Grafana enforces a 40-char limit on rule UIDs.
+_UID_SHORT: dict[str, str] = {
+    "no_data": "nd", "stale_data": "sd", "query_timeout": "qt",
+    "slow_query": "sq", "cardinality_spike": "cs", "panel_error": "pe",
+    "var_resolution_fail": "vf", "health_score": "hs", "slow_dashboard": "sl",
+}
+
 # Probe types that generate per-panel alerts.
 _PANEL_PROBE_TYPES = [
     ("no_data", "No Data", "warning",
@@ -83,10 +90,11 @@ def _panel_rule(
     severity: str,
     description: str,
 ) -> dict:
-    rule_uid = f"sre-{dashboard_uid}-{probe_type}-{spec.panel_id}"
+    short = _UID_SHORT.get(probe_type, probe_type[:4])
+    rule_uid = f"sre-{dashboard_uid[:16]}-{short}-p{spec.panel_id}"
     return {
         "uid": rule_uid,
-        "title": f"[{dashboard_title}] Panel '{spec.panel_title}' — {probe_label}",
+        "title": f"[{dashboard_title}] Panel '{spec.panel_title}' -- {probe_label}",
         "condition": "C",
         "data": [
             {
@@ -136,7 +144,7 @@ def _panel_rule(
         "execErrState": "Alerting",
         "for": "2m",
         "annotations": {
-            "summary": f"Panel '{spec.panel_title}' in dashboard '{dashboard_title}' — {probe_label}",
+            "summary": f"Panel '{spec.panel_title}' in dashboard '{dashboard_title}' -- {probe_label}",
             "description": description,
         },
         "labels": {
@@ -153,10 +161,10 @@ def _variable_rule(
     dashboard_title: str,
     var: VariableProbeSpec,
 ) -> dict:
-    rule_uid = f"sre-{dashboard_uid}-var-{var.name}"
+    rule_uid = f"sre-{dashboard_uid[:16]}-vf-{var.name}"
     return {
         "uid": rule_uid,
-        "title": f"[{dashboard_title}] Variable '${var.name}' — Resolution Failed",
+        "title": f"[{dashboard_title}] Variable '{var.name}' -- Resolution Failed",
         "condition": "C",
         "data": [
             {
@@ -206,9 +214,9 @@ def _variable_rule(
         "execErrState": "Alerting",
         "for": "2m",
         "annotations": {
-            "summary": f"Variable '${var.name}' in dashboard '{dashboard_title}' failed to resolve",
+            "summary": f"Variable '{var.name}' in dashboard '{dashboard_title}' failed to resolve",
             "description": (
-                f"Template variable ${var.name} is returning empty results. "
+                f"Template variable {var.name} is returning empty results. "
                 "All panels depending on this variable will show broken data."
             ),
         },
@@ -223,7 +231,7 @@ def _variable_rule(
 
 def _dashboard_health_rule(dashboard_uid: str, dashboard_title: str) -> dict:
     return {
-        "uid": f"sre-{dashboard_uid}-health-drop",
+        "uid": f"sre-{dashboard_uid[:16]}-hs",
         "title": f"[{dashboard_title}] Health Score Drop",
         "condition": "C",
         "data": [
@@ -284,7 +292,7 @@ def _dashboard_health_rule(dashboard_uid: str, dashboard_title: str) -> dict:
 
 def _dashboard_slow_load_rule(dashboard_uid: str, dashboard_title: str) -> dict:
     return {
-        "uid": f"sre-{dashboard_uid}-slow-load",
+        "uid": f"sre-{dashboard_uid[:16]}-sl",
         "title": f"[{dashboard_title}] Slow Dashboard Load",
         "condition": "C",
         "data": [

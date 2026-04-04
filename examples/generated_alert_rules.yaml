@@ -5,8 +5,8 @@ groups:
   folder: Dashboard SRE
   interval: 1m
   rules:
-  - uid: sre-service-health-01-no_data-1
-    title: "[Service Health] Panel 'Request Rate' \u2014 No Data"
+  - uid: sre-service-health-0-nd-p1
+    title: '[Service Health] Panel ''Request Rate'' -- No Data'
     condition: C
     data:
     - refId: A
@@ -56,7 +56,7 @@ groups:
     execErrState: Alerting
     for: 2m
     annotations:
-      summary: "Panel 'Request Rate' in dashboard 'Service Health' \u2014 No Data"
+      summary: Panel 'Request Rate' in dashboard 'Service Health' -- No Data
       description: Panel has been returning empty results for >2 minutes. The source
         metric may have disappeared or the exporter may be down.
     labels:
@@ -64,8 +64,8 @@ groups:
       dashboard_uid: service-health-01
       panel_id: '1'
       probe_type: no_data
-  - uid: sre-service-health-01-stale_data-1
-    title: "[Service Health] Panel 'Request Rate' \u2014 Stale Data"
+  - uid: sre-service-health-0-sd-p1
+    title: '[Service Health] Panel ''Request Rate'' -- Stale Data'
     condition: C
     data:
     - refId: A
@@ -115,7 +115,7 @@ groups:
     execErrState: Alerting
     for: 2m
     annotations:
-      summary: "Panel 'Request Rate' in dashboard 'Service Health' \u2014 Stale Data"
+      summary: Panel 'Request Rate' in dashboard 'Service Health' -- Stale Data
       description: Panel data has not been refreshed within the expected interval.
         The exporter or scrape target may be unhealthy.
     labels:
@@ -123,8 +123,8 @@ groups:
       dashboard_uid: service-health-01
       panel_id: '1'
       probe_type: stale_data
-  - uid: sre-service-health-01-query_timeout-1
-    title: "[Service Health] Panel 'Request Rate' \u2014 Query Timeout"
+  - uid: sre-service-health-0-qt-p1
+    title: '[Service Health] Panel ''Request Rate'' -- Query Timeout'
     condition: C
     data:
     - refId: A
@@ -174,7 +174,7 @@ groups:
     execErrState: Alerting
     for: 2m
     annotations:
-      summary: "Panel 'Request Rate' in dashboard 'Service Health' \u2014 Query Timeout"
+      summary: Panel 'Request Rate' in dashboard 'Service Health' -- Query Timeout
       description: Panel query has been timing out for >2 minutes. The datasource
         may be overloaded or unreachable.
     labels:
@@ -182,8 +182,8 @@ groups:
       dashboard_uid: service-health-01
       panel_id: '1'
       probe_type: query_timeout
-  - uid: sre-service-health-01-slow_query-1
-    title: "[Service Health] Panel 'Request Rate' \u2014 Slow Query"
+  - uid: sre-service-health-0-sq-p1
+    title: '[Service Health] Panel ''Request Rate'' -- Slow Query'
     condition: C
     data:
     - refId: A
@@ -233,15 +233,15 @@ groups:
     execErrState: Alerting
     for: 2m
     annotations:
-      summary: "Panel 'Request Rate' in dashboard 'Service Health' \u2014 Slow Query"
+      summary: Panel 'Request Rate' in dashboard 'Service Health' -- Slow Query
       description: Panel query execution time exceeds the configured threshold.
     labels:
       severity: warning
       dashboard_uid: service-health-01
       panel_id: '1'
       probe_type: slow_query
-  - uid: sre-service-health-01-cardinality_spike-1
-    title: "[Service Health] Panel 'Request Rate' \u2014 Cardinality Spike"
+  - uid: sre-service-health-0-cs-p1
+    title: '[Service Health] Panel ''Request Rate'' -- Cardinality Spike'
     condition: C
     data:
     - refId: A
@@ -291,8 +291,7 @@ groups:
     execErrState: Alerting
     for: 2m
     annotations:
-      summary: "Panel 'Request Rate' in dashboard 'Service Health' \u2014 Cardinality\
-        \ Spike"
+      summary: Panel 'Request Rate' in dashboard 'Service Health' -- Cardinality Spike
       description: Series count has increased significantly above baseline. This can
         cause incorrect aggregated values.
     labels:
@@ -300,8 +299,8 @@ groups:
       dashboard_uid: service-health-01
       panel_id: '1'
       probe_type: cardinality_spike
-  - uid: sre-service-health-01-panel_error-1
-    title: "[Service Health] Panel 'Request Rate' \u2014 Panel Error"
+  - uid: sre-service-health-0-pe-p1
+    title: '[Service Health] Panel ''Request Rate'' -- Panel Error'
     condition: C
     data:
     - refId: A
@@ -351,15 +350,15 @@ groups:
     execErrState: Alerting
     for: 2m
     annotations:
-      summary: "Panel 'Request Rate' in dashboard 'Service Health' \u2014 Panel Error"
+      summary: Panel 'Request Rate' in dashboard 'Service Health' -- Panel Error
       description: Panel is returning errors from the datasource.
     labels:
       severity: critical
       dashboard_uid: service-health-01
       panel_id: '1'
       probe_type: panel_error
-  - uid: sre-service-health-01-no_data-2
-    title: "[Service Health] Panel 'Error Rate %' \u2014 No Data"
+  - uid: sre-service-health-0-nd-p2
+    title: '[Service Health] Panel ''Error Rate %'' -- No Data'
     condition: C
     data:
     - refId: A
@@ -409,7 +408,7 @@ groups:
     execErrState: Alerting
     for: 2m
     annotations:
-      summary: "Panel 'Error Rate %' in dashboard 'Service Health' \u2014 No Data"
+      summary: Panel 'Error Rate %' in dashboard 'Service Health' -- No Data
       description: Panel has been returning empty results for >2 minutes. The source
         metric may have disappeared or the exporter may be down.
     labels:
@@ -417,8 +416,8 @@ groups:
       dashboard_uid: service-health-01
       panel_id: '2'
       probe_type: no_data
-  - uid: sre-service-health-01-stale_data-2
-    title: "[Service Health] Panel 'Error Rate %' \u2014 Stale Data"
+  - uid: sre-service-health-0-sd-p2
+    title: '[Service Health] Panel ''Error Rate %'' -- Stale Data'
     condition: C
     data:
     - refId: A
@@ -468,7 +467,7 @@ groups:
     execErrState: Alerting
     for: 2m
     annotations:
-      summary: "Panel 'Error Rate %' in dashboard 'Service Health' \u2014 Stale Data"
+      summary: Panel 'Error Rate %' in dashboard 'Service Health' -- Stale Data
       description: Panel data has not been refreshed within the expected interval.
         The exporter or scrape target may be unhealthy.
     labels:
@@ -476,8 +475,8 @@ groups:
       dashboard_uid: service-health-01
       panel_id: '2'
       probe_type: stale_data
-  - uid: sre-service-health-01-query_timeout-2
-    title: "[Service Health] Panel 'Error Rate %' \u2014 Query Timeout"
+  - uid: sre-service-health-0-qt-p2
+    title: '[Service Health] Panel ''Error Rate %'' -- Query Timeout'
     condition: C
     data:
     - refId: A
@@ -527,7 +526,7 @@ groups:
     execErrState: Alerting
     for: 2m
     annotations:
-      summary: "Panel 'Error Rate %' in dashboard 'Service Health' \u2014 Query Timeout"
+      summary: Panel 'Error Rate %' in dashboard 'Service Health' -- Query Timeout
       description: Panel query has been timing out for >2 minutes. The datasource
         may be overloaded or unreachable.
     labels:
@@ -535,8 +534,8 @@ groups:
       dashboard_uid: service-health-01
       panel_id: '2'
       probe_type: query_timeout
-  - uid: sre-service-health-01-slow_query-2
-    title: "[Service Health] Panel 'Error Rate %' \u2014 Slow Query"
+  - uid: sre-service-health-0-sq-p2
+    title: '[Service Health] Panel ''Error Rate %'' -- Slow Query'
     condition: C
     data:
     - refId: A
@@ -586,15 +585,15 @@ groups:
     execErrState: Alerting
     for: 2m
     annotations:
-      summary: "Panel 'Error Rate %' in dashboard 'Service Health' \u2014 Slow Query"
+      summary: Panel 'Error Rate %' in dashboard 'Service Health' -- Slow Query
       description: Panel query execution time exceeds the configured threshold.
     labels:
       severity: warning
       dashboard_uid: service-health-01
       panel_id: '2'
       probe_type: slow_query
-  - uid: sre-service-health-01-cardinality_spike-2
-    title: "[Service Health] Panel 'Error Rate %' \u2014 Cardinality Spike"
+  - uid: sre-service-health-0-cs-p2
+    title: '[Service Health] Panel ''Error Rate %'' -- Cardinality Spike'
     condition: C
     data:
     - refId: A
@@ -644,8 +643,7 @@ groups:
     execErrState: Alerting
     for: 2m
     annotations:
-      summary: "Panel 'Error Rate %' in dashboard 'Service Health' \u2014 Cardinality\
-        \ Spike"
+      summary: Panel 'Error Rate %' in dashboard 'Service Health' -- Cardinality Spike
       description: Series count has increased significantly above baseline. This can
         cause incorrect aggregated values.
     labels:
@@ -653,8 +651,8 @@ groups:
       dashboard_uid: service-health-01
       panel_id: '2'
       probe_type: cardinality_spike
-  - uid: sre-service-health-01-panel_error-2
-    title: "[Service Health] Panel 'Error Rate %' \u2014 Panel Error"
+  - uid: sre-service-health-0-pe-p2
+    title: '[Service Health] Panel ''Error Rate %'' -- Panel Error'
     condition: C
     data:
     - refId: A
@@ -704,15 +702,15 @@ groups:
     execErrState: Alerting
     for: 2m
     annotations:
-      summary: "Panel 'Error Rate %' in dashboard 'Service Health' \u2014 Panel Error"
+      summary: Panel 'Error Rate %' in dashboard 'Service Health' -- Panel Error
       description: Panel is returning errors from the datasource.
     labels:
       severity: critical
       dashboard_uid: service-health-01
       panel_id: '2'
       probe_type: panel_error
-  - uid: sre-service-health-01-no_data-3
-    title: "[Service Health] Panel 'P99 Latency' \u2014 No Data"
+  - uid: sre-service-health-0-nd-p3
+    title: '[Service Health] Panel ''P99 Latency'' -- No Data'
     condition: C
     data:
     - refId: A
@@ -762,7 +760,7 @@ groups:
     execErrState: Alerting
     for: 2m
     annotations:
-      summary: "Panel 'P99 Latency' in dashboard 'Service Health' \u2014 No Data"
+      summary: Panel 'P99 Latency' in dashboard 'Service Health' -- No Data
       description: Panel has been returning empty results for >2 minutes. The source
         metric may have disappeared or the exporter may be down.
     labels:
@@ -770,8 +768,8 @@ groups:
       dashboard_uid: service-health-01
       panel_id: '3'
       probe_type: no_data
-  - uid: sre-service-health-01-stale_data-3
-    title: "[Service Health] Panel 'P99 Latency' \u2014 Stale Data"
+  - uid: sre-service-health-0-sd-p3
+    title: '[Service Health] Panel ''P99 Latency'' -- Stale Data'
     condition: C
     data:
     - refId: A
@@ -821,7 +819,7 @@ groups:
     execErrState: Alerting
     for: 2m
     annotations:
-      summary: "Panel 'P99 Latency' in dashboard 'Service Health' \u2014 Stale Data"
+      summary: Panel 'P99 Latency' in dashboard 'Service Health' -- Stale Data
       description: Panel data has not been refreshed within the expected interval.
         The exporter or scrape target may be unhealthy.
     labels:
@@ -829,8 +827,8 @@ groups:
       dashboard_uid: service-health-01
       panel_id: '3'
       probe_type: stale_data
-  - uid: sre-service-health-01-query_timeout-3
-    title: "[Service Health] Panel 'P99 Latency' \u2014 Query Timeout"
+  - uid: sre-service-health-0-qt-p3
+    title: '[Service Health] Panel ''P99 Latency'' -- Query Timeout'
     condition: C
     data:
     - refId: A
@@ -880,7 +878,7 @@ groups:
     execErrState: Alerting
     for: 2m
     annotations:
-      summary: "Panel 'P99 Latency' in dashboard 'Service Health' \u2014 Query Timeout"
+      summary: Panel 'P99 Latency' in dashboard 'Service Health' -- Query Timeout
       description: Panel query has been timing out for >2 minutes. The datasource
         may be overloaded or unreachable.
     labels:
@@ -888,8 +886,8 @@ groups:
       dashboard_uid: service-health-01
       panel_id: '3'
       probe_type: query_timeout
-  - uid: sre-service-health-01-slow_query-3
-    title: "[Service Health] Panel 'P99 Latency' \u2014 Slow Query"
+  - uid: sre-service-health-0-sq-p3
+    title: '[Service Health] Panel ''P99 Latency'' -- Slow Query'
     condition: C
     data:
     - refId: A
@@ -939,15 +937,15 @@ groups:
     execErrState: Alerting
     for: 2m
     annotations:
-      summary: "Panel 'P99 Latency' in dashboard 'Service Health' \u2014 Slow Query"
+      summary: Panel 'P99 Latency' in dashboard 'Service Health' -- Slow Query
       description: Panel query execution time exceeds the configured threshold.
     labels:
       severity: warning
       dashboard_uid: service-health-01
       panel_id: '3'
       probe_type: slow_query
-  - uid: sre-service-health-01-cardinality_spike-3
-    title: "[Service Health] Panel 'P99 Latency' \u2014 Cardinality Spike"
+  - uid: sre-service-health-0-cs-p3
+    title: '[Service Health] Panel ''P99 Latency'' -- Cardinality Spike'
     condition: C
     data:
     - refId: A
@@ -997,8 +995,7 @@ groups:
     execErrState: Alerting
     for: 2m
     annotations:
-      summary: "Panel 'P99 Latency' in dashboard 'Service Health' \u2014 Cardinality\
-        \ Spike"
+      summary: Panel 'P99 Latency' in dashboard 'Service Health' -- Cardinality Spike
       description: Series count has increased significantly above baseline. This can
         cause incorrect aggregated values.
     labels:
@@ -1006,8 +1003,8 @@ groups:
       dashboard_uid: service-health-01
       panel_id: '3'
       probe_type: cardinality_spike
-  - uid: sre-service-health-01-panel_error-3
-    title: "[Service Health] Panel 'P99 Latency' \u2014 Panel Error"
+  - uid: sre-service-health-0-pe-p3
+    title: '[Service Health] Panel ''P99 Latency'' -- Panel Error'
     condition: C
     data:
     - refId: A
@@ -1057,15 +1054,15 @@ groups:
     execErrState: Alerting
     for: 2m
     annotations:
-      summary: "Panel 'P99 Latency' in dashboard 'Service Health' \u2014 Panel Error"
+      summary: Panel 'P99 Latency' in dashboard 'Service Health' -- Panel Error
       description: Panel is returning errors from the datasource.
     labels:
       severity: critical
       dashboard_uid: service-health-01
       panel_id: '3'
       probe_type: panel_error
-  - uid: sre-service-health-01-no_data-4
-    title: "[Service Health] Panel 'Memory Usage' \u2014 No Data"
+  - uid: sre-service-health-0-nd-p4
+    title: '[Service Health] Panel ''Memory Usage'' -- No Data'
     condition: C
     data:
     - refId: A
@@ -1115,7 +1112,7 @@ groups:
     execErrState: Alerting
     for: 2m
     annotations:
-      summary: "Panel 'Memory Usage' in dashboard 'Service Health' \u2014 No Data"
+      summary: Panel 'Memory Usage' in dashboard 'Service Health' -- No Data
       description: Panel has been returning empty results for >2 minutes. The source
         metric may have disappeared or the exporter may be down.
     labels:
@@ -1123,8 +1120,8 @@ groups:
       dashboard_uid: service-health-01
       panel_id: '4'
       probe_type: no_data
-  - uid: sre-service-health-01-stale_data-4
-    title: "[Service Health] Panel 'Memory Usage' \u2014 Stale Data"
+  - uid: sre-service-health-0-sd-p4
+    title: '[Service Health] Panel ''Memory Usage'' -- Stale Data'
     condition: C
     data:
     - refId: A
@@ -1174,7 +1171,7 @@ groups:
     execErrState: Alerting
     for: 2m
     annotations:
-      summary: "Panel 'Memory Usage' in dashboard 'Service Health' \u2014 Stale Data"
+      summary: Panel 'Memory Usage' in dashboard 'Service Health' -- Stale Data
       description: Panel data has not been refreshed within the expected interval.
         The exporter or scrape target may be unhealthy.
     labels:
@@ -1182,8 +1179,8 @@ groups:
       dashboard_uid: service-health-01
       panel_id: '4'
       probe_type: stale_data
-  - uid: sre-service-health-01-query_timeout-4
-    title: "[Service Health] Panel 'Memory Usage' \u2014 Query Timeout"
+  - uid: sre-service-health-0-qt-p4
+    title: '[Service Health] Panel ''Memory Usage'' -- Query Timeout'
     condition: C
     data:
     - refId: A
@@ -1233,7 +1230,7 @@ groups:
     execErrState: Alerting
     for: 2m
     annotations:
-      summary: "Panel 'Memory Usage' in dashboard 'Service Health' \u2014 Query Timeout"
+      summary: Panel 'Memory Usage' in dashboard 'Service Health' -- Query Timeout
       description: Panel query has been timing out for >2 minutes. The datasource
         may be overloaded or unreachable.
     labels:
@@ -1241,8 +1238,8 @@ groups:
       dashboard_uid: service-health-01
       panel_id: '4'
       probe_type: query_timeout
-  - uid: sre-service-health-01-slow_query-4
-    title: "[Service Health] Panel 'Memory Usage' \u2014 Slow Query"
+  - uid: sre-service-health-0-sq-p4
+    title: '[Service Health] Panel ''Memory Usage'' -- Slow Query'
     condition: C
     data:
     - refId: A
@@ -1292,15 +1289,15 @@ groups:
     execErrState: Alerting
     for: 2m
     annotations:
-      summary: "Panel 'Memory Usage' in dashboard 'Service Health' \u2014 Slow Query"
+      summary: Panel 'Memory Usage' in dashboard 'Service Health' -- Slow Query
       description: Panel query execution time exceeds the configured threshold.
     labels:
       severity: warning
       dashboard_uid: service-health-01
       panel_id: '4'
       probe_type: slow_query
-  - uid: sre-service-health-01-cardinality_spike-4
-    title: "[Service Health] Panel 'Memory Usage' \u2014 Cardinality Spike"
+  - uid: sre-service-health-0-cs-p4
+    title: '[Service Health] Panel ''Memory Usage'' -- Cardinality Spike'
     condition: C
     data:
     - refId: A
@@ -1350,8 +1347,7 @@ groups:
     execErrState: Alerting
     for: 2m
     annotations:
-      summary: "Panel 'Memory Usage' in dashboard 'Service Health' \u2014 Cardinality\
-        \ Spike"
+      summary: Panel 'Memory Usage' in dashboard 'Service Health' -- Cardinality Spike
       description: Series count has increased significantly above baseline. This can
         cause incorrect aggregated values.
     labels:
@@ -1359,8 +1355,8 @@ groups:
       dashboard_uid: service-health-01
       panel_id: '4'
       probe_type: cardinality_spike
-  - uid: sre-service-health-01-panel_error-4
-    title: "[Service Health] Panel 'Memory Usage' \u2014 Panel Error"
+  - uid: sre-service-health-0-pe-p4
+    title: '[Service Health] Panel ''Memory Usage'' -- Panel Error'
     condition: C
     data:
     - refId: A
@@ -1410,15 +1406,15 @@ groups:
     execErrState: Alerting
     for: 2m
     annotations:
-      summary: "Panel 'Memory Usage' in dashboard 'Service Health' \u2014 Panel Error"
+      summary: Panel 'Memory Usage' in dashboard 'Service Health' -- Panel Error
       description: Panel is returning errors from the datasource.
     labels:
       severity: critical
       dashboard_uid: service-health-01
       panel_id: '4'
       probe_type: panel_error
-  - uid: sre-service-health-01-no_data-5
-    title: "[Service Health] Panel 'Pod Readiness' \u2014 No Data"
+  - uid: sre-service-health-0-nd-p5
+    title: '[Service Health] Panel ''Pod Readiness'' -- No Data'
     condition: C
     data:
     - refId: A
@@ -1468,7 +1464,7 @@ groups:
     execErrState: Alerting
     for: 2m
     annotations:
-      summary: "Panel 'Pod Readiness' in dashboard 'Service Health' \u2014 No Data"
+      summary: Panel 'Pod Readiness' in dashboard 'Service Health' -- No Data
       description: Panel has been returning empty results for >2 minutes. The source
         metric may have disappeared or the exporter may be down.
     labels:
@@ -1476,8 +1472,8 @@ groups:
       dashboard_uid: service-health-01
       panel_id: '5'
       probe_type: no_data
-  - uid: sre-service-health-01-stale_data-5
-    title: "[Service Health] Panel 'Pod Readiness' \u2014 Stale Data"
+  - uid: sre-service-health-0-sd-p5
+    title: '[Service Health] Panel ''Pod Readiness'' -- Stale Data'
     condition: C
     data:
     - refId: A
@@ -1527,7 +1523,7 @@ groups:
     execErrState: Alerting
     for: 2m
     annotations:
-      summary: "Panel 'Pod Readiness' in dashboard 'Service Health' \u2014 Stale Data"
+      summary: Panel 'Pod Readiness' in dashboard 'Service Health' -- Stale Data
       description: Panel data has not been refreshed within the expected interval.
         The exporter or scrape target may be unhealthy.
     labels:
@@ -1535,8 +1531,8 @@ groups:
       dashboard_uid: service-health-01
       panel_id: '5'
       probe_type: stale_data
-  - uid: sre-service-health-01-query_timeout-5
-    title: "[Service Health] Panel 'Pod Readiness' \u2014 Query Timeout"
+  - uid: sre-service-health-0-qt-p5
+    title: '[Service Health] Panel ''Pod Readiness'' -- Query Timeout'
     condition: C
     data:
     - refId: A
@@ -1586,7 +1582,7 @@ groups:
     execErrState: Alerting
     for: 2m
     annotations:
-      summary: "Panel 'Pod Readiness' in dashboard 'Service Health' \u2014 Query Timeout"
+      summary: Panel 'Pod Readiness' in dashboard 'Service Health' -- Query Timeout
       description: Panel query has been timing out for >2 minutes. The datasource
         may be overloaded or unreachable.
     labels:
@@ -1594,8 +1590,8 @@ groups:
       dashboard_uid: service-health-01
       panel_id: '5'
       probe_type: query_timeout
-  - uid: sre-service-health-01-slow_query-5
-    title: "[Service Health] Panel 'Pod Readiness' \u2014 Slow Query"
+  - uid: sre-service-health-0-sq-p5
+    title: '[Service Health] Panel ''Pod Readiness'' -- Slow Query'
     condition: C
     data:
     - refId: A
@@ -1645,15 +1641,15 @@ groups:
     execErrState: Alerting
     for: 2m
     annotations:
-      summary: "Panel 'Pod Readiness' in dashboard 'Service Health' \u2014 Slow Query"
+      summary: Panel 'Pod Readiness' in dashboard 'Service Health' -- Slow Query
       description: Panel query execution time exceeds the configured threshold.
     labels:
       severity: warning
       dashboard_uid: service-health-01
       panel_id: '5'
       probe_type: slow_query
-  - uid: sre-service-health-01-cardinality_spike-5
-    title: "[Service Health] Panel 'Pod Readiness' \u2014 Cardinality Spike"
+  - uid: sre-service-health-0-cs-p5
+    title: '[Service Health] Panel ''Pod Readiness'' -- Cardinality Spike'
     condition: C
     data:
     - refId: A
@@ -1703,8 +1699,8 @@ groups:
     execErrState: Alerting
     for: 2m
     annotations:
-      summary: "Panel 'Pod Readiness' in dashboard 'Service Health' \u2014 Cardinality\
-        \ Spike"
+      summary: Panel 'Pod Readiness' in dashboard 'Service Health' -- Cardinality
+        Spike
       description: Series count has increased significantly above baseline. This can
         cause incorrect aggregated values.
     labels:
@@ -1712,8 +1708,8 @@ groups:
       dashboard_uid: service-health-01
       panel_id: '5'
       probe_type: cardinality_spike
-  - uid: sre-service-health-01-panel_error-5
-    title: "[Service Health] Panel 'Pod Readiness' \u2014 Panel Error"
+  - uid: sre-service-health-0-pe-p5
+    title: '[Service Health] Panel ''Pod Readiness'' -- Panel Error'
     condition: C
     data:
     - refId: A
@@ -1763,15 +1759,15 @@ groups:
     execErrState: Alerting
     for: 2m
     annotations:
-      summary: "Panel 'Pod Readiness' in dashboard 'Service Health' \u2014 Panel Error"
+      summary: Panel 'Pod Readiness' in dashboard 'Service Health' -- Panel Error
       description: Panel is returning errors from the datasource.
     labels:
       severity: critical
       dashboard_uid: service-health-01
       panel_id: '5'
       probe_type: panel_error
-  - uid: sre-service-health-01-no_data-6
-    title: "[Service Health] Panel 'Active Instances' \u2014 No Data"
+  - uid: sre-service-health-0-nd-p6
+    title: '[Service Health] Panel ''Active Instances'' -- No Data'
     condition: C
     data:
     - refId: A
@@ -1821,7 +1817,7 @@ groups:
     execErrState: Alerting
     for: 2m
     annotations:
-      summary: "Panel 'Active Instances' in dashboard 'Service Health' \u2014 No Data"
+      summary: Panel 'Active Instances' in dashboard 'Service Health' -- No Data
       description: Panel has been returning empty results for >2 minutes. The source
         metric may have disappeared or the exporter may be down.
     labels:
@@ -1829,8 +1825,8 @@ groups:
       dashboard_uid: service-health-01
       panel_id: '6'
       probe_type: no_data
-  - uid: sre-service-health-01-stale_data-6
-    title: "[Service Health] Panel 'Active Instances' \u2014 Stale Data"
+  - uid: sre-service-health-0-sd-p6
+    title: '[Service Health] Panel ''Active Instances'' -- Stale Data'
     condition: C
     data:
     - refId: A
@@ -1880,8 +1876,7 @@ groups:
     execErrState: Alerting
     for: 2m
     annotations:
-      summary: "Panel 'Active Instances' in dashboard 'Service Health' \u2014 Stale\
-        \ Data"
+      summary: Panel 'Active Instances' in dashboard 'Service Health' -- Stale Data
       description: Panel data has not been refreshed within the expected interval.
         The exporter or scrape target may be unhealthy.
     labels:
@@ -1889,8 +1884,8 @@ groups:
       dashboard_uid: service-health-01
       panel_id: '6'
       probe_type: stale_data
-  - uid: sre-service-health-01-query_timeout-6
-    title: "[Service Health] Panel 'Active Instances' \u2014 Query Timeout"
+  - uid: sre-service-health-0-qt-p6
+    title: '[Service Health] Panel ''Active Instances'' -- Query Timeout'
     condition: C
     data:
     - refId: A
@@ -1940,8 +1935,7 @@ groups:
     execErrState: Alerting
     for: 2m
     annotations:
-      summary: "Panel 'Active Instances' in dashboard 'Service Health' \u2014 Query\
-        \ Timeout"
+      summary: Panel 'Active Instances' in dashboard 'Service Health' -- Query Timeout
       description: Panel query has been timing out for >2 minutes. The datasource
         may be overloaded or unreachable.
     labels:
@@ -1949,8 +1943,8 @@ groups:
       dashboard_uid: service-health-01
       panel_id: '6'
       probe_type: query_timeout
-  - uid: sre-service-health-01-slow_query-6
-    title: "[Service Health] Panel 'Active Instances' \u2014 Slow Query"
+  - uid: sre-service-health-0-sq-p6
+    title: '[Service Health] Panel ''Active Instances'' -- Slow Query'
     condition: C
     data:
     - refId: A
@@ -2000,16 +1994,15 @@ groups:
     execErrState: Alerting
     for: 2m
     annotations:
-      summary: "Panel 'Active Instances' in dashboard 'Service Health' \u2014 Slow\
-        \ Query"
+      summary: Panel 'Active Instances' in dashboard 'Service Health' -- Slow Query
       description: Panel query execution time exceeds the configured threshold.
     labels:
       severity: warning
       dashboard_uid: service-health-01
       panel_id: '6'
       probe_type: slow_query
-  - uid: sre-service-health-01-cardinality_spike-6
-    title: "[Service Health] Panel 'Active Instances' \u2014 Cardinality Spike"
+  - uid: sre-service-health-0-cs-p6
+    title: '[Service Health] Panel ''Active Instances'' -- Cardinality Spike'
     condition: C
     data:
     - refId: A
@@ -2059,8 +2052,8 @@ groups:
     execErrState: Alerting
     for: 2m
     annotations:
-      summary: "Panel 'Active Instances' in dashboard 'Service Health' \u2014 Cardinality\
-        \ Spike"
+      summary: Panel 'Active Instances' in dashboard 'Service Health' -- Cardinality
+        Spike
       description: Series count has increased significantly above baseline. This can
         cause incorrect aggregated values.
     labels:
@@ -2068,8 +2061,8 @@ groups:
       dashboard_uid: service-health-01
       panel_id: '6'
       probe_type: cardinality_spike
-  - uid: sre-service-health-01-panel_error-6
-    title: "[Service Health] Panel 'Active Instances' \u2014 Panel Error"
+  - uid: sre-service-health-0-pe-p6
+    title: '[Service Health] Panel ''Active Instances'' -- Panel Error'
     condition: C
     data:
     - refId: A
@@ -2119,16 +2112,15 @@ groups:
     execErrState: Alerting
     for: 2m
     annotations:
-      summary: "Panel 'Active Instances' in dashboard 'Service Health' \u2014 Panel\
-        \ Error"
+      summary: Panel 'Active Instances' in dashboard 'Service Health' -- Panel Error
       description: Panel is returning errors from the datasource.
     labels:
       severity: critical
       dashboard_uid: service-health-01
       panel_id: '6'
       probe_type: panel_error
-  - uid: sre-service-health-01-var-pod
-    title: "[Service Health] Variable '$pod' \u2014 Resolution Failed"
+  - uid: sre-service-health-0-vf-pod
+    title: '[Service Health] Variable ''pod'' -- Resolution Failed'
     condition: C
     data:
     - refId: A
@@ -2177,16 +2169,16 @@ groups:
     execErrState: Alerting
     for: 2m
     annotations:
-      summary: Variable '$pod' in dashboard 'Service Health' failed to resolve
-      description: Template variable $pod is returning empty results. All panels depending
+      summary: Variable 'pod' in dashboard 'Service Health' failed to resolve
+      description: Template variable pod is returning empty results. All panels depending
         on this variable will show broken data.
     labels:
       severity: critical
       dashboard_uid: service-health-01
       variable_name: pod
       probe_type: var_resolution_fail
-  - uid: sre-service-health-01-var-namespace
-    title: "[Service Health] Variable '$namespace' \u2014 Resolution Failed"
+  - uid: sre-service-health-0-vf-namespace
+    title: '[Service Health] Variable ''namespace'' -- Resolution Failed'
     condition: C
     data:
     - refId: A
@@ -2235,15 +2227,15 @@ groups:
     execErrState: Alerting
     for: 2m
     annotations:
-      summary: Variable '$namespace' in dashboard 'Service Health' failed to resolve
-      description: Template variable $namespace is returning empty results. All panels
+      summary: Variable 'namespace' in dashboard 'Service Health' failed to resolve
+      description: Template variable namespace is returning empty results. All panels
         depending on this variable will show broken data.
     labels:
       severity: critical
       dashboard_uid: service-health-01
       variable_name: namespace
       probe_type: var_resolution_fail
-  - uid: sre-service-health-01-health-drop
+  - uid: sre-service-health-0-hs
     title: '[Service Health] Health Score Drop'
     condition: C
     data:
@@ -2299,7 +2291,7 @@ groups:
       severity: warning
       dashboard_uid: service-health-01
       probe_type: health_score
-  - uid: sre-service-health-01-slow-load
+  - uid: sre-service-health-0-sl
     title: '[Service Health] Slow Dashboard Load'
     condition: C
     data:

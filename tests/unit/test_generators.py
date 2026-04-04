@@ -125,5 +125,12 @@ def test_alert_rules_unique_uids(alerts):
     assert len(uids) == len(set(uids))
 
 
+def test_alert_rules_uid_length(alerts):
+    """Grafana enforces a 40-char limit on rule UIDs."""
+    rules = alerts["groups"][0]["rules"]
+    for rule in rules:
+        assert len(rule["uid"]) <= 40, f"UID too long ({len(rule['uid'])}): {rule['uid']}"
+
+
 def test_alert_rules_group_name(alerts):
     assert alerts["groups"][0]["name"].startswith("dashboard-sre-")
