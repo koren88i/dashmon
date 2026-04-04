@@ -55,6 +55,8 @@ Look for:
 - inconsistent invariants,
 - state shared across tests or requests.
 
+**Trace the actual user flow, not a plausible-sounding code path.** Before committing to a root cause, verify it by observing what the system actually does — check logs, network traffic, or debug output from the real failing scenario. A fix for a bug the user isn't hitting is worse than no fix: it wastes time and leaves the real bug open.
+
 Explain the likely root cause in plain language.
 
 ### 4) Protect against recurrence
@@ -82,7 +84,7 @@ If a test is truly not feasible, explain why and provide the next-best verificat
 Run the relevant checks and report:
 - failing test now passing,
 - nearby tests still passing,
-- manual repro now fixed if applicable.
+- **the user-facing bug is actually gone** — not just the test passing. A test can pass while the real bug remains if you tested the wrong thing. Go back to the original reproduction and confirm it works.
 
 ### 7) Refactor only after protection exists
 Once the bug is understood and guarded, optional cleanup is allowed:
