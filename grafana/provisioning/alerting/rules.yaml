@@ -1,0 +1,2349 @@
+apiVersion: 1
+groups:
+- orgId: 1
+  name: dashboard-sre-service-health-01
+  folder: Dashboard SRE
+  interval: 1m
+  rules:
+  - uid: sre-service-health-0-nd-p1
+    title: '[Service Health] Panel ''Request Rate'' -- No Data'
+    condition: C
+    data:
+    - refId: A
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: math
+        expression: ''
+        datasource:
+          uid: __expr__
+          type: __expr__
+    - refId: B
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: ${datasource}
+      model:
+        expr: dashboard_panel_status{dashboard_uid="service-health-01", panel_id="1",
+          probe_type="no_data"}
+        refId: B
+    - refId: C
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: threshold
+        expression: B
+        conditions:
+        - evaluator:
+            params:
+            - 1
+            type: lt
+          operator:
+            type: and
+          query:
+            params:
+            - C
+          reducer:
+            type: last
+    noDataState: Alerting
+    execErrState: Alerting
+    for: 2m
+    annotations:
+      summary: Panel 'Request Rate' in dashboard 'Service Health' -- No Data
+      description: Panel has been returning empty results for >2 minutes. The source
+        metric may have disappeared or the exporter may be down.
+    labels:
+      severity: warning
+      dashboard_uid: service-health-01
+      panel_id: '1'
+      probe_type: no_data
+  - uid: sre-service-health-0-sd-p1
+    title: '[Service Health] Panel ''Request Rate'' -- Stale Data'
+    condition: C
+    data:
+    - refId: A
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: math
+        expression: ''
+        datasource:
+          uid: __expr__
+          type: __expr__
+    - refId: B
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: ${datasource}
+      model:
+        expr: dashboard_panel_status{dashboard_uid="service-health-01", panel_id="1",
+          probe_type="stale_data"}
+        refId: B
+    - refId: C
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: threshold
+        expression: B
+        conditions:
+        - evaluator:
+            params:
+            - 1
+            type: lt
+          operator:
+            type: and
+          query:
+            params:
+            - C
+          reducer:
+            type: last
+    noDataState: Alerting
+    execErrState: Alerting
+    for: 2m
+    annotations:
+      summary: Panel 'Request Rate' in dashboard 'Service Health' -- Stale Data
+      description: Panel data has not been refreshed within the expected interval.
+        The exporter or scrape target may be unhealthy.
+    labels:
+      severity: warning
+      dashboard_uid: service-health-01
+      panel_id: '1'
+      probe_type: stale_data
+  - uid: sre-service-health-0-qt-p1
+    title: '[Service Health] Panel ''Request Rate'' -- Query Timeout'
+    condition: C
+    data:
+    - refId: A
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: math
+        expression: ''
+        datasource:
+          uid: __expr__
+          type: __expr__
+    - refId: B
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: ${datasource}
+      model:
+        expr: dashboard_panel_status{dashboard_uid="service-health-01", panel_id="1",
+          probe_type="query_timeout"}
+        refId: B
+    - refId: C
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: threshold
+        expression: B
+        conditions:
+        - evaluator:
+            params:
+            - 1
+            type: lt
+          operator:
+            type: and
+          query:
+            params:
+            - C
+          reducer:
+            type: last
+    noDataState: Alerting
+    execErrState: Alerting
+    for: 2m
+    annotations:
+      summary: Panel 'Request Rate' in dashboard 'Service Health' -- Query Timeout
+      description: Panel query has been timing out for >2 minutes. The datasource
+        may be overloaded or unreachable.
+    labels:
+      severity: critical
+      dashboard_uid: service-health-01
+      panel_id: '1'
+      probe_type: query_timeout
+  - uid: sre-service-health-0-sq-p1
+    title: '[Service Health] Panel ''Request Rate'' -- Slow Query'
+    condition: C
+    data:
+    - refId: A
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: math
+        expression: ''
+        datasource:
+          uid: __expr__
+          type: __expr__
+    - refId: B
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: ${datasource}
+      model:
+        expr: dashboard_panel_status{dashboard_uid="service-health-01", panel_id="1",
+          probe_type="slow_query"}
+        refId: B
+    - refId: C
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: threshold
+        expression: B
+        conditions:
+        - evaluator:
+            params:
+            - 1
+            type: lt
+          operator:
+            type: and
+          query:
+            params:
+            - C
+          reducer:
+            type: last
+    noDataState: Alerting
+    execErrState: Alerting
+    for: 2m
+    annotations:
+      summary: Panel 'Request Rate' in dashboard 'Service Health' -- Slow Query
+      description: Panel query execution time exceeds the configured threshold.
+    labels:
+      severity: warning
+      dashboard_uid: service-health-01
+      panel_id: '1'
+      probe_type: slow_query
+  - uid: sre-service-health-0-cs-p1
+    title: '[Service Health] Panel ''Request Rate'' -- Cardinality Spike'
+    condition: C
+    data:
+    - refId: A
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: math
+        expression: ''
+        datasource:
+          uid: __expr__
+          type: __expr__
+    - refId: B
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: ${datasource}
+      model:
+        expr: dashboard_panel_status{dashboard_uid="service-health-01", panel_id="1",
+          probe_type="cardinality_spike"}
+        refId: B
+    - refId: C
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: threshold
+        expression: B
+        conditions:
+        - evaluator:
+            params:
+            - 1
+            type: lt
+          operator:
+            type: and
+          query:
+            params:
+            - C
+          reducer:
+            type: last
+    noDataState: Alerting
+    execErrState: Alerting
+    for: 2m
+    annotations:
+      summary: Panel 'Request Rate' in dashboard 'Service Health' -- Cardinality Spike
+      description: Series count has increased significantly above baseline. This can
+        cause incorrect aggregated values.
+    labels:
+      severity: warning
+      dashboard_uid: service-health-01
+      panel_id: '1'
+      probe_type: cardinality_spike
+  - uid: sre-service-health-0-pe-p1
+    title: '[Service Health] Panel ''Request Rate'' -- Panel Error'
+    condition: C
+    data:
+    - refId: A
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: math
+        expression: ''
+        datasource:
+          uid: __expr__
+          type: __expr__
+    - refId: B
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: ${datasource}
+      model:
+        expr: dashboard_panel_status{dashboard_uid="service-health-01", panel_id="1",
+          probe_type="panel_error"}
+        refId: B
+    - refId: C
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: threshold
+        expression: B
+        conditions:
+        - evaluator:
+            params:
+            - 1
+            type: lt
+          operator:
+            type: and
+          query:
+            params:
+            - C
+          reducer:
+            type: last
+    noDataState: Alerting
+    execErrState: Alerting
+    for: 2m
+    annotations:
+      summary: Panel 'Request Rate' in dashboard 'Service Health' -- Panel Error
+      description: Panel is returning errors from the datasource.
+    labels:
+      severity: critical
+      dashboard_uid: service-health-01
+      panel_id: '1'
+      probe_type: panel_error
+  - uid: sre-service-health-0-nd-p2
+    title: '[Service Health] Panel ''Error Rate %'' -- No Data'
+    condition: C
+    data:
+    - refId: A
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: math
+        expression: ''
+        datasource:
+          uid: __expr__
+          type: __expr__
+    - refId: B
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: ${datasource}
+      model:
+        expr: dashboard_panel_status{dashboard_uid="service-health-01", panel_id="2",
+          probe_type="no_data"}
+        refId: B
+    - refId: C
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: threshold
+        expression: B
+        conditions:
+        - evaluator:
+            params:
+            - 1
+            type: lt
+          operator:
+            type: and
+          query:
+            params:
+            - C
+          reducer:
+            type: last
+    noDataState: Alerting
+    execErrState: Alerting
+    for: 2m
+    annotations:
+      summary: Panel 'Error Rate %' in dashboard 'Service Health' -- No Data
+      description: Panel has been returning empty results for >2 minutes. The source
+        metric may have disappeared or the exporter may be down.
+    labels:
+      severity: warning
+      dashboard_uid: service-health-01
+      panel_id: '2'
+      probe_type: no_data
+  - uid: sre-service-health-0-sd-p2
+    title: '[Service Health] Panel ''Error Rate %'' -- Stale Data'
+    condition: C
+    data:
+    - refId: A
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: math
+        expression: ''
+        datasource:
+          uid: __expr__
+          type: __expr__
+    - refId: B
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: ${datasource}
+      model:
+        expr: dashboard_panel_status{dashboard_uid="service-health-01", panel_id="2",
+          probe_type="stale_data"}
+        refId: B
+    - refId: C
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: threshold
+        expression: B
+        conditions:
+        - evaluator:
+            params:
+            - 1
+            type: lt
+          operator:
+            type: and
+          query:
+            params:
+            - C
+          reducer:
+            type: last
+    noDataState: Alerting
+    execErrState: Alerting
+    for: 2m
+    annotations:
+      summary: Panel 'Error Rate %' in dashboard 'Service Health' -- Stale Data
+      description: Panel data has not been refreshed within the expected interval.
+        The exporter or scrape target may be unhealthy.
+    labels:
+      severity: warning
+      dashboard_uid: service-health-01
+      panel_id: '2'
+      probe_type: stale_data
+  - uid: sre-service-health-0-qt-p2
+    title: '[Service Health] Panel ''Error Rate %'' -- Query Timeout'
+    condition: C
+    data:
+    - refId: A
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: math
+        expression: ''
+        datasource:
+          uid: __expr__
+          type: __expr__
+    - refId: B
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: ${datasource}
+      model:
+        expr: dashboard_panel_status{dashboard_uid="service-health-01", panel_id="2",
+          probe_type="query_timeout"}
+        refId: B
+    - refId: C
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: threshold
+        expression: B
+        conditions:
+        - evaluator:
+            params:
+            - 1
+            type: lt
+          operator:
+            type: and
+          query:
+            params:
+            - C
+          reducer:
+            type: last
+    noDataState: Alerting
+    execErrState: Alerting
+    for: 2m
+    annotations:
+      summary: Panel 'Error Rate %' in dashboard 'Service Health' -- Query Timeout
+      description: Panel query has been timing out for >2 minutes. The datasource
+        may be overloaded or unreachable.
+    labels:
+      severity: critical
+      dashboard_uid: service-health-01
+      panel_id: '2'
+      probe_type: query_timeout
+  - uid: sre-service-health-0-sq-p2
+    title: '[Service Health] Panel ''Error Rate %'' -- Slow Query'
+    condition: C
+    data:
+    - refId: A
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: math
+        expression: ''
+        datasource:
+          uid: __expr__
+          type: __expr__
+    - refId: B
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: ${datasource}
+      model:
+        expr: dashboard_panel_status{dashboard_uid="service-health-01", panel_id="2",
+          probe_type="slow_query"}
+        refId: B
+    - refId: C
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: threshold
+        expression: B
+        conditions:
+        - evaluator:
+            params:
+            - 1
+            type: lt
+          operator:
+            type: and
+          query:
+            params:
+            - C
+          reducer:
+            type: last
+    noDataState: Alerting
+    execErrState: Alerting
+    for: 2m
+    annotations:
+      summary: Panel 'Error Rate %' in dashboard 'Service Health' -- Slow Query
+      description: Panel query execution time exceeds the configured threshold.
+    labels:
+      severity: warning
+      dashboard_uid: service-health-01
+      panel_id: '2'
+      probe_type: slow_query
+  - uid: sre-service-health-0-cs-p2
+    title: '[Service Health] Panel ''Error Rate %'' -- Cardinality Spike'
+    condition: C
+    data:
+    - refId: A
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: math
+        expression: ''
+        datasource:
+          uid: __expr__
+          type: __expr__
+    - refId: B
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: ${datasource}
+      model:
+        expr: dashboard_panel_status{dashboard_uid="service-health-01", panel_id="2",
+          probe_type="cardinality_spike"}
+        refId: B
+    - refId: C
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: threshold
+        expression: B
+        conditions:
+        - evaluator:
+            params:
+            - 1
+            type: lt
+          operator:
+            type: and
+          query:
+            params:
+            - C
+          reducer:
+            type: last
+    noDataState: Alerting
+    execErrState: Alerting
+    for: 2m
+    annotations:
+      summary: Panel 'Error Rate %' in dashboard 'Service Health' -- Cardinality Spike
+      description: Series count has increased significantly above baseline. This can
+        cause incorrect aggregated values.
+    labels:
+      severity: warning
+      dashboard_uid: service-health-01
+      panel_id: '2'
+      probe_type: cardinality_spike
+  - uid: sre-service-health-0-pe-p2
+    title: '[Service Health] Panel ''Error Rate %'' -- Panel Error'
+    condition: C
+    data:
+    - refId: A
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: math
+        expression: ''
+        datasource:
+          uid: __expr__
+          type: __expr__
+    - refId: B
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: ${datasource}
+      model:
+        expr: dashboard_panel_status{dashboard_uid="service-health-01", panel_id="2",
+          probe_type="panel_error"}
+        refId: B
+    - refId: C
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: threshold
+        expression: B
+        conditions:
+        - evaluator:
+            params:
+            - 1
+            type: lt
+          operator:
+            type: and
+          query:
+            params:
+            - C
+          reducer:
+            type: last
+    noDataState: Alerting
+    execErrState: Alerting
+    for: 2m
+    annotations:
+      summary: Panel 'Error Rate %' in dashboard 'Service Health' -- Panel Error
+      description: Panel is returning errors from the datasource.
+    labels:
+      severity: critical
+      dashboard_uid: service-health-01
+      panel_id: '2'
+      probe_type: panel_error
+  - uid: sre-service-health-0-nd-p3
+    title: '[Service Health] Panel ''P99 Latency'' -- No Data'
+    condition: C
+    data:
+    - refId: A
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: math
+        expression: ''
+        datasource:
+          uid: __expr__
+          type: __expr__
+    - refId: B
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: ${datasource}
+      model:
+        expr: dashboard_panel_status{dashboard_uid="service-health-01", panel_id="3",
+          probe_type="no_data"}
+        refId: B
+    - refId: C
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: threshold
+        expression: B
+        conditions:
+        - evaluator:
+            params:
+            - 1
+            type: lt
+          operator:
+            type: and
+          query:
+            params:
+            - C
+          reducer:
+            type: last
+    noDataState: Alerting
+    execErrState: Alerting
+    for: 2m
+    annotations:
+      summary: Panel 'P99 Latency' in dashboard 'Service Health' -- No Data
+      description: Panel has been returning empty results for >2 minutes. The source
+        metric may have disappeared or the exporter may be down.
+    labels:
+      severity: warning
+      dashboard_uid: service-health-01
+      panel_id: '3'
+      probe_type: no_data
+  - uid: sre-service-health-0-sd-p3
+    title: '[Service Health] Panel ''P99 Latency'' -- Stale Data'
+    condition: C
+    data:
+    - refId: A
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: math
+        expression: ''
+        datasource:
+          uid: __expr__
+          type: __expr__
+    - refId: B
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: ${datasource}
+      model:
+        expr: dashboard_panel_status{dashboard_uid="service-health-01", panel_id="3",
+          probe_type="stale_data"}
+        refId: B
+    - refId: C
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: threshold
+        expression: B
+        conditions:
+        - evaluator:
+            params:
+            - 1
+            type: lt
+          operator:
+            type: and
+          query:
+            params:
+            - C
+          reducer:
+            type: last
+    noDataState: Alerting
+    execErrState: Alerting
+    for: 2m
+    annotations:
+      summary: Panel 'P99 Latency' in dashboard 'Service Health' -- Stale Data
+      description: Panel data has not been refreshed within the expected interval.
+        The exporter or scrape target may be unhealthy.
+    labels:
+      severity: warning
+      dashboard_uid: service-health-01
+      panel_id: '3'
+      probe_type: stale_data
+  - uid: sre-service-health-0-qt-p3
+    title: '[Service Health] Panel ''P99 Latency'' -- Query Timeout'
+    condition: C
+    data:
+    - refId: A
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: math
+        expression: ''
+        datasource:
+          uid: __expr__
+          type: __expr__
+    - refId: B
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: ${datasource}
+      model:
+        expr: dashboard_panel_status{dashboard_uid="service-health-01", panel_id="3",
+          probe_type="query_timeout"}
+        refId: B
+    - refId: C
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: threshold
+        expression: B
+        conditions:
+        - evaluator:
+            params:
+            - 1
+            type: lt
+          operator:
+            type: and
+          query:
+            params:
+            - C
+          reducer:
+            type: last
+    noDataState: Alerting
+    execErrState: Alerting
+    for: 2m
+    annotations:
+      summary: Panel 'P99 Latency' in dashboard 'Service Health' -- Query Timeout
+      description: Panel query has been timing out for >2 minutes. The datasource
+        may be overloaded or unreachable.
+    labels:
+      severity: critical
+      dashboard_uid: service-health-01
+      panel_id: '3'
+      probe_type: query_timeout
+  - uid: sre-service-health-0-sq-p3
+    title: '[Service Health] Panel ''P99 Latency'' -- Slow Query'
+    condition: C
+    data:
+    - refId: A
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: math
+        expression: ''
+        datasource:
+          uid: __expr__
+          type: __expr__
+    - refId: B
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: ${datasource}
+      model:
+        expr: dashboard_panel_status{dashboard_uid="service-health-01", panel_id="3",
+          probe_type="slow_query"}
+        refId: B
+    - refId: C
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: threshold
+        expression: B
+        conditions:
+        - evaluator:
+            params:
+            - 1
+            type: lt
+          operator:
+            type: and
+          query:
+            params:
+            - C
+          reducer:
+            type: last
+    noDataState: Alerting
+    execErrState: Alerting
+    for: 2m
+    annotations:
+      summary: Panel 'P99 Latency' in dashboard 'Service Health' -- Slow Query
+      description: Panel query execution time exceeds the configured threshold.
+    labels:
+      severity: warning
+      dashboard_uid: service-health-01
+      panel_id: '3'
+      probe_type: slow_query
+  - uid: sre-service-health-0-cs-p3
+    title: '[Service Health] Panel ''P99 Latency'' -- Cardinality Spike'
+    condition: C
+    data:
+    - refId: A
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: math
+        expression: ''
+        datasource:
+          uid: __expr__
+          type: __expr__
+    - refId: B
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: ${datasource}
+      model:
+        expr: dashboard_panel_status{dashboard_uid="service-health-01", panel_id="3",
+          probe_type="cardinality_spike"}
+        refId: B
+    - refId: C
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: threshold
+        expression: B
+        conditions:
+        - evaluator:
+            params:
+            - 1
+            type: lt
+          operator:
+            type: and
+          query:
+            params:
+            - C
+          reducer:
+            type: last
+    noDataState: Alerting
+    execErrState: Alerting
+    for: 2m
+    annotations:
+      summary: Panel 'P99 Latency' in dashboard 'Service Health' -- Cardinality Spike
+      description: Series count has increased significantly above baseline. This can
+        cause incorrect aggregated values.
+    labels:
+      severity: warning
+      dashboard_uid: service-health-01
+      panel_id: '3'
+      probe_type: cardinality_spike
+  - uid: sre-service-health-0-pe-p3
+    title: '[Service Health] Panel ''P99 Latency'' -- Panel Error'
+    condition: C
+    data:
+    - refId: A
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: math
+        expression: ''
+        datasource:
+          uid: __expr__
+          type: __expr__
+    - refId: B
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: ${datasource}
+      model:
+        expr: dashboard_panel_status{dashboard_uid="service-health-01", panel_id="3",
+          probe_type="panel_error"}
+        refId: B
+    - refId: C
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: threshold
+        expression: B
+        conditions:
+        - evaluator:
+            params:
+            - 1
+            type: lt
+          operator:
+            type: and
+          query:
+            params:
+            - C
+          reducer:
+            type: last
+    noDataState: Alerting
+    execErrState: Alerting
+    for: 2m
+    annotations:
+      summary: Panel 'P99 Latency' in dashboard 'Service Health' -- Panel Error
+      description: Panel is returning errors from the datasource.
+    labels:
+      severity: critical
+      dashboard_uid: service-health-01
+      panel_id: '3'
+      probe_type: panel_error
+  - uid: sre-service-health-0-nd-p4
+    title: '[Service Health] Panel ''Memory Usage'' -- No Data'
+    condition: C
+    data:
+    - refId: A
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: math
+        expression: ''
+        datasource:
+          uid: __expr__
+          type: __expr__
+    - refId: B
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: ${datasource}
+      model:
+        expr: dashboard_panel_status{dashboard_uid="service-health-01", panel_id="4",
+          probe_type="no_data"}
+        refId: B
+    - refId: C
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: threshold
+        expression: B
+        conditions:
+        - evaluator:
+            params:
+            - 1
+            type: lt
+          operator:
+            type: and
+          query:
+            params:
+            - C
+          reducer:
+            type: last
+    noDataState: Alerting
+    execErrState: Alerting
+    for: 2m
+    annotations:
+      summary: Panel 'Memory Usage' in dashboard 'Service Health' -- No Data
+      description: Panel has been returning empty results for >2 minutes. The source
+        metric may have disappeared or the exporter may be down.
+    labels:
+      severity: warning
+      dashboard_uid: service-health-01
+      panel_id: '4'
+      probe_type: no_data
+  - uid: sre-service-health-0-sd-p4
+    title: '[Service Health] Panel ''Memory Usage'' -- Stale Data'
+    condition: C
+    data:
+    - refId: A
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: math
+        expression: ''
+        datasource:
+          uid: __expr__
+          type: __expr__
+    - refId: B
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: ${datasource}
+      model:
+        expr: dashboard_panel_status{dashboard_uid="service-health-01", panel_id="4",
+          probe_type="stale_data"}
+        refId: B
+    - refId: C
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: threshold
+        expression: B
+        conditions:
+        - evaluator:
+            params:
+            - 1
+            type: lt
+          operator:
+            type: and
+          query:
+            params:
+            - C
+          reducer:
+            type: last
+    noDataState: Alerting
+    execErrState: Alerting
+    for: 2m
+    annotations:
+      summary: Panel 'Memory Usage' in dashboard 'Service Health' -- Stale Data
+      description: Panel data has not been refreshed within the expected interval.
+        The exporter or scrape target may be unhealthy.
+    labels:
+      severity: warning
+      dashboard_uid: service-health-01
+      panel_id: '4'
+      probe_type: stale_data
+  - uid: sre-service-health-0-qt-p4
+    title: '[Service Health] Panel ''Memory Usage'' -- Query Timeout'
+    condition: C
+    data:
+    - refId: A
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: math
+        expression: ''
+        datasource:
+          uid: __expr__
+          type: __expr__
+    - refId: B
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: ${datasource}
+      model:
+        expr: dashboard_panel_status{dashboard_uid="service-health-01", panel_id="4",
+          probe_type="query_timeout"}
+        refId: B
+    - refId: C
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: threshold
+        expression: B
+        conditions:
+        - evaluator:
+            params:
+            - 1
+            type: lt
+          operator:
+            type: and
+          query:
+            params:
+            - C
+          reducer:
+            type: last
+    noDataState: Alerting
+    execErrState: Alerting
+    for: 2m
+    annotations:
+      summary: Panel 'Memory Usage' in dashboard 'Service Health' -- Query Timeout
+      description: Panel query has been timing out for >2 minutes. The datasource
+        may be overloaded or unreachable.
+    labels:
+      severity: critical
+      dashboard_uid: service-health-01
+      panel_id: '4'
+      probe_type: query_timeout
+  - uid: sre-service-health-0-sq-p4
+    title: '[Service Health] Panel ''Memory Usage'' -- Slow Query'
+    condition: C
+    data:
+    - refId: A
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: math
+        expression: ''
+        datasource:
+          uid: __expr__
+          type: __expr__
+    - refId: B
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: ${datasource}
+      model:
+        expr: dashboard_panel_status{dashboard_uid="service-health-01", panel_id="4",
+          probe_type="slow_query"}
+        refId: B
+    - refId: C
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: threshold
+        expression: B
+        conditions:
+        - evaluator:
+            params:
+            - 1
+            type: lt
+          operator:
+            type: and
+          query:
+            params:
+            - C
+          reducer:
+            type: last
+    noDataState: Alerting
+    execErrState: Alerting
+    for: 2m
+    annotations:
+      summary: Panel 'Memory Usage' in dashboard 'Service Health' -- Slow Query
+      description: Panel query execution time exceeds the configured threshold.
+    labels:
+      severity: warning
+      dashboard_uid: service-health-01
+      panel_id: '4'
+      probe_type: slow_query
+  - uid: sre-service-health-0-cs-p4
+    title: '[Service Health] Panel ''Memory Usage'' -- Cardinality Spike'
+    condition: C
+    data:
+    - refId: A
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: math
+        expression: ''
+        datasource:
+          uid: __expr__
+          type: __expr__
+    - refId: B
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: ${datasource}
+      model:
+        expr: dashboard_panel_status{dashboard_uid="service-health-01", panel_id="4",
+          probe_type="cardinality_spike"}
+        refId: B
+    - refId: C
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: threshold
+        expression: B
+        conditions:
+        - evaluator:
+            params:
+            - 1
+            type: lt
+          operator:
+            type: and
+          query:
+            params:
+            - C
+          reducer:
+            type: last
+    noDataState: Alerting
+    execErrState: Alerting
+    for: 2m
+    annotations:
+      summary: Panel 'Memory Usage' in dashboard 'Service Health' -- Cardinality Spike
+      description: Series count has increased significantly above baseline. This can
+        cause incorrect aggregated values.
+    labels:
+      severity: warning
+      dashboard_uid: service-health-01
+      panel_id: '4'
+      probe_type: cardinality_spike
+  - uid: sre-service-health-0-pe-p4
+    title: '[Service Health] Panel ''Memory Usage'' -- Panel Error'
+    condition: C
+    data:
+    - refId: A
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: math
+        expression: ''
+        datasource:
+          uid: __expr__
+          type: __expr__
+    - refId: B
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: ${datasource}
+      model:
+        expr: dashboard_panel_status{dashboard_uid="service-health-01", panel_id="4",
+          probe_type="panel_error"}
+        refId: B
+    - refId: C
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: threshold
+        expression: B
+        conditions:
+        - evaluator:
+            params:
+            - 1
+            type: lt
+          operator:
+            type: and
+          query:
+            params:
+            - C
+          reducer:
+            type: last
+    noDataState: Alerting
+    execErrState: Alerting
+    for: 2m
+    annotations:
+      summary: Panel 'Memory Usage' in dashboard 'Service Health' -- Panel Error
+      description: Panel is returning errors from the datasource.
+    labels:
+      severity: critical
+      dashboard_uid: service-health-01
+      panel_id: '4'
+      probe_type: panel_error
+  - uid: sre-service-health-0-nd-p5
+    title: '[Service Health] Panel ''Pod Readiness'' -- No Data'
+    condition: C
+    data:
+    - refId: A
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: math
+        expression: ''
+        datasource:
+          uid: __expr__
+          type: __expr__
+    - refId: B
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: ${datasource}
+      model:
+        expr: dashboard_panel_status{dashboard_uid="service-health-01", panel_id="5",
+          probe_type="no_data"}
+        refId: B
+    - refId: C
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: threshold
+        expression: B
+        conditions:
+        - evaluator:
+            params:
+            - 1
+            type: lt
+          operator:
+            type: and
+          query:
+            params:
+            - C
+          reducer:
+            type: last
+    noDataState: Alerting
+    execErrState: Alerting
+    for: 2m
+    annotations:
+      summary: Panel 'Pod Readiness' in dashboard 'Service Health' -- No Data
+      description: Panel has been returning empty results for >2 minutes. The source
+        metric may have disappeared or the exporter may be down.
+    labels:
+      severity: warning
+      dashboard_uid: service-health-01
+      panel_id: '5'
+      probe_type: no_data
+  - uid: sre-service-health-0-sd-p5
+    title: '[Service Health] Panel ''Pod Readiness'' -- Stale Data'
+    condition: C
+    data:
+    - refId: A
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: math
+        expression: ''
+        datasource:
+          uid: __expr__
+          type: __expr__
+    - refId: B
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: ${datasource}
+      model:
+        expr: dashboard_panel_status{dashboard_uid="service-health-01", panel_id="5",
+          probe_type="stale_data"}
+        refId: B
+    - refId: C
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: threshold
+        expression: B
+        conditions:
+        - evaluator:
+            params:
+            - 1
+            type: lt
+          operator:
+            type: and
+          query:
+            params:
+            - C
+          reducer:
+            type: last
+    noDataState: Alerting
+    execErrState: Alerting
+    for: 2m
+    annotations:
+      summary: Panel 'Pod Readiness' in dashboard 'Service Health' -- Stale Data
+      description: Panel data has not been refreshed within the expected interval.
+        The exporter or scrape target may be unhealthy.
+    labels:
+      severity: warning
+      dashboard_uid: service-health-01
+      panel_id: '5'
+      probe_type: stale_data
+  - uid: sre-service-health-0-qt-p5
+    title: '[Service Health] Panel ''Pod Readiness'' -- Query Timeout'
+    condition: C
+    data:
+    - refId: A
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: math
+        expression: ''
+        datasource:
+          uid: __expr__
+          type: __expr__
+    - refId: B
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: ${datasource}
+      model:
+        expr: dashboard_panel_status{dashboard_uid="service-health-01", panel_id="5",
+          probe_type="query_timeout"}
+        refId: B
+    - refId: C
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: threshold
+        expression: B
+        conditions:
+        - evaluator:
+            params:
+            - 1
+            type: lt
+          operator:
+            type: and
+          query:
+            params:
+            - C
+          reducer:
+            type: last
+    noDataState: Alerting
+    execErrState: Alerting
+    for: 2m
+    annotations:
+      summary: Panel 'Pod Readiness' in dashboard 'Service Health' -- Query Timeout
+      description: Panel query has been timing out for >2 minutes. The datasource
+        may be overloaded or unreachable.
+    labels:
+      severity: critical
+      dashboard_uid: service-health-01
+      panel_id: '5'
+      probe_type: query_timeout
+  - uid: sre-service-health-0-sq-p5
+    title: '[Service Health] Panel ''Pod Readiness'' -- Slow Query'
+    condition: C
+    data:
+    - refId: A
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: math
+        expression: ''
+        datasource:
+          uid: __expr__
+          type: __expr__
+    - refId: B
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: ${datasource}
+      model:
+        expr: dashboard_panel_status{dashboard_uid="service-health-01", panel_id="5",
+          probe_type="slow_query"}
+        refId: B
+    - refId: C
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: threshold
+        expression: B
+        conditions:
+        - evaluator:
+            params:
+            - 1
+            type: lt
+          operator:
+            type: and
+          query:
+            params:
+            - C
+          reducer:
+            type: last
+    noDataState: Alerting
+    execErrState: Alerting
+    for: 2m
+    annotations:
+      summary: Panel 'Pod Readiness' in dashboard 'Service Health' -- Slow Query
+      description: Panel query execution time exceeds the configured threshold.
+    labels:
+      severity: warning
+      dashboard_uid: service-health-01
+      panel_id: '5'
+      probe_type: slow_query
+  - uid: sre-service-health-0-cs-p5
+    title: '[Service Health] Panel ''Pod Readiness'' -- Cardinality Spike'
+    condition: C
+    data:
+    - refId: A
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: math
+        expression: ''
+        datasource:
+          uid: __expr__
+          type: __expr__
+    - refId: B
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: ${datasource}
+      model:
+        expr: dashboard_panel_status{dashboard_uid="service-health-01", panel_id="5",
+          probe_type="cardinality_spike"}
+        refId: B
+    - refId: C
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: threshold
+        expression: B
+        conditions:
+        - evaluator:
+            params:
+            - 1
+            type: lt
+          operator:
+            type: and
+          query:
+            params:
+            - C
+          reducer:
+            type: last
+    noDataState: Alerting
+    execErrState: Alerting
+    for: 2m
+    annotations:
+      summary: Panel 'Pod Readiness' in dashboard 'Service Health' -- Cardinality
+        Spike
+      description: Series count has increased significantly above baseline. This can
+        cause incorrect aggregated values.
+    labels:
+      severity: warning
+      dashboard_uid: service-health-01
+      panel_id: '5'
+      probe_type: cardinality_spike
+  - uid: sre-service-health-0-pe-p5
+    title: '[Service Health] Panel ''Pod Readiness'' -- Panel Error'
+    condition: C
+    data:
+    - refId: A
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: math
+        expression: ''
+        datasource:
+          uid: __expr__
+          type: __expr__
+    - refId: B
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: ${datasource}
+      model:
+        expr: dashboard_panel_status{dashboard_uid="service-health-01", panel_id="5",
+          probe_type="panel_error"}
+        refId: B
+    - refId: C
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: threshold
+        expression: B
+        conditions:
+        - evaluator:
+            params:
+            - 1
+            type: lt
+          operator:
+            type: and
+          query:
+            params:
+            - C
+          reducer:
+            type: last
+    noDataState: Alerting
+    execErrState: Alerting
+    for: 2m
+    annotations:
+      summary: Panel 'Pod Readiness' in dashboard 'Service Health' -- Panel Error
+      description: Panel is returning errors from the datasource.
+    labels:
+      severity: critical
+      dashboard_uid: service-health-01
+      panel_id: '5'
+      probe_type: panel_error
+  - uid: sre-service-health-0-nd-p6
+    title: '[Service Health] Panel ''Active Instances'' -- No Data'
+    condition: C
+    data:
+    - refId: A
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: math
+        expression: ''
+        datasource:
+          uid: __expr__
+          type: __expr__
+    - refId: B
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: ${datasource}
+      model:
+        expr: dashboard_panel_status{dashboard_uid="service-health-01", panel_id="6",
+          probe_type="no_data"}
+        refId: B
+    - refId: C
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: threshold
+        expression: B
+        conditions:
+        - evaluator:
+            params:
+            - 1
+            type: lt
+          operator:
+            type: and
+          query:
+            params:
+            - C
+          reducer:
+            type: last
+    noDataState: Alerting
+    execErrState: Alerting
+    for: 2m
+    annotations:
+      summary: Panel 'Active Instances' in dashboard 'Service Health' -- No Data
+      description: Panel has been returning empty results for >2 minutes. The source
+        metric may have disappeared or the exporter may be down.
+    labels:
+      severity: warning
+      dashboard_uid: service-health-01
+      panel_id: '6'
+      probe_type: no_data
+  - uid: sre-service-health-0-sd-p6
+    title: '[Service Health] Panel ''Active Instances'' -- Stale Data'
+    condition: C
+    data:
+    - refId: A
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: math
+        expression: ''
+        datasource:
+          uid: __expr__
+          type: __expr__
+    - refId: B
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: ${datasource}
+      model:
+        expr: dashboard_panel_status{dashboard_uid="service-health-01", panel_id="6",
+          probe_type="stale_data"}
+        refId: B
+    - refId: C
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: threshold
+        expression: B
+        conditions:
+        - evaluator:
+            params:
+            - 1
+            type: lt
+          operator:
+            type: and
+          query:
+            params:
+            - C
+          reducer:
+            type: last
+    noDataState: Alerting
+    execErrState: Alerting
+    for: 2m
+    annotations:
+      summary: Panel 'Active Instances' in dashboard 'Service Health' -- Stale Data
+      description: Panel data has not been refreshed within the expected interval.
+        The exporter or scrape target may be unhealthy.
+    labels:
+      severity: warning
+      dashboard_uid: service-health-01
+      panel_id: '6'
+      probe_type: stale_data
+  - uid: sre-service-health-0-qt-p6
+    title: '[Service Health] Panel ''Active Instances'' -- Query Timeout'
+    condition: C
+    data:
+    - refId: A
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: math
+        expression: ''
+        datasource:
+          uid: __expr__
+          type: __expr__
+    - refId: B
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: ${datasource}
+      model:
+        expr: dashboard_panel_status{dashboard_uid="service-health-01", panel_id="6",
+          probe_type="query_timeout"}
+        refId: B
+    - refId: C
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: threshold
+        expression: B
+        conditions:
+        - evaluator:
+            params:
+            - 1
+            type: lt
+          operator:
+            type: and
+          query:
+            params:
+            - C
+          reducer:
+            type: last
+    noDataState: Alerting
+    execErrState: Alerting
+    for: 2m
+    annotations:
+      summary: Panel 'Active Instances' in dashboard 'Service Health' -- Query Timeout
+      description: Panel query has been timing out for >2 minutes. The datasource
+        may be overloaded or unreachable.
+    labels:
+      severity: critical
+      dashboard_uid: service-health-01
+      panel_id: '6'
+      probe_type: query_timeout
+  - uid: sre-service-health-0-sq-p6
+    title: '[Service Health] Panel ''Active Instances'' -- Slow Query'
+    condition: C
+    data:
+    - refId: A
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: math
+        expression: ''
+        datasource:
+          uid: __expr__
+          type: __expr__
+    - refId: B
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: ${datasource}
+      model:
+        expr: dashboard_panel_status{dashboard_uid="service-health-01", panel_id="6",
+          probe_type="slow_query"}
+        refId: B
+    - refId: C
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: threshold
+        expression: B
+        conditions:
+        - evaluator:
+            params:
+            - 1
+            type: lt
+          operator:
+            type: and
+          query:
+            params:
+            - C
+          reducer:
+            type: last
+    noDataState: Alerting
+    execErrState: Alerting
+    for: 2m
+    annotations:
+      summary: Panel 'Active Instances' in dashboard 'Service Health' -- Slow Query
+      description: Panel query execution time exceeds the configured threshold.
+    labels:
+      severity: warning
+      dashboard_uid: service-health-01
+      panel_id: '6'
+      probe_type: slow_query
+  - uid: sre-service-health-0-cs-p6
+    title: '[Service Health] Panel ''Active Instances'' -- Cardinality Spike'
+    condition: C
+    data:
+    - refId: A
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: math
+        expression: ''
+        datasource:
+          uid: __expr__
+          type: __expr__
+    - refId: B
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: ${datasource}
+      model:
+        expr: dashboard_panel_status{dashboard_uid="service-health-01", panel_id="6",
+          probe_type="cardinality_spike"}
+        refId: B
+    - refId: C
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: threshold
+        expression: B
+        conditions:
+        - evaluator:
+            params:
+            - 1
+            type: lt
+          operator:
+            type: and
+          query:
+            params:
+            - C
+          reducer:
+            type: last
+    noDataState: Alerting
+    execErrState: Alerting
+    for: 2m
+    annotations:
+      summary: Panel 'Active Instances' in dashboard 'Service Health' -- Cardinality
+        Spike
+      description: Series count has increased significantly above baseline. This can
+        cause incorrect aggregated values.
+    labels:
+      severity: warning
+      dashboard_uid: service-health-01
+      panel_id: '6'
+      probe_type: cardinality_spike
+  - uid: sre-service-health-0-pe-p6
+    title: '[Service Health] Panel ''Active Instances'' -- Panel Error'
+    condition: C
+    data:
+    - refId: A
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: math
+        expression: ''
+        datasource:
+          uid: __expr__
+          type: __expr__
+    - refId: B
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: ${datasource}
+      model:
+        expr: dashboard_panel_status{dashboard_uid="service-health-01", panel_id="6",
+          probe_type="panel_error"}
+        refId: B
+    - refId: C
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: threshold
+        expression: B
+        conditions:
+        - evaluator:
+            params:
+            - 1
+            type: lt
+          operator:
+            type: and
+          query:
+            params:
+            - C
+          reducer:
+            type: last
+    noDataState: Alerting
+    execErrState: Alerting
+    for: 2m
+    annotations:
+      summary: Panel 'Active Instances' in dashboard 'Service Health' -- Panel Error
+      description: Panel is returning errors from the datasource.
+    labels:
+      severity: critical
+      dashboard_uid: service-health-01
+      panel_id: '6'
+      probe_type: panel_error
+  - uid: sre-service-health-0-vf-pod
+    title: '[Service Health] Variable ''pod'' -- Resolution Failed'
+    condition: C
+    data:
+    - refId: A
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: math
+        expression: ''
+        datasource:
+          uid: __expr__
+          type: __expr__
+    - refId: B
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: ${datasource}
+      model:
+        expr: dashboard_variable_status{dashboard_uid="service-health-01", variable_name="pod"}
+        refId: B
+    - refId: C
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: threshold
+        expression: B
+        conditions:
+        - evaluator:
+            params:
+            - 1
+            type: lt
+          operator:
+            type: and
+          query:
+            params:
+            - C
+          reducer:
+            type: last
+    noDataState: Alerting
+    execErrState: Alerting
+    for: 2m
+    annotations:
+      summary: Variable 'pod' in dashboard 'Service Health' failed to resolve
+      description: Template variable pod is returning empty results. All panels depending
+        on this variable will show broken data.
+    labels:
+      severity: critical
+      dashboard_uid: service-health-01
+      variable_name: pod
+      probe_type: var_resolution_fail
+  - uid: sre-service-health-0-vf-namespace
+    title: '[Service Health] Variable ''namespace'' -- Resolution Failed'
+    condition: C
+    data:
+    - refId: A
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: math
+        expression: ''
+        datasource:
+          uid: __expr__
+          type: __expr__
+    - refId: B
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: ${datasource}
+      model:
+        expr: dashboard_variable_status{dashboard_uid="service-health-01", variable_name="namespace"}
+        refId: B
+    - refId: C
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: threshold
+        expression: B
+        conditions:
+        - evaluator:
+            params:
+            - 1
+            type: lt
+          operator:
+            type: and
+          query:
+            params:
+            - C
+          reducer:
+            type: last
+    noDataState: Alerting
+    execErrState: Alerting
+    for: 2m
+    annotations:
+      summary: Variable 'namespace' in dashboard 'Service Health' failed to resolve
+      description: Template variable namespace is returning empty results. All panels
+        depending on this variable will show broken data.
+    labels:
+      severity: critical
+      dashboard_uid: service-health-01
+      variable_name: namespace
+      probe_type: var_resolution_fail
+  - uid: sre-service-health-0-hs
+    title: '[Service Health] Health Score Drop'
+    condition: C
+    data:
+    - refId: A
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: math
+        expression: ''
+        datasource:
+          uid: __expr__
+          type: __expr__
+    - refId: B
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: ${datasource}
+      model:
+        expr: dashboard_health_score{dashboard_uid="service-health-01"}
+        refId: B
+    - refId: C
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: threshold
+        expression: B
+        conditions:
+        - evaluator:
+            params:
+            - 1
+            type: lt
+          operator:
+            type: and
+          query:
+            params:
+            - C
+          reducer:
+            type: last
+    noDataState: Alerting
+    execErrState: Alerting
+    for: 2m
+    annotations:
+      summary: Dashboard 'Service Health' health score has dropped below 100%
+      description: One or more panels are reporting degraded status.
+    labels:
+      severity: warning
+      dashboard_uid: service-health-01
+      probe_type: health_score
+  - uid: sre-service-health-0-sl
+    title: '[Service Health] Slow Dashboard Load'
+    condition: C
+    data:
+    - refId: A
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: math
+        expression: ''
+        datasource:
+          uid: __expr__
+          type: __expr__
+    - refId: B
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: ${datasource}
+      model:
+        expr: dashboard_load_time_seconds{dashboard_uid="service-health-01"}
+        refId: B
+    - refId: C
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: threshold
+        expression: B
+        conditions:
+        - evaluator:
+            params:
+            - 15
+            type: gt
+          operator:
+            type: and
+          query:
+            params:
+            - C
+          reducer:
+            type: last
+    noDataState: OK
+    execErrState: Alerting
+    for: 5m
+    annotations:
+      summary: Dashboard 'Service Health' is loading slowly (>15s)
+      description: The critical path of panel queries exceeds 15 seconds.
+    labels:
+      severity: warning
+      dashboard_uid: service-health-01
+      probe_type: slow_dashboard

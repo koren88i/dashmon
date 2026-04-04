@@ -2,6 +2,8 @@
 # 9090  — mock-prometheus API     (override: MOCK_BACKEND_PORT)
 # 8000  — probe-engine API        (override: PROBE_ENGINE_PORT)
 # 8080  — demo UI / simulator     (override: SIMULATOR_PORT)
+# 9091  — real Prometheus          (override: PROMETHEUS_PORT)
+# 3000  — Grafana                  (override: GRAFANA_PORT)
 
 x-logging: &default-logging
   driver: json-file
@@ -50,6 +52,65 @@ services:
       interval: 10s
       timeout: 5s
       retries: 3
+      start_period: 20s
+    restart: unless-stopped
+    logging: *default-logging
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 256M
+        reservations:
+          cpus: "0.25"
+          memory: 64M
+
+  prometheus:
+    image: prom/prometheus:v2.53.0
+    ports:
+      - "${PROMETHEUS_PORT:-9091}:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    depends_on:
+      probe-engine:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:9090/-/healthy"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+    logging: *default-logging
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 256M
+        reservations:
+          cpus: "0.1"
+          memory: 64M
+
+  grafana:
+    image: grafana/grafana:10.4.2
+    ports:
+      - "${GRAFANA_PORT:-3000}:3000"
+    volumes:
+      - ./grafana/grafana.ini:/etc/grafana/grafana.ini:ro
+      - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources:ro
+      - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./grafana/provisioning/dashboards/service-health.json:/var/lib/grafana/dashboards/service-health.json:ro
+      - ./grafana/provisioning/dashboards/sre-meta.json:/var/lib/grafana/dashboards/sre-meta.json:ro
+      - ./grafana/provisioning/alerting:/etc/grafana/provisioning/alerting:ro
+    depends_on:
+      prometheus:
+        condition: service_healthy
+      mock-prometheus:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
       start_period: 20s
     restart: unless-stopped
     logging: *default-logging
