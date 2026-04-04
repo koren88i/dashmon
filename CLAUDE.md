@@ -304,6 +304,21 @@ main ─────●────────────────●──
 ### .gitignore
 The repo `.gitignore` covers Python, Docker, and IDE artifacts. Keep it updated when adding new tooling.
 
+## Tests
+
+```bash
+# Install test deps (once)
+pip install -r tests/requirements.txt
+
+# Run by layer
+pytest -m unit          # 36 tests, no network, <1s
+pytest -m integration   # 14 tests, mock backend subprocess, ~90s
+pytest -m e2e           # 8 tests, full engine + mock backend, ~115s
+pytest                  # all 58
+```
+
+See `TEST_PLAN.md` for what is and isn't covered.
+
 ## Skills available
 - `.claude/skills/bug-investigation/SKILL.md`
 - `.claude/skills/refactor-safely/SKILL.md`

@@ -213,6 +213,23 @@ Final commands, ports, gotchas.
 
 ---
 
+## ✅ Step 12: Test Suite
+
+**Files:** `pytest.ini`, `tests/requirements.txt`, `tests/conftest.py`, `tests/unit/`, `tests/integration/`, `tests/e2e/`, `TEST_PLAN.md`
+
+58 tests across three layers — all pass.
+
+```bash
+pytest -m unit          # 36 tests, <1s, no network
+pytest -m integration   # 14 tests, ~90s, mock backend subprocess
+pytest -m e2e           # 8 tests, ~115s, full engine + mock backend
+pytest                  # all 58
+```
+
+**Deviation:** Not in the original brief. Added post-implementation to codify manually-verified behaviors as regression protection.
+
+---
+
 ## Risk mitigations
 - **Demo timing:** Use 15s probe interval + 5s UI poll = worst-case ~20s detection (well within 30s)
 - **Mock query matching:** Simple regex to extract metric name from PromQL — 5 lines, not a parser
