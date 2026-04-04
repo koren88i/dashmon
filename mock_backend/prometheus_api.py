@@ -16,7 +16,7 @@ from fastapi import FastAPI, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
-from mock_backend.fault_injector import FaultInjector, FaultType
+from mock_backend.fault_injector import FAULT_INFO, FaultInjector, FaultType
 from mock_backend.fixtures.metrics import (
     extract_metric_name,
     find_metric_family,
@@ -132,6 +132,14 @@ async def clear_faults(req: ClearRequest):
 @app.get("/faults/active")
 async def active_faults():
     return {"faults": injector.get_active()}
+
+
+@app.get("/faults/types")
+async def fault_types():
+    return {
+        ft.value: FAULT_INFO[ft]
+        for ft in FaultType
+    }
 
 
 # ---------------------------------------------------------------------------

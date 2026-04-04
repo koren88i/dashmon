@@ -67,6 +67,23 @@
   .fault-buttons button.clear { border-color: var(--green); }
   .fault-buttons button.clear:hover { background: #1a3020; }
 
+  /* Info tooltips */
+  .fault-group { display: inline-flex; align-items: center; gap: 2px; }
+  .info-btn { width: 18px; height: 18px; border-radius: 50%; border: 1px solid var(--muted);
+              background: transparent; color: var(--muted); font-size: 0.65rem; font-style: italic;
+              font-family: Georgia, serif; cursor: pointer; display: flex; align-items: center;
+              justify-content: center; transition: all 0.2s; flex-shrink: 0; }
+  .info-btn:hover { border-color: var(--blue); color: var(--blue); }
+  .tooltip { display: none; position: absolute; bottom: calc(100% + 8px); left: 50%;
+             transform: translateX(-50%); background: #2a2e36; border: 1px solid var(--border);
+             border-radius: 6px; padding: 10px 12px; width: 280px; z-index: 100;
+             box-shadow: 0 4px 12px rgba(0,0,0,0.4); }
+  .tooltip.visible { display: block; }
+  .tooltip .tip-title { font-size: 0.75rem; font-weight: 600; margin-bottom: 6px; color: var(--blue); }
+  .tooltip .tip-desc { font-size: 0.7rem; color: var(--text); line-height: 1.5; margin-bottom: 6px; }
+  .tooltip .tip-expect { font-size: 0.7rem; color: var(--green); line-height: 1.5; }
+  .tooltip .tip-expect::before { content: "Expect: "; font-weight: 600; }
+
   /* Issue log */
   .issue-log { max-height: 200px; overflow-y: auto; font-family: 'Menlo', 'Consolas', monospace;
                font-size: 0.75rem; line-height: 1.6; background: var(--bg); border-radius: 4px;
@@ -159,6 +176,7 @@ const dataBuffers = {};  // panelId -> array of values (last 20)
 const panelStatus = {};  // panelId -> 'healthy' | 'degraded'
 let activeFaults = new Set();
 let seenIssueTimestamps = new Set();
+let faultInfo = {};  // populated from GET /faults/types
 
 // ---------------------------------------------------------------------------
 // Build UI: panels
@@ -192,21 +210,81 @@ for (const p of PANELS) {
 }
 
 // ---------------------------------------------------------------------------
-// Build UI: fault buttons
+// Build UI: fault buttons (with info tooltips loaded from backend)
 // ---------------------------------------------------------------------------
 const btnContainer = document.getElementById('faultButtons');
-for (const f of FAULTS) {
-  const btn = document.createElement('button');
-  btn.textContent = f.label;
-  btn.dataset.type = f.type;
-  btn.addEventListener('click', () => toggleFault(f, btn));
-  btnContainer.appendChild(btn);
+let activeTooltip = null;
+
+function buildFaultButtons() {
+  for (const f of FAULTS) {
+    const group = document.createElement('span');
+    group.className = 'fault-group';
+    group.style.position = 'relative';
+
+    const btn = document.createElement('button');
+    btn.textContent = f.label;
+    btn.dataset.type = f.type;
+    btn.addEventListener('click', () => toggleFault(f, btn));
+    group.appendChild(btn);
+
+    const info = document.createElement('button');
+    info.className = 'info-btn';
+    info.textContent = 'i';
+    info.addEventListener('click', (e) => { e.stopPropagation(); showTooltip(group, f.type); });
+    group.appendChild(info);
+
+    // Tooltip element (hidden by default).
+    const tip = document.createElement('div');
+    tip.className = 'tooltip';
+    tip.id = `tip-${f.type}`;
+    group.appendChild(tip);
+
+    btnContainer.appendChild(group);
+  }
+  const clearBtn = document.createElement('button');
+  clearBtn.textContent = 'Clear All';
+  clearBtn.className = 'clear';
+  clearBtn.addEventListener('click', clearAll);
+  btnContainer.appendChild(clearBtn);
 }
-const clearBtn = document.createElement('button');
-clearBtn.textContent = 'Clear All';
-clearBtn.className = 'clear';
-clearBtn.addEventListener('click', clearAll);
-btnContainer.appendChild(clearBtn);
+
+function showTooltip(group, faultType) {
+  const tip = group.querySelector('.tooltip');
+  // Toggle off if same tooltip is already visible.
+  if (tip.classList.contains('visible')) {
+    tip.classList.remove('visible');
+    activeTooltip = null;
+    return;
+  }
+  // Hide any other open tooltip.
+  if (activeTooltip) activeTooltip.classList.remove('visible');
+
+  const fi = faultInfo[faultType];
+  if (fi) {
+    tip.innerHTML = `<div class="tip-title">${faultType.replace(/_/g, ' ').toUpperCase()}</div>` +
+      `<div class="tip-desc">${fi.description}</div>` +
+      `<div class="tip-expect">${fi.expect}</div>`;
+  } else {
+    tip.innerHTML = '<div class="tip-desc">Loading…</div>';
+  }
+  tip.classList.add('visible');
+  activeTooltip = tip;
+}
+
+// Close tooltip on outside click.
+document.addEventListener('click', () => {
+  if (activeTooltip) { activeTooltip.classList.remove('visible'); activeTooltip = null; }
+});
+
+async function loadFaultInfo() {
+  try {
+    const resp = await fetch(`${MOCK_URL}/faults/types`);
+    faultInfo = await resp.json();
+  } catch (e) { /* info tooltips degrade gracefully */ }
+}
+
+buildFaultButtons();
+loadFaultInfo();
 
 // ---------------------------------------------------------------------------
 // Data polling: target dashboard sparklines
