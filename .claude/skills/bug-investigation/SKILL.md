@@ -93,10 +93,16 @@ If the bug reveals a reusable pattern, update the project's guidance:
 - add a short rule to `CLAUDE.md`, or
 - enrich this skill with a recurring pitfall.
 
+**Write the principle, not the fix.** The lesson should be the reasoning error or blind spot that caused the bug — not the specific code change that fixed it. Ask: "what thinking pattern, if applied earlier, would have prevented this class of bug?" The fix is already in the code; the lesson should change how you think next time.
+
+Bad: "Mock backend must support POST for query endpoints."
+Good: "Mock APIs must implement the spec, not just the subset our own code exercises. Real consumers will use different parts of the contract."
+
 Examples of reusable lessons:
 - "Empty arrays arrive from the API and must not be treated as null."
 - "Timezone conversion must happen before date bucketing."
 - "Retries must be idempotent."
+- "Mock the spec, not your usage of it — real consumers exercise different contract surfaces."
 
 ## Output format
 For a bug task, structure the response like this:
