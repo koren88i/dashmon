@@ -83,6 +83,8 @@
   .tooltip .tip-desc { font-size: 0.7rem; color: var(--text); line-height: 1.5; margin-bottom: 6px; }
   .tooltip .tip-expect { font-size: 0.7rem; color: var(--green); line-height: 1.5; }
   .tooltip .tip-expect::before { content: "Expect: "; font-weight: 600; }
+  .tooltip .tip-target { font-size: 0.7rem; color: var(--yellow); line-height: 1.5; margin-bottom: 6px; }
+  .tooltip .tip-target::before { content: "Target: "; font-weight: 600; }
 
   /* Issue log */
   .issue-log { max-height: 200px; overflow-y: auto; font-family: 'Menlo', 'Consolas', monospace;
@@ -230,7 +232,7 @@ function buildFaultButtons() {
     const info = document.createElement('button');
     info.className = 'info-btn';
     info.textContent = 'i';
-    info.addEventListener('click', (e) => { e.stopPropagation(); showTooltip(group, f.type); });
+    info.addEventListener('click', (e) => { e.stopPropagation(); showTooltip(group, f); });
     group.appendChild(info);
 
     // Tooltip element (hidden by default).
@@ -248,7 +250,17 @@ function buildFaultButtons() {
   btnContainer.appendChild(clearBtn);
 }
 
-function showTooltip(group, faultType) {
+function getAffectedPanels(fault) {
+  // Map fault target to the panel titles whose queries use that metric.
+  // For var_resolution_fail, it targets a label name, not a metric — show variable name instead.
+  if (fault.type === 'var_resolution_fail') {
+    return 'Variable $pod (label: ' + fault.target + ')';
+  }
+  const affected = PANELS.filter(p => p.query.includes(fault.target)).map(p => p.title);
+  return affected.length > 0 ? affected.join(', ') : fault.target;
+}
+
+function showTooltip(group, fault) {
   const tip = group.querySelector('.tooltip');
   // Toggle off if same tooltip is already visible.
   if (tip.classList.contains('visible')) {
@@ -259,9 +271,11 @@ function showTooltip(group, faultType) {
   // Hide any other open tooltip.
   if (activeTooltip) activeTooltip.classList.remove('visible');
 
-  const fi = faultInfo[faultType];
+  const fi = faultInfo[fault.type];
+  const targetLine = `<div class="tip-target">${getAffectedPanels(fault)} (${fault.target})</div>`;
   if (fi) {
-    tip.innerHTML = `<div class="tip-title">${faultType.replace(/_/g, ' ').toUpperCase()}</div>` +
+    tip.innerHTML = `<div class="tip-title">${fault.type.replace(/_/g, ' ').toUpperCase()}</div>` +
+      targetLine +
       `<div class="tip-desc">${fi.description}</div>` +
       `<div class="tip-expect">${fi.expect}</div>`;
   } else {
