@@ -109,7 +109,7 @@ Grafana Dashboard JSON
 - No external databases, no heavy frameworks
 - Mock APIs must implement the spec, not just the subset our own code uses. Real consumers (e.g. Grafana) will exercise different parts of the contract (e.g. POST instead of GET). If we only test against our own code, we miss what breaks for everyone else.
 - Grafana alert rule UIDs must be ≤40 characters; rule titles must not contain `$` (interpreted as template variables)
-- Prometheus retains every label combination ever written. If a label value changes (e.g. probe_type switches from "no_data" to "query"), the old series stays forever. Code that writes varying label values must explicitly reset all previously-emitted combinations.
+- Stateful systems don't forget what you told them. If your code changes what it writes (metric labels, DB rows, cache keys, file paths), it must also clean up what it previously wrote — old state outlives the code path that created it.
 
 ## Step verification approach
 
