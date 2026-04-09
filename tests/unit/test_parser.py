@@ -109,6 +109,57 @@ def test_variable_chain_depth(example_dash):
     assert by_name["namespace"].chain_depth == 1
 
 
+# ---------------------------------------------------------------------------
+# Numeric variable substitution
+# ---------------------------------------------------------------------------
+
+def _make_dash(expr: str, *, var_name: str = "", var_names: set[str] | None = None) -> dict:
+    """Build a minimal dashboard dict with one panel and one or more query variables."""
+    names = var_names if var_names is not None else ({var_name} if var_name else set())
+    var_list = [
+        {
+            "name": n,
+            "type": "query",
+            "datasource": {"uid": "prom", "type": "prometheus"},
+            "query": f"label_values({n})",
+        }
+        for n in names
+    ]
+    return {
+        "panels": [
+            {
+                "id": 1,
+                "title": "T",
+                "type": "graph",
+                "datasource": {"uid": "prom", "type": "prometheus"},
+                "targets": [{"expr": expr}],
+            }
+        ],
+        "templating": {"list": var_list},
+    }
+
+
+def test_numeric_variable_gt_substitution():
+    """$threshold after > should become 0, producing valid PromQL."""
+    dash = _make_dash("http_requests_total > $threshold", var_name="threshold")
+    panels, _ = parse_dashboard(dash)
+    assert panels[0].queries[0] == "http_requests_total > 0"
+
+
+def test_numeric_variable_gte_substitution():
+    """>= operator also triggers numeric substitution."""
+    dash = _make_dash("latency_seconds >= $slo", var_name="slo")
+    panels, _ = parse_dashboard(dash)
+    assert panels[0].queries[0] == "latency_seconds >= 0"
+
+
+def test_mixed_label_and_numeric_substitution():
+    """Label var becomes .* and numeric var becomes 0 in the same expression."""
+    dash = _make_dash('up{job=~"$env"} > $threshold', var_names={"env", "threshold"})
+    panels, _ = parse_dashboard(dash)
+    assert panels[0].queries[0] == 'up{job=~".*"} > 0'
+
+
 def test_non_query_variables_skipped(example_dash):
     """Variables with type != 'query' should not appear in specs."""
     dash = {

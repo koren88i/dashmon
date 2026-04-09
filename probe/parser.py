@@ -11,8 +11,11 @@ from typing import Any
 
 from probe.config import PanelProbeSpec, VariableProbeSpec
 
-# Replace $variable references with .* so probes can match any value.
+# Replace $variable references with safe sentinels so probes produce valid PromQL.
+# Label/string context  → .*  (regex wildcard)
+# Numeric context (after >, >=, <, <=) → 0  (valid scalar operand)
 _VAR_RE = re.compile(r"\$\{?(\w+)\}?")
+_NUMERIC_OP_RE = re.compile(r"((?:>=|<=|>|<)\s*)\$\{?(\w+)\}?")
 
 
 def parse_dashboard(
@@ -139,9 +142,22 @@ def _resolve_chain_depths(variables: list[VariableProbeSpec]) -> None:
 
 
 def _substitute_variables(expr: str, var_names: set[str]) -> str:
-    """Replace $variable / ${variable} with .* in PromQL expressions."""
-    def replacer(m: re.Match) -> str:
+    """Replace $variable / ${variable} with safe sentinels in PromQL expressions.
+
+    Numeric comparison context (after >, >=, <, <=): substitute 0 so the
+    expression remains valid PromQL (e.g. ``latency > $slo`` → ``latency > 0``).
+    All other contexts: substitute .* for label/string matching.
+    """
+    # Pass 1: numeric comparison contexts → 0
+    def numeric_replacer(m: re.Match) -> str:
+        if m.group(2) in var_names:
+            return m.group(1) + "0"
+        return m.group(0)
+    expr = _NUMERIC_OP_RE.sub(numeric_replacer, expr)
+
+    # Pass 2: remaining references (label/string contexts) → .*
+    def string_replacer(m: re.Match) -> str:
         if m.group(1) in var_names:
             return ".*"
         return m.group(0)
-    return _VAR_RE.sub(replacer, expr)
+    return _VAR_RE.sub(string_replacer, expr)
