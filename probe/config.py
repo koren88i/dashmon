@@ -89,6 +89,7 @@ class DatasourceConfig:
 @dataclass
 class ProbeConfig:
     probe_interval_seconds: float = 15.0
+    max_concurrency: int = 10
     slow_query_seconds: float = 5.0
     slow_dashboard_seconds: float = 15.0
     stale_data_multiplier: float = 3.0
@@ -121,6 +122,7 @@ class ProbeConfig:
         ]
         return cls(
             probe_interval_seconds=data.get("probe_interval_seconds", 15.0),
+            max_concurrency=data.get("max_concurrency", 10),
             slow_query_seconds=thresholds.get("slow_query_seconds", 5.0),
             slow_dashboard_seconds=thresholds.get("slow_dashboard_seconds", 15.0),
             stale_data_multiplier=thresholds.get("stale_data_multiplier", 3.0),

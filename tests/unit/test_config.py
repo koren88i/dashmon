@@ -11,6 +11,7 @@ pytestmark = pytest.mark.unit
 def yaml_dict():
     return {
         "probe_interval_seconds": 10,
+        "max_concurrency": 5,
         "thresholds": {
             "slow_query_seconds": 3.0,
             "slow_dashboard_seconds": 12.0,
@@ -29,6 +30,17 @@ def yaml_dict():
 def test_from_dict_interval(yaml_dict):
     cfg = ProbeConfig.from_dict(yaml_dict)
     assert cfg.probe_interval_seconds == 10
+
+
+def test_from_dict_max_concurrency(yaml_dict):
+    cfg = ProbeConfig.from_dict(yaml_dict)
+    assert cfg.max_concurrency == 5
+
+
+def test_max_concurrency_default():
+    """max_concurrency defaults to 10 when absent from config."""
+    cfg = ProbeConfig.from_dict({})
+    assert cfg.max_concurrency == 10
 
 
 def test_from_dict_thresholds(yaml_dict):

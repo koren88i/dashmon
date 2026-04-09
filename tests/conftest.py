@@ -109,6 +109,7 @@ def probe_engine_url(mock_backend_url, tmp_path_factory):
     # Fast probe interval so E2E tests don't have to wait long.
     cfg = {
         "probe_interval_seconds": 3,
+        "max_concurrency": 10,
         "thresholds": {
             "slow_query_seconds": 5.0,
             "slow_dashboard_seconds": 15.0,

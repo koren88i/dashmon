@@ -130,8 +130,15 @@ async def _probe_loop() -> None:
 
 
 async def _run_probes() -> None:
-    """Execute all probes concurrently and update metrics."""
+    """Execute all probes concurrently (bounded by max_concurrency) and update metrics."""
     uid = state.dashboard_uid
+
+    # One semaphore per cycle caps total concurrent Prometheus requests.
+    sem = asyncio.Semaphore(state.config.max_concurrency)
+
+    async def _bounded(coro):
+        async with sem:
+            return await coro
 
     # Probe all panels concurrently.
     panel_tasks = []
@@ -139,7 +146,7 @@ async def _run_probes() -> None:
         ds_url = state.config.url_for_datasource(spec.datasource_uid)
         if ds_url is None:
             continue
-        panel_tasks.append(_probe_panel(spec, ds_url))
+        panel_tasks.append(_bounded(_probe_panel(spec, ds_url)))
 
     # Probe all variables concurrently.
     var_tasks = []
@@ -147,7 +154,7 @@ async def _run_probes() -> None:
         ds_url = state.config.url_for_datasource(vspec.datasource_uid)
         if ds_url is None:
             continue
-        var_tasks.append(_probe_variable(vspec, ds_url))
+        var_tasks.append(_bounded(_probe_variable(vspec, ds_url)))
 
     results = await asyncio.gather(*panel_tasks, return_exceptions=True)
     var_results = await asyncio.gather(*var_tasks, return_exceptions=True)
