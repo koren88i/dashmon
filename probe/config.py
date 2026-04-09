@@ -92,6 +92,7 @@ class ProbeConfig:
     slow_query_seconds: float = 5.0
     slow_dashboard_seconds: float = 15.0
     stale_data_multiplier: float = 3.0
+    scrape_interval_seconds: float = 15.0
     cardinality_spike_ratio: float = 1.5
     query_timeout_seconds: float = 25.0
     datasources: list[DatasourceConfig] = field(default_factory=list)
@@ -123,6 +124,7 @@ class ProbeConfig:
             slow_query_seconds=thresholds.get("slow_query_seconds", 5.0),
             slow_dashboard_seconds=thresholds.get("slow_dashboard_seconds", 15.0),
             stale_data_multiplier=thresholds.get("stale_data_multiplier", 3.0),
+            scrape_interval_seconds=thresholds.get("scrape_interval_seconds", 15.0),
             cardinality_spike_ratio=thresholds.get("cardinality_spike_ratio", 1.5),
             query_timeout_seconds=thresholds.get("query_timeout_seconds", 25.0),
             datasources=ds_list,

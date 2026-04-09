@@ -15,6 +15,7 @@ def yaml_dict():
             "slow_query_seconds": 3.0,
             "slow_dashboard_seconds": 12.0,
             "stale_data_multiplier": 4.0,
+            "scrape_interval_seconds": 30.0,
             "cardinality_spike_ratio": 2.0,
             "query_timeout_seconds": 20.0,
         },
@@ -35,8 +36,15 @@ def test_from_dict_thresholds(yaml_dict):
     assert cfg.slow_query_seconds == 3.0
     assert cfg.slow_dashboard_seconds == 12.0
     assert cfg.stale_data_multiplier == 4.0
+    assert cfg.scrape_interval_seconds == 30.0
     assert cfg.cardinality_spike_ratio == 2.0
     assert cfg.query_timeout_seconds == 20.0
+
+
+def test_scrape_interval_default():
+    """scrape_interval_seconds defaults to 15s when absent from config."""
+    cfg = ProbeConfig.from_dict({})
+    assert cfg.scrape_interval_seconds == 15.0
 
 
 def test_from_dict_datasources(yaml_dict):

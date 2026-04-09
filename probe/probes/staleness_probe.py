@@ -18,10 +18,6 @@ from probe.config import (
     ProbeStatus,
 )
 
-# Assumed scrape interval for staleness calculation.
-SCRAPE_INTERVAL_SECONDS = 15.0
-
-
 class StalenessProbe:
     """Check whether panel data is stale (timestamps too old)."""
 
@@ -71,7 +67,7 @@ class StalenessProbe:
             )
 
         age = time.time() - max_ts
-        threshold = SCRAPE_INTERVAL_SECONDS * config.stale_data_multiplier
+        threshold = config.scrape_interval_seconds * config.stale_data_multiplier
 
         if age > threshold:
             return ProbeResult(
