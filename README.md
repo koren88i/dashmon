@@ -8,6 +8,22 @@ Monitor the user experience of a Grafana dashboard. Given a dashboard JSON, this
 
 ---
 
+## Documentation
+
+Use these docs as the current source of truth:
+
+- `README.md` — setup, demo flow, and day-to-day usage
+- `ARCHITECTURE.md` — system design and data flow
+- `CLAUDE.md` — repository workflow guidance for coding agents
+
+These files are kept only as historical context:
+
+- `DASHBOARD_SRE_BRIEF.md` — original product brief
+
+If an archival doc disagrees with the code or the active docs, trust the code and the active docs.
+
+---
+
 ## Quick start
 
 ```bash
@@ -19,35 +35,39 @@ Then open **http://localhost:8080/simulator.html** in your browser.
 | Service | URL | Purpose |
 |---|---|---|
 | **Grafana** | http://localhost:3000 | Real Grafana with provisioned dashboards + alerts |
-| Demo UI | http://localhost:8080/simulator.html | Visual simulator + fault injection |
-| Probe engine | http://localhost:8000/health | JSON health summary |
-| Probe metrics | http://localhost:8000/metrics | Prometheus exposition |
-| Prometheus | http://localhost:9091 | Real Prometheus scraping probe engine |
-| Mock Prometheus | http://localhost:9090/-/healthy | Mock backend status |
+| Demo UI | http://localhost:8080/simulator.html | Dashboard selector + fault injection |
+| Service probe engine | http://localhost:8000/health | Service Health JSON health summary |
+| MongoDB probe engine | http://localhost:8002/health | MongoDB Operations JSON health summary |
+| Service mock Prometheus | http://localhost:9090/-/healthy | Service metric backend + scoped fault state |
+| MongoDB mock Prometheus | http://localhost:9093/-/healthy | MongoDB metric backend + scoped fault state |
+| Prometheus | http://localhost:9091 | Real Prometheus scraping both probe engines |
 
 ---
 
 ## Demo walkthrough
 
-The simulator has three sections:
+The demo UI has three sections:
 
-- **Target dashboard** — live sparklines for each panel. Degrades visually when a fault is active.
-- **SRE view** — polls `/health` every 5s. Shows health score, per-panel badges, variable badges, and a scrolling issue log.
-- **Fault injection** — buttons to inject each failure mode, each with an info icon ("i") explaining the fault and expected behavior. The probe engine detects faults within ~20s.
+- **Target dashboard** - choose Service Health or MongoDB Operations. The selector switches both the SRE health endpoint and the fault backend.
+- **SRE view** — polls the selected probe engine every 5s. Shows health score, canonical issue count, per-panel badges, variable badges, and a scrolling issue log.
+- **Fault injection** — buttons to inject each failure mode, each with an info icon ("i") explaining the fault and expected behavior. The selected probe engine detects faults within ~20s.
 
 **Try it:**
 1. Click a fault button (e.g. "No Data").
-2. Watch the panel go red and the health score drop within 30s.
-3. Click "Clear All" — everything returns to green within 30s.
+2. Watch the SRE health score drop within 30s.
+3. Open the selected source dashboard in Grafana to inspect the real Grafana dashboard degradation.
+4. Click "Clear All" — everything returns to green within 30s.
 
 ### Grafana (real dashboards)
 
-Open **http://localhost:3000** (no login required). Two dashboards are pre-provisioned:
+Open **http://localhost:3000** (no login required). Four dashboards are pre-provisioned:
 
-- **Service Health** — the target dashboard with live panels powered by the mock Prometheus
+- **Service Health** — the real Grafana dashboard with live panels powered by the mock Prometheus
 - **[SRE] Service Health** — the meta-dashboard showing probe results from real Prometheus
+- **MongoDB Operations** — a MongoDB operational dashboard powered by an isolated mock Prometheus
+- **[SRE] MongoDB Operations** — the meta-dashboard generated from the MongoDB source dashboard
 
-40 alert rules are also provisioned. Inject a fault in the simulator, then check the meta-dashboard and Alerting page in Grafana to see them fire.
+Each source dashboard has its own 40-rule alert group. Inject a fault in the simulator, then check the selected meta-dashboard and Alerting page in Grafana to see the matching rules fire.
 
 ---
 
@@ -69,9 +89,18 @@ curl -s http://localhost:9090/faults/types
 curl -s -X POST http://localhost:9090/faults/clear \
   -H "Content-Type: application/json" \
   -d '{"target":"all"}'
+
+# MongoDB path: same API, isolated backend
+curl -s -X POST http://localhost:9093/faults/inject \
+  -H "Content-Type: application/json" \
+  -d '{"type":"no_data","target":"mongodb_op_counters_total","duration_seconds":60}'
 ```
 
 Supported fault types: `no_data`, `stale_data`, `slow_query`, `metric_rename`, `cardinality_spike`, `var_resolution_fail`.
+
+Notes on demo behavior:
+- `metric_rename` currently surfaces as `no_data` in `/health` and probe metrics because both conditions produce the same empty Prometheus result in this demo stack.
+- The demo UI is SRE/fault-injection only. Use Grafana **Service Health** or **MongoDB Operations** for the real dashboard experience.
 
 ---
 
@@ -103,7 +132,9 @@ Copy `.env.example` to `.env` and edit:
 
 ```bash
 MOCK_BACKEND_PORT=9090
+MOCK_MONGO_PORT=9093
 PROBE_ENGINE_PORT=8000
+PROBE_ENGINE_MONGO_PORT=8002
 SIMULATOR_PORT=8080
 ```
 

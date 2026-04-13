@@ -26,6 +26,11 @@ def example_dash():
     return json.loads((REPO_ROOT / "demo" / "example_dashboard.json").read_text())
 
 
+@pytest.fixture(scope="module")
+def mongodb_dash():
+    return json.loads((REPO_ROOT / "demo" / "mongodb_dashboard.json").read_text())
+
+
 # ---------------------------------------------------------------------------
 # Panel parsing — mini dashboard
 # ---------------------------------------------------------------------------
@@ -80,6 +85,24 @@ def test_all_panels_have_datasource(example_dash):
         assert p.datasource_uid == "prometheus-main"
 
 
+def test_panel_count_mongodb(mongodb_dash):
+    panels, _ = parse_dashboard(mongodb_dash)
+    assert len(panels) == 6
+
+
+def test_all_mongodb_panels_have_datasource(mongodb_dash):
+    panels, _ = parse_dashboard(mongodb_dash)
+    for p in panels:
+        assert p.datasource_uid == "prometheus-mongo"
+
+
+def test_mongodb_variable_substitution(mongodb_dash):
+    panels, _ = parse_dashboard(mongodb_dash)
+    op_rate = next(p for p in panels if p.panel_title == "Operation Rate")
+    assert 'instance=~".*"' in op_rate.queries[0]
+    assert 'replset=~".*"' in op_rate.queries[0]
+
+
 # ---------------------------------------------------------------------------
 # Variable parsing
 # ---------------------------------------------------------------------------
@@ -92,6 +115,18 @@ def test_variable_count_mini(mini_dash):
 def test_variable_count_example(example_dash):
     _, variables = parse_dashboard(example_dash)
     assert len(variables) == 2
+
+
+def test_variable_count_mongodb(mongodb_dash):
+    _, variables = parse_dashboard(mongodb_dash)
+    assert len(variables) == 2
+
+
+def test_mongodb_variable_chaining(mongodb_dash):
+    _, variables = parse_dashboard(mongodb_dash)
+    by_name = {v.name: v for v in variables}
+    assert not by_name["instance"].is_chained
+    assert by_name["replset"].is_chained
 
 
 def test_variable_chaining(example_dash):

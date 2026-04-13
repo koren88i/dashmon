@@ -85,6 +85,20 @@ async def test_get_series_supported(mock_backend_url):
     assert "__name__" in body["data"][0]
 
 
+async def test_mongodb_metrics_supported(mock_backend_url):
+    """The second dashboard's MongoDB metric surface should return data."""
+    async with httpx.AsyncClient() as client:
+        resp = await client.get(
+            f"{mock_backend_url}/api/v1/query",
+            params={"query": "mongodb_up"},
+        )
+    assert resp.status_code == 200
+    body = resp.json()
+    assert body["status"] == "success"
+    assert len(body["data"]["result"]) > 0
+    assert body["data"]["result"][0]["metric"]["__name__"] == "mongodb_up"
+
+
 async def test_post_series_supported(mock_backend_url):
     """POST variant of /api/v1/series — Grafana may use either method."""
     async with httpx.AsyncClient() as client:

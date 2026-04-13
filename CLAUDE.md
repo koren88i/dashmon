@@ -127,17 +127,22 @@ Every implementation step must be independently verifiable before moving on. No 
 
 **Timing budget:** probe_interval=15s + UI poll=5s → worst-case ~20s detection (within 30s requirement).
 
-## Implementation order
+## Doc hierarchy
 
-Follow `DASHBOARD_SRE_BRIEF.md` §"Start here" for sequencing. In short: mock_backend → parser → first probe (query) → engine+metrics → remaining probes → generators → demo UI → docker-compose → examples → ARCHITECTURE.md.
+Use the repo docs this way:
 
-## Plan tracking
-- After completing a plan step, mark it done in `PLAN.md` (e.g., `✅` prefix).
-- If the implementation deviated from the plan, add a short **"Deviation"** note under that step explaining what changed and why.
-- If something was learned that affects future steps, update the relevant future step in `PLAN.md` and/or add it to this file under the appropriate section.
+- `README.md` for current setup and operator usage
+- `ARCHITECTURE.md` for current system behavior and topology
+- `CLAUDE.md` for repository working conventions
+
+Historical context only:
+
+- `DASHBOARD_SRE_BRIEF.md`
+
+Do not treat the historical docs as the current implementation contract.
 
 ## Session management
-End a session after completing and verifying a full plan step — never mid-step.
+End a session after completing and verifying a coherent slice of work.
 To close gracefully, use the `session-close` skill.
 
 ## Purpose (engineering behavior)
@@ -298,7 +303,7 @@ fix(mock-backend): prevent fault injection from crashing on empty target
 ### Bug fixes on main (post-merge)
 - Create a hotfix branch (`fix/<description>`), fix, verify, merge back. Same trunk-based workflow.
 
-### Workflow example (tied to PLAN.md)
+### Workflow example
 ```
 main ─────●────────────────●────────────────●───
           │                │                │
@@ -330,17 +335,18 @@ The repo `.gitignore` covers Python, Docker, and IDE artifacts. Keep it updated 
 pip install -r tests/requirements.txt
 
 # Run by layer
-pytest -m unit          # 36 tests, no network, <1s
-pytest -m integration   # 14 tests, mock backend subprocess, ~90s
-pytest -m e2e           # 8 tests, full engine + mock backend, ~115s
-pytest                  # all 58
+pytest -m unit
+pytest -m integration
+pytest -m e2e
+pytest
+pytest --collect-only -q
 ```
 
-See `TEST_PLAN.md` for what is and isn't covered.
+Treat the collected tests and the files under `tests/` as the current source of truth for coverage.
 
 ## Skills available
 - `.claude/skills/bug-investigation/SKILL.md`
 - `.claude/skills/refactor-safely/SKILL.md`
 - `.claude/skills/deliverable-verification/SKILL.md`
 - `.claude/skills/docker/SKILL.md` — port management, resource sizing, networking, Dockerfile rules, dev/prod patterns
-- `.claude/skills/session-close/SKILL.md` — end-of-session checklist: PLAN.md, CLAUDE.md, memory, git, handoff
+- `.claude/skills/session-close/SKILL.md` — end-of-session checklist for docs, memory, git, and handoff

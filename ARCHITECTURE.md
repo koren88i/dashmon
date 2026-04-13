@@ -74,6 +74,8 @@ All Prometheus metrics live here, registered on a dedicated `CollectorRegistry` 
 | `dashboard_panel_error_total` | Counter | Cumulative errors per panel × error type |
 | `dashboard_variable_status` | Gauge | 1=healthy, 0=degraded, per variable |
 | `dashboard_variable_query_duration_seconds` | Histogram | Variable label query round-trip time |
+| `dashboard_issue_count` | Gauge | Number of currently degraded panels and variables |
+| `dashboard_issue_event_timestamp_seconds` | Gauge | Unix timestamp in seconds for recent issue state transitions |
 
 ### Probe types
 
@@ -100,6 +102,10 @@ Generates a Grafana dashboard JSON for the meta-dashboard. The output has six ro
 
 The output is importable into any Grafana instance pointed at a Prometheus that scrapes the probe engine's `/metrics`.
 
+Meta-dashboard panels use a datasource variable named `sre_datasource`, defaulting to the `probe-metrics` datasource. Avoid the generic `datasource` variable name here because source-dashboard URLs can carry stale `var-datasource=...` overrides into SRE dashboards.
+
+The **Recent Issue Events** table treats the metric sample value as the event time. `dashboard_issue_event_timestamp_seconds` is emitted in Unix seconds, so the Grafana panel query multiplies it by `1000` before applying the `dateTimeAsIso` field override to `Event Time`. The table hides Grafana's instant-query `Time` field because that is the query evaluation time and will be identical for all rows in a refresh.
+
 ### `generator/alert_rules.py`
 
 Generates Grafana Alerting provisioning YAML. Rule count: `panels × 6 probe types + variables + 2 dashboard-level rules`. For 6 panels and 2 variables: 40 rules total.
@@ -117,7 +123,7 @@ FastAPI app with two concerns:
 - `GET /-/healthy`
 - `GET /faults/types` — fault type metadata (descriptions and expected behavior)
 
-Fixtures generate synthetic time series (sinusoidal + noise) for 5 metric families: `http_requests_total`, `http_request_duration_seconds`, `node_memory_MemAvailable_bytes`, `process_cpu_seconds_total`, `kube_pod_status_ready`.
+Fixtures generate synthetic time series (sinusoidal + noise) for the Service Health and MongoDB Operations demo dashboards, including HTTP/service metrics and MongoDB exporter-style metrics such as `mongodb_up`, `mongodb_op_counters_total`, and `mongodb_mongod_replset_member_health`.
 
 **Fault injector** (`fault_injector.py`) — in-memory fault dict with auto-expiry. `FAULT_INFO` dict provides human-readable descriptions for each fault type, served via `GET /faults/types`. Each fault targets a metric name and applies one of:
 
@@ -132,12 +138,12 @@ Fixtures generate synthetic time series (sinusoidal + noise) for 5 metric famili
 
 ### `demo/simulator.html`
 
-Single self-contained HTML file (Chart.js from CDN). No build step, works opened directly as a file or served from any static server.
+Single self-contained HTML file. No build step, works opened directly as a file or served from any static server.
 
 Three sections:
-- **Target dashboard** — 6 panels with live sparklines polling the mock backend every 10s. Degrades visually (red border, error badge, faded chart) when a probe reports degraded status.
-- **SRE view** — polls `/health` every 5s. Shows health score, per-panel badges, per-variable badges, scrolling issue log.
-- **Fault injection** — one button per fault type + "Clear All". Each button has an info icon ("i") that shows a tooltip explaining the fault and what to expect; descriptions are fetched from `GET /faults/types`.
+- **Target dashboard** — selector for Service Health or MongoDB Operations. The selection controls the probe health endpoint and mock fault backend.
+- **SRE view** — polls the selected `/health` every 5s. Shows health score, per-panel badges, per-variable badges, scrolling issue log.
+- **Fault injection** — one button per selected-dashboard fault type + "Clear All". Each button has an info icon ("i") that shows a tooltip explaining the fault and what to expect; descriptions are fetched from `GET /faults/types`.
 
 ---
 
@@ -173,7 +179,7 @@ Total worst-case: 15s probe interval + 5s UI poll = 20s  (within 30s budget)
 
 ## Configuration
 
-`config.yaml` (local) / `config.docker.yaml` (Docker):
+`config.yaml` (local) / `config.docker.yaml` (Docker) define the Service Health path. `config.mongo.docker.yaml` defines the isolated MongoDB Operations path:
 
 ```yaml
 probe_interval_seconds: 15
@@ -197,11 +203,20 @@ Environment variables consumed by `engine.py`:
 
 ## Docker Compose topology
 
+The current demo intentionally uses two isolated source-dashboard paths before generalizing to one multi-dashboard engine:
+
+- Service Health: `mock-prometheus` -> `probe-engine` -> `dashboard_uid="service-health-01"`
+- MongoDB Operations: `mock-mongo-prometheus` -> `probe-engine-mongo` -> `dashboard_uid="mongodb-ops-01"`
+
+Both probe engines expose the same metric names, scoped by `dashboard_uid`. Real Prometheus scrapes both targets, and Grafana uses those scraped metrics for both SRE dashboards.
+
 ```
 ┌──────────────────────────────────────────────┐
 │  Host                                        │
 │  :9090 ──→ mock-prometheus                   │
 │  :8000 ──→ probe-engine                      │
+│  :9093 ──→ mock-mongo-prometheus             │
+│  :8002 ──→ probe-engine-mongo                │
 │  :9091 ──→ prometheus (real)                 │
 │  :3000 ──→ grafana                           │
 │  :8080 ──→ demo-ui (nginx)                   │
@@ -218,22 +233,23 @@ Environment variables consumed by `engine.py`:
 │  │  prometheus:9090───────│─────┐       │    │
 │  │                        │     │       │    │
 │  │                    grafana:3000      │    │
-│  │                  (2 datasources,     │    │
-│  │                   2 dashboards,      │    │
-│  │                   40 alert rules)    │    │
+│  │                  (3 datasources,     │    │
+│  │                   4 dashboards,      │    │
+│  │                   2 alert groups)    │    │
 │  │                                      │    │
 │  │  demo-ui:80                          │    │
 │  └──────────────────────────────────────┘    │
 └──────────────────────────────────────────────┘
 ```
 
-Services start in dependency order: `mock-prometheus` (healthy) → `probe-engine` (healthy) → `prometheus` (healthy) → `grafana` + `demo-ui`.
+Services start in dependency order: the two mock Prometheus backends become healthy, the two probe engines become healthy, real Prometheus starts scraping both, and then Grafana + `demo-ui` start.
 
-Grafana connects to two datasources:
+Grafana connects to three datasources:
 - **Mock Prometheus** (`prometheus-main`) — powers the target "Service Health" dashboard
-- **Probe Metrics** (`probe-metrics`) — real Prometheus scraping probe engine; powers the "[SRE] Service Health" meta-dashboard
+- **MongoDB Mock Prometheus** (`prometheus-mongo`) — powers the target "MongoDB Operations" dashboard
+- **Probe Metrics** (`probe-metrics`) — real Prometheus scraping both probe engines; powers both SRE meta-dashboards
 
-The browser talks directly to `localhost:9090` and `localhost:8000` for the simulator — it is not proxied through nginx.
+The browser talks directly to `localhost:9090`/`localhost:8000` for Service Health and `localhost:9093`/`localhost:8002` for MongoDB Operations. These calls are not proxied through nginx.
 
 ---
 

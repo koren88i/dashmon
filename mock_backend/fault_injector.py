@@ -25,27 +25,27 @@ class FaultType(str, Enum):
 FAULT_INFO: dict[str, dict[str, str]] = {
     FaultType.NO_DATA: {
         "description": "Makes the target metric return zero results, as if the exporter stopped emitting it.",
-        "expect": "Affected panels go blank and show a 'NO DATA' badge. SRE view turns those panels red and health score drops.",
+        "expect": "The selected Grafana source dashboard shows blank/failed panels. SRE view turns the affected panels red and health score drops.",
     },
     FaultType.STALE_DATA: {
         "description": "Returns data with timestamps 10 minutes in the past, simulating a frozen exporter.",
-        "expect": "Panel values freeze. SRE view detects STALE_DATA --the numbers look normal but haven't updated.",
+        "expect": "Selected Grafana source panels stop refreshing. SRE view detects STALE_DATA --the numbers look normal but have not updated.",
     },
     FaultType.SLOW_QUERY: {
         "description": "Adds an 8-second delay before responding, simulating an overloaded datasource.",
-        "expect": "Panels take noticeably longer to load. SRE view detects SLOW_QUERY or QUERY_TIMEOUT depending on duration.",
+        "expect": "Selected Grafana source panels take noticeably longer to load. SRE view detects SLOW_QUERY or QUERY_TIMEOUT depending on duration.",
     },
     FaultType.METRIC_RENAME: {
         "description": "Returns zero series for the target metric, as if it was renamed upstream without updating the dashboard.",
-        "expect": "Affected panels go blank --silently, with no error. SRE view catches it as NO_DATA / METRIC_RENAME.",
+        "expect": "Affected panels go blank silently. In this demo, the probe surfaces it as NO_DATA because an empty Prometheus result is indistinguishable from a missing metric.",
     },
     FaultType.CARDINALITY_SPIKE: {
         "description": "Returns 10x the normal number of time series, simulating a label explosion.",
-        "expect": "Panel values may look plausible but are wrong (over-aggregated). SRE view detects CARDINALITY_SPIKE.",
+        "expect": "Grafana Service Health panels may look plausible but be wrong (over-aggregated). SRE view detects CARDINALITY_SPIKE.",
     },
     FaultType.VAR_RESOLUTION_FAIL: {
         "description": "Makes the label_values endpoint return an empty list, breaking template variable dropdowns.",
-        "expect": "Variable-dependent panels break. SRE view shows the affected variable badge as red.",
+        "expect": "SRE view shows the affected variable badge as red and dashboard health drops. Check the real Grafana dashboard to inspect variable-dependent breakage.",
     },
 }
 

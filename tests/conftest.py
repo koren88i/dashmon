@@ -22,6 +22,8 @@ REPO_ROOT = Path(__file__).parent.parent
 # (9090=mock-prometheus, 8000=probe-engine, 9091=real-prometheus, 3000=grafana).
 MOCK_PORT = 9092
 ENGINE_PORT = 8001
+MONGO_MOCK_PORT = 9094
+MONGO_ENGINE_PORT = 8003
 
 
 # ---------------------------------------------------------------------------
@@ -158,6 +160,83 @@ def probe_engine_url(mock_backend_url, tmp_path_factory):
     proc.wait(timeout=10)
 
 
+@pytest.fixture(scope="session")
+def mongo_mock_backend_url():
+    """Start a second mock Prometheus backend for the MongoDB dashboard."""
+    proc = subprocess.Popen(
+        [
+            sys.executable, "-m", "uvicorn",
+            "mock_backend.prometheus_api:app",
+            "--port", str(MONGO_MOCK_PORT),
+            "--log-level", "error",
+        ],
+        cwd=str(REPO_ROOT),
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+    )
+    url = f"http://localhost:{MONGO_MOCK_PORT}"
+    if not _wait_http(f"{url}/-/healthy"):
+        proc.terminate()
+        pytest.fail(f"MongoDB mock backend did not become healthy within 30s on port {MONGO_MOCK_PORT}")
+    yield url
+    proc.terminate()
+    proc.wait(timeout=10)
+
+
+@pytest.fixture(scope="session")
+def probe_engine_mongo_url(mongo_mock_backend_url, tmp_path_factory):
+    """Start a second probe engine, pointed at the MongoDB dashboard and mock backend."""
+    cfg = {
+        "probe_interval_seconds": 3,
+        "max_concurrency": 10,
+        "thresholds": {
+            "slow_query_seconds": 5.0,
+            "slow_dashboard_seconds": 15.0,
+            "stale_data_multiplier": 3.0,
+            "scrape_interval_seconds": 15,
+            "cardinality_spike_ratio": 1.5,
+            "query_timeout_seconds": 25.0,
+        },
+        "datasources": [
+            {"uid": "prometheus-mongo", "url": mongo_mock_backend_url, "type": "prometheus"},
+        ],
+    }
+    tmp = tmp_path_factory.mktemp("engine_mongo_cfg")
+    cfg_path = tmp / "config.yaml"
+    cfg_path.write_text(yaml.dump(cfg))
+
+    env = {
+        **os.environ,
+        "CONFIG_PATH": str(cfg_path),
+        "DASHBOARD_PATH": str(REPO_ROOT / "demo" / "mongodb_dashboard.json"),
+    }
+    proc = subprocess.Popen(
+        [
+            sys.executable, "-m", "uvicorn",
+            "probe.engine:app",
+            "--port", str(MONGO_ENGINE_PORT),
+            "--log-level", "error",
+        ],
+        cwd=str(REPO_ROOT),
+        env=env,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+    )
+    url = f"http://localhost:{MONGO_ENGINE_PORT}"
+    if not _wait_http(f"{url}/health"):
+        proc.terminate()
+        pytest.fail(f"MongoDB probe engine did not start within 30s on port {MONGO_ENGINE_PORT}")
+
+    result = _wait_health_score(url, lambda d: d.get("health_score", 0) == 1.0, timeout=30.0)
+    if result.get("health_score", 0) != 1.0:
+        proc.terminate()
+        pytest.fail("MongoDB probe engine did not reach health_score=1.0 within 30s")
+
+    yield url
+    proc.terminate()
+    proc.wait(timeout=10)
+
+
 # ---------------------------------------------------------------------------
 # Per-test fixtures
 # ---------------------------------------------------------------------------
@@ -189,3 +268,24 @@ def e2e_isolate(mock_backend_url, probe_engine_url):
     _wait_health_score(probe_engine_url, lambda d: d.get("health_score", 0) == 1.0)
     yield mock_backend_url, probe_engine_url
     _clear_all_faults(mock_backend_url)
+
+
+@pytest.fixture()
+def e2e_mongo_isolate(mongo_mock_backend_url, probe_engine_mongo_url):
+    """Ensure the MongoDB mock/probe pair starts each test healthy."""
+    _clear_all_faults(mongo_mock_backend_url)
+    _wait_health_score(probe_engine_mongo_url, lambda d: d.get("health_score", 0) == 1.0)
+    yield mongo_mock_backend_url, probe_engine_mongo_url
+    _clear_all_faults(mongo_mock_backend_url)
+
+
+@pytest.fixture()
+def e2e_dual_isolate(mock_backend_url, probe_engine_url, mongo_mock_backend_url, probe_engine_mongo_url):
+    """Ensure both isolated dashboard paths start each test healthy."""
+    _clear_all_faults(mock_backend_url)
+    _clear_all_faults(mongo_mock_backend_url)
+    _wait_health_score(probe_engine_url, lambda d: d.get("health_score", 0) == 1.0)
+    _wait_health_score(probe_engine_mongo_url, lambda d: d.get("health_score", 0) == 1.0)
+    yield (mock_backend_url, probe_engine_url), (mongo_mock_backend_url, probe_engine_mongo_url)
+    _clear_all_faults(mock_backend_url)
+    _clear_all_faults(mongo_mock_backend_url)

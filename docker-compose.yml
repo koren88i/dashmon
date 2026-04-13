@@ -5,6 +5,9 @@
 # 9091  — real Prometheus          (override: PROMETHEUS_PORT)
 # 3000  — Grafana                  (override: GRAFANA_PORT)
 
+# 9093  - MongoDB mock API         (override: MOCK_MONGO_PORT)
+# 8002  - MongoDB probe API        (override: PROBE_ENGINE_MONGO_PORT)
+
 x-logging: &default-logging
   driver: json-file
   options:
@@ -17,6 +20,27 @@ services:
     build: ./mock_backend
     ports:
       - "${MOCK_BACKEND_PORT:-9090}:9090"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9090/-/healthy"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+    logging: *default-logging
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 128M
+        reservations:
+          cpus: "0.1"
+          memory: 32M
+
+  mock-mongo-prometheus:
+    build: ./mock_backend
+    ports:
+      - "${MOCK_MONGO_PORT:-9093}:9090"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9090/-/healthy"]
       interval: 10s
@@ -64,6 +88,36 @@ services:
           cpus: "0.25"
           memory: 64M
 
+  probe-engine-mongo:
+    build:
+      context: .
+      dockerfile: Dockerfile.probe
+    ports:
+      - "${PROBE_ENGINE_MONGO_PORT:-8002}:8000"
+    environment:
+      CONFIG_PATH: /app/config.mongo.docker.yaml
+      DASHBOARD_PATH: /app/demo/mongodb_dashboard.json
+    depends_on:
+      mock-mongo-prometheus:
+        condition: service_healthy
+        restart: true
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+    restart: unless-stopped
+    logging: *default-logging
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 256M
+        reservations:
+          cpus: "0.25"
+          memory: 64M
+
   prometheus:
     image: prom/prometheus:v2.53.0
     ports:
@@ -72,6 +126,8 @@ services:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
     depends_on:
       probe-engine:
+        condition: service_healthy
+      probe-engine-mongo:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:9090/-/healthy"]
@@ -100,11 +156,15 @@ services:
       - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards:ro
       - ./grafana/provisioning/dashboards/service-health.json:/var/lib/grafana/dashboards/service-health.json:ro
       - ./grafana/provisioning/dashboards/sre-meta.json:/var/lib/grafana/dashboards/sre-meta.json:ro
+      - ./demo/mongodb_dashboard.json:/var/lib/grafana/dashboards/mongodb-operations.json:ro
+      - ./grafana/provisioning/dashboards/sre-mongodb-operations.json:/var/lib/grafana/dashboards/sre-mongodb-operations.json:ro
       - ./grafana/provisioning/alerting:/etc/grafana/provisioning/alerting:ro
     depends_on:
       prometheus:
         condition: service_healthy
       mock-prometheus:
+        condition: service_healthy
+      mock-mongo-prometheus:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000/api/health"]
@@ -129,6 +189,8 @@ services:
       - "${SIMULATOR_PORT:-8080}:80"
     depends_on:
       probe-engine:
+        condition: service_healthy
+      probe-engine-mongo:
         condition: service_healthy
     restart: unless-stopped
     logging: *default-logging

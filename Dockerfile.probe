@@ -14,8 +14,10 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY --chown=appuser:appgroup probe/ ./probe/
 COPY --chown=appuser:appgroup generator/ ./generator/
 COPY --chown=appuser:appgroup demo/example_dashboard.json ./demo/example_dashboard.json
+COPY --chown=appuser:appgroup demo/mongodb_dashboard.json ./demo/mongodb_dashboard.json
 COPY --chown=appuser:appgroup config.yaml .
 COPY --chown=appuser:appgroup config.docker.yaml .
+COPY --chown=appuser:appgroup config.mongo.docker.yaml .
 
 USER appuser
 

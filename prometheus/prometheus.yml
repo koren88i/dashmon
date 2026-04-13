@@ -7,3 +7,8 @@ scrape_configs:
     metrics_path: /metrics
     static_configs:
       - targets: ["probe-engine:8000"]
+
+  - job_name: "probe-engine-mongo"
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["probe-engine-mongo:8000"]

@@ -3,8 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dashboard SRE — Simulator</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+<title>Dashboard SRE — Demo Control</title>
 <style>
   :root {
     --bg: #181b1f; --surface: #23272e; --border: #333; --text: #e0e0e0;
@@ -24,24 +23,12 @@
               animation: pulse 2s infinite; }
   @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
 
-  /* Target dashboard grid */
-  .panel-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-  .panel-grid.row2 { grid-template-columns: repeat(2, 1fr); margin-top: 10px; }
-  .panel-grid.row3 { grid-template-columns: 1fr; margin-top: 10px; }
-  .panel-card { background: var(--bg); border: 1px solid var(--border); border-radius: 6px;
-                padding: 10px; min-height: 120px; position: relative; transition: border-color 0.3s; }
-  .panel-card.degraded { border-color: var(--red); }
-  .panel-card .title { font-size: 0.75rem; color: var(--muted); margin-bottom: 4px; }
-  .panel-card .value { font-size: 1.5rem; font-weight: 600; }
-  .panel-card canvas { width: 100% !important; height: 60px !important; }
-  .panel-card .error-badge { position: absolute; top: 6px; right: 6px; background: var(--red);
-                             color: #fff; font-size: 0.65rem; padding: 2px 6px; border-radius: 3px;
-                             display: none; }
-  .panel-card.degraded .error-badge { display: block; }
-  .panel-card .no-data { color: var(--muted); font-style: italic; font-size: 0.85rem;
-                         display: none; margin-top: 20px; }
-  .panel-card.degraded .no-data { display: block; }
-  .panel-card.degraded canvas { opacity: 0.15; }
+  /* Dashboard target */
+  .target-controls { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .target-controls label { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; }
+  .target-controls select { background: var(--bg); color: var(--text); border: 1px solid var(--border);
+                            border-radius: 6px; padding: 8px 10px; min-width: 230px; }
+  .target-meta { margin-top: 10px; color: var(--muted); font-size: 0.78rem; line-height: 1.5; }
 
   /* SRE view */
   .sre-summary { display: flex; gap: 16px; margin-bottom: 12px; flex-wrap: wrap; }
@@ -99,17 +86,17 @@
 <body>
 
 <!-- ============================================================ -->
-<!-- SECTION 1: Target Dashboard                                   -->
+<!-- SECTION 1: Target dashboard                                   -->
 <!-- ============================================================ -->
 <div class="section">
   <div class="section-header">
-    <h1>Service Health</h1>
-    <div class="live-dot" id="targetDot"></div>
-    <span style="font-size:0.7rem;color:var(--muted)" id="targetStatus">Connecting…</span>
+    <h1>Target Dashboard</h1>
   </div>
-  <div class="panel-grid" id="row1"></div>
-  <div class="panel-grid row2" id="row2"></div>
-  <div class="panel-grid row3" id="row3"></div>
+  <div class="target-controls">
+    <label for="dashboardSelect">Dashboard</label>
+    <select id="dashboardSelect"></select>
+  </div>
+  <div class="target-meta" id="targetMeta"></div>
 </div>
 
 <!-- ============================================================ -->
@@ -147,68 +134,124 @@
 // ---------------------------------------------------------------------------
 // Configuration
 // ---------------------------------------------------------------------------
-const MOCK_URL  = 'http://localhost:9090';
-const PROBE_URL = 'http://localhost:8000';
 const POLL_INTERVAL = 5000;   // ms
-const DATA_INTERVAL = 3000;   // ms — how often sparklines update
 
-const PANELS = [
-  { id: 1, title: 'Request Rate',     query: 'rate(http_requests_total[5m])', row: 'row1', unit: 'req/s' },
-  { id: 2, title: 'Error Rate %',     query: 'rate(http_requests_total{status=~"5.."}[5m])', row: 'row1', unit: '%' },
-  { id: 3, title: 'P99 Latency',      query: 'histogram_quantile(0.99,rate(http_request_duration_seconds_bucket[5m]))', row: 'row1', unit: 's' },
-  { id: 4, title: 'Memory Usage',     query: 'process_resident_memory_bytes', row: 'row2', unit: 'MB' },
-  { id: 5, title: 'Pod Readiness',    query: 'kube_pod_status_ready', row: 'row2', unit: '' },
-  { id: 6, title: 'Active Instances', query: 'up', row: 'row3', unit: '' },
-];
-
-const FAULTS = [
-  { type: 'no_data',              label: 'No Data',          target: 'http_requests_total' },
-  { type: 'stale_data',           label: 'Stale Data',       target: 'http_requests_total' },
-  { type: 'slow_query',           label: 'Slow Query',       target: 'http_requests_total' },
-  { type: 'var_resolution_fail',  label: 'Var Fail',         target: 'instance' },
-  { type: 'metric_rename',        label: 'Metric Rename',    target: 'process_resident_memory_bytes' },
-  { type: 'cardinality_spike',    label: 'Cardinality Spike',target: 'http_requests_total' },
-];
+const DASHBOARDS = {
+  service: {
+    label: 'Service Health',
+    dashboardUid: 'service-health-01',
+    mockUrl: 'http://localhost:9090',
+    probeUrl: 'http://localhost:8000',
+    grafanaSource: 'Service Health',
+    grafanaSre: '[SRE] Service Health',
+    faults: [
+      { type: 'no_data',             label: 'No Data',           target: 'http_requests_total' },
+      { type: 'stale_data',          label: 'Stale Data',        target: 'http_requests_total' },
+      { type: 'slow_query',          label: 'Slow Query',        target: 'http_requests_total' },
+      { type: 'var_resolution_fail', label: 'Var Fail',          target: 'instance' },
+      { type: 'metric_rename',       label: 'Metric Rename',     target: 'process_resident_memory_bytes' },
+      { type: 'cardinality_spike',   label: 'Cardinality Spike', target: 'http_requests_total' },
+    ],
+    surfaces: {
+      http_requests_total: 'Grafana panels: Request Rate, Error Rate %',
+      process_resident_memory_bytes: 'Grafana panel: Memory Usage',
+      up: 'Grafana panel: Active Instances',
+      kube_pod_status_ready: 'Grafana panel: Pod Readiness',
+      instance: 'Grafana variable $pod',
+      namespace: 'Grafana variable $namespace',
+    },
+  },
+  mongodb: {
+    label: 'MongoDB Operations',
+    dashboardUid: 'mongodb-ops-01',
+    mockUrl: 'http://localhost:9093',
+    probeUrl: 'http://localhost:8002',
+    grafanaSource: 'MongoDB Operations',
+    grafanaSre: '[SRE] MongoDB Operations',
+    faults: [
+      { type: 'no_data',             label: 'No Data',           target: 'mongodb_op_counters_total' },
+      { type: 'stale_data',          label: 'Stale Data',        target: 'mongodb_op_counters_total' },
+      { type: 'slow_query',          label: 'Slow Query',        target: 'mongodb_op_counters_total' },
+      { type: 'var_resolution_fail', label: 'Var Fail',          target: 'instance' },
+      { type: 'metric_rename',       label: 'Metric Rename',     target: 'mongodb_memory_resident_bytes' },
+      { type: 'cardinality_spike',   label: 'Cardinality Spike', target: 'mongodb_op_counters_total' },
+    ],
+    surfaces: {
+      mongodb_up: 'Grafana panel: MongoDB Up',
+      mongodb_op_counters_total: 'Grafana panel: Operation Rate',
+      mongodb_connections: 'Grafana panel: Current Connections',
+      mongodb_memory_resident_bytes: 'Grafana panel: Resident Memory',
+      mongodb_mongod_replset_member_replication_lag: 'Grafana panel: Replication Lag',
+      mongodb_mongod_replset_member_health: 'Grafana panel: Replica Member Health',
+      instance: 'Grafana variable $instance',
+      replset: 'Grafana variable $replset',
+    },
+  },
+};
 
 // ---------------------------------------------------------------------------
 // State
 // ---------------------------------------------------------------------------
-const charts = {};       // panelId -> Chart instance
-const dataBuffers = {};  // panelId -> array of values (last 20)
-const panelStatus = {};  // panelId -> 'healthy' | 'degraded'
 let activeFaults = new Set();
 let seenIssueTimestamps = new Set();
 let faultInfo = {};  // populated from GET /faults/types
+let currentDashboardKey = 'service';
+let currentDashboard = DASHBOARDS[currentDashboardKey];
 
 // ---------------------------------------------------------------------------
-// Build UI: panels
+// Build UI: dashboard selector
 // ---------------------------------------------------------------------------
-for (const p of PANELS) {
-  const card = document.createElement('div');
-  card.className = 'panel-card';
-  card.id = `panel-${p.id}`;
-  card.innerHTML = `
-    <div class="title">${p.title}</div>
-    <div class="value" id="val-${p.id}">—</div>
-    <canvas id="chart-${p.id}"></canvas>
-    <div class="error-badge" id="err-${p.id}">ERROR</div>
-    <div class="no-data">No data</div>
-  `;
-  document.getElementById(p.row).appendChild(card);
-  dataBuffers[p.id] = [];
+const dashboardSelect = document.getElementById('dashboardSelect');
+const targetMeta = document.getElementById('targetMeta');
+
+function buildDashboardSelector() {
+  dashboardSelect.innerHTML = '';
+  for (const [key, dashboard] of Object.entries(DASHBOARDS)) {
+    const option = document.createElement('option');
+    option.value = key;
+    option.textContent = dashboard.label;
+    dashboardSelect.appendChild(option);
+  }
+  dashboardSelect.value = currentDashboardKey;
+  dashboardSelect.addEventListener('change', () => selectDashboard(dashboardSelect.value));
 }
 
-// Initialize charts after DOM is ready.
-for (const p of PANELS) {
-  const ctx = document.getElementById(`chart-${p.id}`).getContext('2d');
-  charts[p.id] = new Chart(ctx, {
-    type: 'line',
-    data: { labels: [], datasets: [{ data: [], borderColor: '#3498db', borderWidth: 1.5,
-            pointRadius: 0, fill: false, tension: 0.3 }] },
-    options: { responsive: true, maintainAspectRatio: false, animation: { duration: 300 },
-               plugins: { legend: { display: false } },
-               scales: { x: { display: false }, y: { display: false } } },
-  });
+async function selectDashboard(key) {
+  currentDashboardKey = key;
+  currentDashboard = DASHBOARDS[key];
+  activeFaults = new Set();
+  seenIssueTimestamps = new Set();
+  faultInfo = {};
+  if (activeTooltip) { activeTooltip.classList.remove('visible'); activeTooltip = null; }
+  targetMeta.textContent =
+    `Source: ${currentDashboard.grafanaSource} | SRE: ${currentDashboard.grafanaSre} | ` +
+    `Probe: ${currentDashboard.probeUrl} | Faults: ${currentDashboard.mockUrl}`;
+  resetSreView();
+  buildFaultButtons();
+  await loadFaultInfo();
+  await syncActiveFaults();
+  await fetchHealth();
+}
+
+function resetSreView() {
+  const healthScore = document.getElementById('healthScore');
+  const issueCount = document.getElementById('issueCount');
+  const loadTime = document.getElementById('loadTime');
+  const lastProbe = document.getElementById('lastProbe');
+  healthScore.textContent = '-';
+  issueCount.textContent = '0';
+  loadTime.textContent = '-';
+  lastProbe.textContent = '-';
+  healthScore.className = 'val ok';
+  issueCount.className = 'val ok';
+  loadTime.className = 'val ok';
+  lastProbe.className = 'val ok';
+  document.getElementById('sreDot').style.background = 'var(--green)';
+  document.getElementById('sreStatus').textContent = 'Waiting for probe...';
+  document.getElementById('panelBadges').innerHTML = '';
+  document.getElementById('varBadges').innerHTML = '';
+  document.getElementById('issueLog').innerHTML =
+    '<div class="entry" style="color:var(--muted)">No issues yet.</div>';
 }
 
 // ---------------------------------------------------------------------------
@@ -218,7 +261,8 @@ const btnContainer = document.getElementById('faultButtons');
 let activeTooltip = null;
 
 function buildFaultButtons() {
-  for (const f of FAULTS) {
+  btnContainer.innerHTML = '';
+  for (const f of currentDashboard.faults) {
     const group = document.createElement('span');
     group.className = 'fault-group';
     group.style.position = 'relative';
@@ -226,6 +270,7 @@ function buildFaultButtons() {
     const btn = document.createElement('button');
     btn.textContent = f.label;
     btn.dataset.type = f.type;
+    btn.dataset.key = faultKey(f);
     btn.addEventListener('click', () => toggleFault(f, btn));
     group.appendChild(btn);
 
@@ -250,14 +295,23 @@ function buildFaultButtons() {
   btnContainer.appendChild(clearBtn);
 }
 
+function faultKey(fault) {
+  return `${fault.type}:${fault.target}`;
+}
+
+function updateFaultButtonStates() {
+  document.querySelectorAll('.fault-buttons button[data-key]').forEach((btn) => {
+    btn.classList.toggle('active', activeFaults.has(btn.dataset.key));
+  });
+}
+
 function getAffectedPanels(fault) {
-  // Map fault target to the panel titles whose queries use that metric.
-  // For var_resolution_fail, it targets a label name, not a metric — show variable name instead.
+  // Map fault target to the real Grafana surfaces that operators should inspect.
+  const surface = currentDashboard.surfaces[fault.target];
   if (fault.type === 'var_resolution_fail') {
-    return 'Variable $pod (label: ' + fault.target + ')';
+    return `${surface || 'Grafana variable'} (label: ${fault.target})`;
   }
-  const affected = PANELS.filter(p => p.query.includes(fault.target)).map(p => p.title);
-  return affected.length > 0 ? affected.join(', ') : fault.target;
+  return surface || currentDashboard.grafanaSource;
 }
 
 function showTooltip(group, fault) {
@@ -292,70 +346,21 @@ document.addEventListener('click', () => {
 
 async function loadFaultInfo() {
   try {
-    const resp = await fetch(`${MOCK_URL}/faults/types`);
+    const resp = await fetch(`${currentDashboard.mockUrl}/faults/types`);
     faultInfo = await resp.json();
   } catch (e) { /* info tooltips degrade gracefully */ }
 }
 
-buildFaultButtons();
-loadFaultInfo();
-
-// ---------------------------------------------------------------------------
-// Data polling: target dashboard sparklines
-// ---------------------------------------------------------------------------
-async function fetchPanelData() {
-  for (const p of PANELS) {
-    try {
-      const resp = await fetch(`${MOCK_URL}/api/v1/query?query=${encodeURIComponent(p.query)}`);
-      const body = await resp.json();
-      const results = body.data?.result || [];
-      const card = document.getElementById(`panel-${p.id}`);
-
-      if (results.length === 0) {
-        panelStatus[p.id] = 'degraded';
-        card.classList.add('degraded');
-        document.getElementById(`err-${p.id}`).textContent = 'NO DATA';
-        continue;
-      }
-
-      // Take first series value.
-      let val = parseFloat(results[0].value[1]);
-      let display;
-      if (p.unit === 'MB') { display = (val / 1e6).toFixed(0) + ' MB'; }
-      else if (p.unit === '%') { display = (val * 100).toFixed(1) + '%'; }
-      else if (p.unit === 's') { display = val.toFixed(3) + ' s'; }
-      else if (p.unit === 'req/s') { display = val.toFixed(0) + ' req/s'; }
-      else { display = results.length + ' series'; }
-
-      // Check staleness (timestamp > 60s old).
-      const ts = results[0].value[0];
-      const age = Date.now() / 1000 - ts;
-      if (age > 120) {
-        panelStatus[p.id] = 'degraded';
-        card.classList.add('degraded');
-        document.getElementById(`err-${p.id}`).textContent = 'STALE';
-      } else {
-        panelStatus[p.id] = 'healthy';
-        card.classList.remove('degraded');
-      }
-
-      document.getElementById(`val-${p.id}`).textContent = display;
-
-      // Update sparkline.
-      const buf = dataBuffers[p.id];
-      buf.push(val);
-      if (buf.length > 20) buf.shift();
-      const chart = charts[p.id];
-      chart.data.labels = buf.map((_, i) => i);
-      chart.data.datasets[0].data = [...buf];
-      chart.update('none');
-
-    } catch (e) {
-      // Connection error — leave panel as-is.
-    }
+async function syncActiveFaults() {
+  try {
+    const resp = await fetch(`${currentDashboard.mockUrl}/faults/active`);
+    const body = await resp.json();
+    activeFaults = new Set((body.faults || []).map((f) => `${f.type}:${f.target}`));
+    updateFaultButtonStates();
+  } catch (e) {
+    activeFaults = new Set();
+    updateFaultButtonStates();
   }
-  document.getElementById('targetDot').style.background = 'var(--green)';
-  document.getElementById('targetStatus').textContent = 'Live';
 }
 
 // ---------------------------------------------------------------------------
@@ -363,7 +368,7 @@ async function fetchPanelData() {
 // ---------------------------------------------------------------------------
 async function fetchHealth() {
   try {
-    const resp = await fetch(`${PROBE_URL}/health`);
+    const resp = await fetch(`${currentDashboard.probeUrl}/health`);
     const h = await resp.json();
 
     // Summary stats.
@@ -372,7 +377,7 @@ async function fetchHealth() {
     scoreEl.textContent = (score * 100).toFixed(0) + '%';
     scoreEl.className = 'val ' + (score >= 1 ? 'ok' : score >= 0.7 ? 'warn' : 'bad');
 
-    const issues = (h.panels || []).filter(p => p.status === 'degraded').length;
+    const issues = h.issue_count ?? ((h.panels || []).filter(p => p.status === 'degraded').length);
     const issueEl = document.getElementById('issueCount');
     issueEl.textContent = issues;
     issueEl.className = 'val ' + (issues === 0 ? 'ok' : 'bad');
@@ -427,7 +432,8 @@ async function fetchHealth() {
     }
 
     document.getElementById('sreDot').style.background = 'var(--green)';
-    document.getElementById('sreStatus').textContent = `Polling every ${POLL_INTERVAL / 1000}s`;
+    document.getElementById('sreStatus').textContent =
+      `${h.dashboard_title || currentDashboard.label} | polling every ${POLL_INTERVAL / 1000}s`;
 
   } catch (e) {
     document.getElementById('sreDot').style.background = 'var(--red)';
@@ -439,40 +445,35 @@ async function fetchHealth() {
 // Fault injection
 // ---------------------------------------------------------------------------
 async function toggleFault(fault, btn) {
-  const key = fault.type;
+  const key = faultKey(fault);
   if (activeFaults.has(key)) {
-    // Clear this specific fault.
-    await fetch(`${MOCK_URL}/faults/clear`, {
+    await fetch(`${currentDashboard.mockUrl}/faults/clear`, {
       method: 'POST', headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({ target: fault.target }),
     });
-    activeFaults.delete(key);
-    btn.classList.remove('active');
   } else {
-    await fetch(`${MOCK_URL}/faults/inject`, {
+    await fetch(`${currentDashboard.mockUrl}/faults/inject`, {
       method: 'POST', headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({ type: fault.type, target: fault.target, duration_seconds: 0 }),
     });
-    activeFaults.add(key);
-    btn.classList.add('active');
   }
+  await syncActiveFaults();
 }
 
 async function clearAll() {
-  await fetch(`${MOCK_URL}/faults/clear`, {
+  await fetch(`${currentDashboard.mockUrl}/faults/clear`, {
     method: 'POST', headers: {'Content-Type': 'application/json'},
     body: JSON.stringify({ target: 'all' }),
   });
   activeFaults.clear();
-  document.querySelectorAll('.fault-buttons button.active').forEach(b => b.classList.remove('active'));
+  updateFaultButtonStates();
 }
 
 // ---------------------------------------------------------------------------
 // Start polling loops
 // ---------------------------------------------------------------------------
-fetchPanelData();
-fetchHealth();
-setInterval(fetchPanelData, DATA_INTERVAL);
+buildDashboardSelector();
+selectDashboard(currentDashboardKey);
 setInterval(fetchHealth, POLL_INTERVAL);
 </script>
 </body>

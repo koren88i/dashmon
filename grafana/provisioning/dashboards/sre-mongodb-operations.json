@@ -1,8 +1,8 @@
 {
   "id": null,
-  "uid": "sre-service-health-01",
-  "title": "[SRE] Service Health",
-  "description": "Meta-dashboard monitoring the health of 'Service Health'",
+  "uid": "sre-mongodb-ops-01",
+  "title": "[SRE] MongoDB Operations",
+  "description": "Meta-dashboard monitoring the health of 'MongoDB Operations'",
   "schemaVersion": 39,
   "version": 1,
   "timezone": "browser",
@@ -59,7 +59,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "dashboard_health_score{dashboard_uid=\"service-health-01\"}"
+          "expr": "dashboard_health_score{dashboard_uid=\"mongodb-ops-01\"}"
         }
       ],
       "options": {
@@ -115,7 +115,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "dashboard_issue_count{dashboard_uid=\"service-health-01\"}"
+          "expr": "dashboard_issue_count{dashboard_uid=\"mongodb-ops-01\"}"
         }
       ],
       "options": {
@@ -169,7 +169,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "dashboard_load_time_seconds{dashboard_uid=\"service-health-01\"}"
+          "expr": "dashboard_load_time_seconds{dashboard_uid=\"mongodb-ops-01\"}"
         }
       ],
       "options": {
@@ -225,7 +225,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "time() - dashboard_last_probe_timestamp{dashboard_uid=\"service-health-01\"}"
+          "expr": "time() - dashboard_last_probe_timestamp{dashboard_uid=\"mongodb-ops-01\"}"
         }
       ],
       "options": {
@@ -279,7 +279,7 @@
     },
     {
       "id": 7,
-      "title": "Request Rate",
+      "title": "MongoDB Up",
       "type": "stat",
       "gridPos": {
         "h": 4,
@@ -294,7 +294,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "min(dashboard_panel_status{dashboard_uid=\"service-health-01\", panel_id=\"1\"}) or vector(1)"
+          "expr": "min(dashboard_panel_status{dashboard_uid=\"mongodb-ops-01\", panel_id=\"1\"}) or vector(1)"
         }
       ],
       "options": {
@@ -329,7 +329,7 @@
     },
     {
       "id": 8,
-      "title": "Error Rate %",
+      "title": "Operation Rate",
       "type": "stat",
       "gridPos": {
         "h": 4,
@@ -344,7 +344,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "min(dashboard_panel_status{dashboard_uid=\"service-health-01\", panel_id=\"2\"}) or vector(1)"
+          "expr": "min(dashboard_panel_status{dashboard_uid=\"mongodb-ops-01\", panel_id=\"2\"}) or vector(1)"
         }
       ],
       "options": {
@@ -379,7 +379,7 @@
     },
     {
       "id": 9,
-      "title": "P99 Latency",
+      "title": "Current Connections",
       "type": "stat",
       "gridPos": {
         "h": 4,
@@ -394,7 +394,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "min(dashboard_panel_status{dashboard_uid=\"service-health-01\", panel_id=\"3\"}) or vector(1)"
+          "expr": "min(dashboard_panel_status{dashboard_uid=\"mongodb-ops-01\", panel_id=\"3\"}) or vector(1)"
         }
       ],
       "options": {
@@ -429,7 +429,7 @@
     },
     {
       "id": 10,
-      "title": "Memory Usage",
+      "title": "Resident Memory",
       "type": "stat",
       "gridPos": {
         "h": 4,
@@ -444,7 +444,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "min(dashboard_panel_status{dashboard_uid=\"service-health-01\", panel_id=\"4\"}) or vector(1)"
+          "expr": "min(dashboard_panel_status{dashboard_uid=\"mongodb-ops-01\", panel_id=\"4\"}) or vector(1)"
         }
       ],
       "options": {
@@ -479,7 +479,7 @@
     },
     {
       "id": 11,
-      "title": "Pod Readiness",
+      "title": "Replication Lag",
       "type": "stat",
       "gridPos": {
         "h": 4,
@@ -494,7 +494,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "min(dashboard_panel_status{dashboard_uid=\"service-health-01\", panel_id=\"5\"}) or vector(1)"
+          "expr": "min(dashboard_panel_status{dashboard_uid=\"mongodb-ops-01\", panel_id=\"5\"}) or vector(1)"
         }
       ],
       "options": {
@@ -529,7 +529,7 @@
     },
     {
       "id": 12,
-      "title": "Active Instances",
+      "title": "Replica Member Health",
       "type": "stat",
       "gridPos": {
         "h": 4,
@@ -544,7 +544,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "min(dashboard_panel_status{dashboard_uid=\"service-health-01\", panel_id=\"6\"}) or vector(1)"
+          "expr": "min(dashboard_panel_status{dashboard_uid=\"mongodb-ops-01\", panel_id=\"6\"}) or vector(1)"
         }
       ],
       "options": {
@@ -607,63 +607,63 @@
       "targets": [
         {
           "refId": "p50_1",
-          "expr": "histogram_quantile(0.5, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"service-health-01\", panel_id=\"1\"}[5m]))",
-          "legendFormat": "Request Rate p50"
+          "expr": "histogram_quantile(0.5, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"mongodb-ops-01\", panel_id=\"1\"}[5m]))",
+          "legendFormat": "MongoDB Up p50"
         },
         {
           "refId": "p50_2",
-          "expr": "histogram_quantile(0.5, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"service-health-01\", panel_id=\"2\"}[5m]))",
-          "legendFormat": "Error Rate % p50"
+          "expr": "histogram_quantile(0.5, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"mongodb-ops-01\", panel_id=\"2\"}[5m]))",
+          "legendFormat": "Operation Rate p50"
         },
         {
           "refId": "p50_3",
-          "expr": "histogram_quantile(0.5, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"service-health-01\", panel_id=\"3\"}[5m]))",
-          "legendFormat": "P99 Latency p50"
+          "expr": "histogram_quantile(0.5, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"mongodb-ops-01\", panel_id=\"3\"}[5m]))",
+          "legendFormat": "Current Connections p50"
         },
         {
           "refId": "p50_4",
-          "expr": "histogram_quantile(0.5, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"service-health-01\", panel_id=\"4\"}[5m]))",
-          "legendFormat": "Memory Usage p50"
+          "expr": "histogram_quantile(0.5, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"mongodb-ops-01\", panel_id=\"4\"}[5m]))",
+          "legendFormat": "Resident Memory p50"
         },
         {
           "refId": "p50_5",
-          "expr": "histogram_quantile(0.5, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"service-health-01\", panel_id=\"5\"}[5m]))",
-          "legendFormat": "Pod Readiness p50"
+          "expr": "histogram_quantile(0.5, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"mongodb-ops-01\", panel_id=\"5\"}[5m]))",
+          "legendFormat": "Replication Lag p50"
         },
         {
           "refId": "p50_6",
-          "expr": "histogram_quantile(0.5, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"service-health-01\", panel_id=\"6\"}[5m]))",
-          "legendFormat": "Active Instances p50"
+          "expr": "histogram_quantile(0.5, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"mongodb-ops-01\", panel_id=\"6\"}[5m]))",
+          "legendFormat": "Replica Member Health p50"
         },
         {
           "refId": "p95_1",
-          "expr": "histogram_quantile(0.95, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"service-health-01\", panel_id=\"1\"}[5m]))",
-          "legendFormat": "Request Rate p95"
+          "expr": "histogram_quantile(0.95, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"mongodb-ops-01\", panel_id=\"1\"}[5m]))",
+          "legendFormat": "MongoDB Up p95"
         },
         {
           "refId": "p95_2",
-          "expr": "histogram_quantile(0.95, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"service-health-01\", panel_id=\"2\"}[5m]))",
-          "legendFormat": "Error Rate % p95"
+          "expr": "histogram_quantile(0.95, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"mongodb-ops-01\", panel_id=\"2\"}[5m]))",
+          "legendFormat": "Operation Rate p95"
         },
         {
           "refId": "p95_3",
-          "expr": "histogram_quantile(0.95, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"service-health-01\", panel_id=\"3\"}[5m]))",
-          "legendFormat": "P99 Latency p95"
+          "expr": "histogram_quantile(0.95, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"mongodb-ops-01\", panel_id=\"3\"}[5m]))",
+          "legendFormat": "Current Connections p95"
         },
         {
           "refId": "p95_4",
-          "expr": "histogram_quantile(0.95, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"service-health-01\", panel_id=\"4\"}[5m]))",
-          "legendFormat": "Memory Usage p95"
+          "expr": "histogram_quantile(0.95, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"mongodb-ops-01\", panel_id=\"4\"}[5m]))",
+          "legendFormat": "Resident Memory p95"
         },
         {
           "refId": "p95_5",
-          "expr": "histogram_quantile(0.95, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"service-health-01\", panel_id=\"5\"}[5m]))",
-          "legendFormat": "Pod Readiness p95"
+          "expr": "histogram_quantile(0.95, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"mongodb-ops-01\", panel_id=\"5\"}[5m]))",
+          "legendFormat": "Replication Lag p95"
         },
         {
           "refId": "p95_6",
-          "expr": "histogram_quantile(0.95, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"service-health-01\", panel_id=\"6\"}[5m]))",
-          "legendFormat": "Active Instances p95"
+          "expr": "histogram_quantile(0.95, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"mongodb-ops-01\", panel_id=\"6\"}[5m]))",
+          "legendFormat": "Replica Member Health p95"
         }
       ],
       "fieldConfig": {
@@ -695,7 +695,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "sum(increase(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"service-health-01\"}[5m])) by (le)",
+          "expr": "sum(increase(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"mongodb-ops-01\"}[5m])) by (le)",
           "format": "heatmap",
           "legendFormat": "{{le}}"
         }
@@ -722,7 +722,7 @@
     },
     {
       "id": 17,
-      "title": "$pod",
+      "title": "$instance",
       "type": "stat",
       "gridPos": {
         "h": 4,
@@ -737,7 +737,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "dashboard_variable_status{dashboard_uid=\"service-health-01\", variable_name=\"pod\"}"
+          "expr": "dashboard_variable_status{dashboard_uid=\"mongodb-ops-01\", variable_name=\"instance\"}"
         }
       ],
       "options": {
@@ -772,7 +772,7 @@
     },
     {
       "id": 18,
-      "title": "$namespace",
+      "title": "$replset",
       "type": "stat",
       "gridPos": {
         "h": 4,
@@ -787,7 +787,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "dashboard_variable_status{dashboard_uid=\"service-health-01\", variable_name=\"namespace\"}"
+          "expr": "dashboard_variable_status{dashboard_uid=\"mongodb-ops-01\", variable_name=\"replset\"}"
         }
       ],
       "options": {
@@ -836,14 +836,14 @@
       },
       "targets": [
         {
-          "refId": "pod",
-          "expr": "histogram_quantile(0.95, rate(dashboard_variable_query_duration_seconds_bucket{dashboard_uid=\"service-health-01\", variable_name=\"pod\"}[5m]))",
-          "legendFormat": "$pod p95"
+          "refId": "instance",
+          "expr": "histogram_quantile(0.95, rate(dashboard_variable_query_duration_seconds_bucket{dashboard_uid=\"mongodb-ops-01\", variable_name=\"instance\"}[5m]))",
+          "legendFormat": "$instance p95"
         },
         {
-          "refId": "namespace",
-          "expr": "histogram_quantile(0.95, rate(dashboard_variable_query_duration_seconds_bucket{dashboard_uid=\"service-health-01\", variable_name=\"namespace\"}[5m]))",
-          "legendFormat": "$namespace p95"
+          "refId": "replset",
+          "expr": "histogram_quantile(0.95, rate(dashboard_variable_query_duration_seconds_bucket{dashboard_uid=\"mongodb-ops-01\", variable_name=\"replset\"}[5m]))",
+          "legendFormat": "$replset p95"
         }
       ],
       "fieldConfig": {
@@ -888,7 +888,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "dashboard_issue_event_timestamp_seconds{dashboard_uid=\"service-health-01\"} * 1000",
+          "expr": "dashboard_issue_event_timestamp_seconds{dashboard_uid=\"mongodb-ops-01\"} * 1000",
           "format": "table",
           "instant": true
         }
@@ -993,7 +993,7 @@
           "error": true
         },
         "folder": null,
-        "alertInstanceLabelFilter": "dashboard_uid=\"service-health-01\""
+        "alertInstanceLabelFilter": "dashboard_uid=\"mongodb-ops-01\""
       }
     }
   ]

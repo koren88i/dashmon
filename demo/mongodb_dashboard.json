@@ -1,0 +1,146 @@
+{
+  "id": null,
+  "uid": "mongodb-ops-01",
+  "title": "MongoDB Operations",
+  "description": "Operational view of MongoDB replica set health and workload",
+  "schemaVersion": 39,
+  "version": 1,
+  "timezone": "browser",
+  "editable": true,
+  "graphTooltip": 1,
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "refresh": "30s",
+  "templating": {
+    "list": [
+      {
+        "name": "instance",
+        "type": "query",
+        "datasource": {
+          "uid": "prometheus-mongo",
+          "type": "prometheus"
+        },
+        "query": "label_values(mongodb_up, instance)",
+        "refresh": 2,
+        "includeAll": true,
+        "multi": true,
+        "current": {},
+        "sort": 1
+      },
+      {
+        "name": "replset",
+        "type": "query",
+        "datasource": {
+          "uid": "prometheus-mongo",
+          "type": "prometheus"
+        },
+        "query": "label_values(mongodb_mongod_replset_member_health{instance=~\"$instance\"}, replset)",
+        "refresh": 2,
+        "includeAll": true,
+        "multi": false,
+        "current": {},
+        "sort": 1
+      }
+    ]
+  },
+  "panels": [
+    {
+      "id": 1,
+      "title": "MongoDB Up",
+      "type": "stat",
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 0 },
+      "datasource": {
+        "uid": "prometheus-mongo",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "mongodb_up{instance=~\"$instance\", replset=~\"$replset\"}"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Operation Rate",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 0 },
+      "datasource": {
+        "uid": "prometheus-mongo",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(rate(mongodb_op_counters_total{instance=~\"$instance\", replset=~\"$replset\"}[5m])) by (type)"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Current Connections",
+      "type": "gauge",
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 0 },
+      "datasource": {
+        "uid": "prometheus-mongo",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "mongodb_connections{instance=~\"$instance\", replset=~\"$replset\", state=\"current\"}"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Resident Memory",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+      "datasource": {
+        "uid": "prometheus-mongo",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "mongodb_memory_resident_bytes{instance=~\"$instance\", replset=~\"$replset\"}"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Replication Lag",
+      "type": "gauge",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+      "datasource": {
+        "uid": "prometheus-mongo",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "mongodb_mongod_replset_member_replication_lag{instance=~\"$instance\", replset=~\"$replset\"}"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Replica Member Health",
+      "type": "table",
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 16 },
+      "datasource": {
+        "uid": "prometheus-mongo",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "mongodb_mongod_replset_member_health{instance=~\"$instance\", replset=~\"$replset\"}"
+        }
+      ]
+    }
+  ]
+}

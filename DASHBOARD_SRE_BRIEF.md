@@ -1,5 +1,9 @@
 # Dashboard SRE — Claude Code Brief
 
+Archived reference: this is the original product brief that guided the initial build.
+
+It is useful for intent and scope, but it is not the living source of truth for the current repository state. For current behavior, use `README.md`, `ARCHITECTURE.md`, and the code/tests.
+
 ## Mission
 
 Build a service that takes a Grafana dashboard JSON as input and produces:

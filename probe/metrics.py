@@ -62,6 +62,13 @@ VARIABLE_STATUS = Gauge(
     registry=REGISTRY,
 )
 
+VARIABLE_ERROR_TOTAL = Counter(
+    "dashboard_variable_error_total",
+    "Total variable resolution errors by type",
+    ["dashboard_uid", "variable_name", "error_type"],
+    registry=REGISTRY,
+)
+
 VARIABLE_QUERY_DURATION = Histogram(
     "dashboard_variable_query_duration_seconds",
     "Variable query execution time",
@@ -76,8 +83,22 @@ VARIABLE_QUERY_DURATION = Histogram(
 
 HEALTH_SCORE = Gauge(
     "dashboard_health_score",
-    "Fraction of panels currently healthy (0-1)",
+    "Fraction of panels and variables currently healthy (0-1)",
     ["dashboard_uid"],
+    registry=REGISTRY,
+)
+
+ISSUE_COUNT = Gauge(
+    "dashboard_issue_count",
+    "Number of currently degraded panels and variables",
+    ["dashboard_uid"],
+    registry=REGISTRY,
+)
+
+ISSUE_EVENT_TIMESTAMP = Gauge(
+    "dashboard_issue_event_timestamp_seconds",
+    "Timestamp of recent issue state transitions",
+    ["dashboard_uid", "event_id", "panel_id", "panel_title", "error_type", "message"],
     registry=REGISTRY,
 )
 

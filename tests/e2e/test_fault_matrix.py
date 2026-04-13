@@ -117,6 +117,8 @@ def test_var_resolution_fail_detected(e2e_isolate):
     assert any(v["status"] == "degraded" for v in variables), (
         f"No variable degraded after 20s. Variables: {variables}"
     )
+    assert data["health_score"] < 1.0
+    assert data["issue_count"] >= 1
 
 
 def test_metric_rename_detected(e2e_isolate):
@@ -124,7 +126,37 @@ def test_metric_rename_detected(e2e_isolate):
     _inject(mock_url, "metric_rename", "http_requests_total")
     data = _wait_degraded(engine_url)
     assert data["health_score"] < 1.0
-    assert any(p["status"] == "degraded" for p in data["panels"])
+    degraded = [p for p in data["panels"] if p["status"] == "degraded"]
+    assert degraded
+    assert any(p["error_type"] == "no_data" for p in degraded)
+
+
+def test_var_resolution_fail_recovers_with_single_open_and_close_event(e2e_isolate):
+    mock_url, engine_url = e2e_isolate
+    started = time.time()
+
+    _inject(mock_url, "var_resolution_fail", "instance")
+
+    deadline = time.monotonic() + 20.0
+    degraded: dict = {}
+    while time.monotonic() < deadline:
+        degraded = _health(engine_url)
+        if degraded.get("health_score", 1.0) < 1.0:
+            break
+        time.sleep(0.5)
+
+    assert degraded.get("health_score", 1.0) < 1.0, "Variable fault did not impact dashboard health"
+
+    _clear(mock_url)
+    recovered = _wait_healthy(engine_url, timeout=20.0)
+    assert recovered["health_score"] == 1.0
+
+    pod_events = [
+        issue for issue in recovered.get("issues", [])
+        if issue["panel_title"] == "$pod" and issue["timestamp"] >= started
+    ]
+    assert len([issue for issue in pod_events if issue["error_type"] == "var_resolution_fail"]) == 1
+    assert len([issue for issue in pod_events if issue["error_type"] == "recovered"]) == 1
 
 
 def test_cardinality_spike_detected(e2e_isolate):

@@ -29,6 +29,8 @@ from probe.config import (
 )
 from probe.metrics import (
     HEALTH_SCORE,
+    ISSUE_COUNT,
+    ISSUE_EVENT_TIMESTAMP,
     LAST_PROBE_TIMESTAMP,
     LOAD_TIME,
     PANEL_ERROR_TOTAL,
@@ -38,6 +40,7 @@ from probe.metrics import (
     PANEL_STATUS,
     REGISTRY,
     VARIABLE_QUERY_DURATION,
+    VARIABLE_ERROR_TOTAL,
     VARIABLE_STATUS,
 )
 from probe.parser import parse_dashboard
@@ -52,6 +55,7 @@ from probe.probes.variable_probe import VariableProbe
 
 @dataclass
 class IssueRecord:
+    event_id: int
     timestamp: float
     panel_id: int | None
     panel_title: str
@@ -71,7 +75,9 @@ class EngineState:
     last_probe_time: float = 0.0
     issues: list[IssueRecord] = field(default_factory=list)
     _previous_status: dict[int, ProbeStatus] = field(default_factory=dict)
-    _seen_probe_types: dict[int, set[str]] = field(default_factory=dict)
+    _previous_variable_status: dict[str, ProbeStatus] = field(default_factory=dict)
+    _next_issue_id: int = 0
+    _issue_metric_labels: set[tuple[str, str, str, str, str, str]] = field(default_factory=set)
 
 
 state = EngineState()
@@ -84,6 +90,15 @@ variable_probe = VariableProbe()
 
 # Max issues to keep in the log.
 MAX_ISSUES = 50
+PANEL_STATUS_PROBE_TYPES = (
+    "query",
+    "no_data",
+    "stale_data",
+    "query_timeout",
+    "slow_query",
+    "cardinality_spike",
+    "panel_error",
+)
 
 # ---------------------------------------------------------------------------
 # Lifespan: load config + start probe loop
@@ -162,7 +177,6 @@ async def _run_probes() -> None:
     # Process panel results.
     probe_results: list[ProbeResult] = []
     max_duration = 0.0
-    healthy_count = 0
 
     for r in results:
         if isinstance(r, Exception):
@@ -173,18 +187,9 @@ async def _run_probes() -> None:
         # Update Prometheus metrics.
         status_val = 1.0 if r.status == ProbeStatus.HEALTHY else 0.0
         probe_type = r.error_type.value if r.error_type else "query"
-        PANEL_STATUS.labels(uid, pid, r.panel_title, probe_type).set(status_val)
-
-        # Track probe_type labels we've emitted for this panel.
-        seen = state._seen_probe_types.setdefault(r.panel_id, set())
-        seen.add(probe_type)
-
-        # On recovery, reset all previously-seen degraded probe_type series
-        # back to 1.0 so Prometheus doesn't retain stale zeros.
-        if r.status == ProbeStatus.HEALTHY:
-            for old_type in seen:
-                if old_type != probe_type:
-                    PANEL_STATUS.labels(uid, pid, r.panel_title, old_type).set(1.0)
+        for candidate in PANEL_STATUS_PROBE_TYPES:
+            value = status_val if candidate == probe_type else 1.0
+            PANEL_STATUS.labels(uid, pid, r.panel_title, candidate).set(value)
         PANEL_QUERY_DURATION.labels(uid, pid, r.panel_title).observe(r.duration_seconds)
         PANEL_SERIES_COUNT.labels(uid, pid, r.panel_title).set(r.series_count)
 
@@ -192,17 +197,13 @@ async def _run_probes() -> None:
             age = time.time() - r.max_timestamp
             PANEL_LAST_DATAPOINT_AGE.labels(uid, pid, r.panel_title).set(age)
 
-        if r.error_type is not None:
-            PANEL_ERROR_TOTAL.labels(uid, pid, r.panel_title, r.error_type.value).inc()
-
         max_duration = max(max_duration, r.duration_seconds)
-        if r.status == ProbeStatus.HEALTHY:
-            healthy_count += 1
-
         # Detect state transitions for issue log.
         prev = state._previous_status.get(r.panel_id)
         if r.status == ProbeStatus.DEGRADED and prev != ProbeStatus.DEGRADED:
             _add_issue(r.panel_id, r.panel_title, r.error_type, r.message)
+            if r.error_type is not None:
+                PANEL_ERROR_TOTAL.labels(uid, pid, r.panel_title, r.error_type.value).inc()
         elif r.status == ProbeStatus.HEALTHY and prev == ProbeStatus.DEGRADED:
             _add_issue(r.panel_id, r.panel_title, None, "Recovered — now healthy")
         state._previous_status[r.panel_id] = r.status
@@ -212,14 +213,30 @@ async def _run_probes() -> None:
     for vr in var_results:
         if isinstance(vr, dict):
             processed_vars.append(vr)
-            var_status = 1.0 if vr.get("status") == "healthy" else 0.0
+            is_healthy = vr.get("status") == ProbeStatus.HEALTHY.value
+            var_status = 1.0 if is_healthy else 0.0
             VARIABLE_STATUS.labels(uid, vr["name"]).set(var_status)
             VARIABLE_QUERY_DURATION.labels(uid, vr["name"]).observe(vr.get("duration", 0))
 
+            prev = state._previous_variable_status.get(vr["name"])
+            current = ProbeStatus.HEALTHY if is_healthy else ProbeStatus.DEGRADED
+            if current == ProbeStatus.DEGRADED and prev != ProbeStatus.DEGRADED:
+                error_type = vr.get("error")
+                enum_error = (
+                    ErrorType(error_type)
+                    if error_type in ErrorType._value2member_map_
+                    else ErrorType.VAR_RESOLUTION_FAIL
+                )
+                _add_issue(None, f'${vr["name"]}', enum_error, _variable_issue_message(vr))
+                VARIABLE_ERROR_TOTAL.labels(uid, vr["name"], enum_error.value).inc()
+            elif current == ProbeStatus.HEALTHY and prev == ProbeStatus.DEGRADED:
+                _add_issue(None, f'${vr["name"]}', None, "Recovered — now healthy")
+            state._previous_variable_status[vr["name"]] = current
+
     # Dashboard-level metrics.
-    total = len(probe_results)
-    score = healthy_count / total if total > 0 else 1.0
-    HEALTH_SCORE.labels(uid).set(score)
+    summary = _health_summary(probe_results, processed_vars)
+    HEALTH_SCORE.labels(uid).set(summary["health_score"])
+    ISSUE_COUNT.labels(uid).set(summary["issue_count"])
     LOAD_TIME.labels(uid).set(max_duration)
     LAST_PROBE_TIMESTAMP.labels(uid).set(time.time())
 
@@ -242,19 +259,15 @@ async def _probe_panel(spec: PanelProbeSpec, ds_url: str) -> ProbeResult:
             cardinality_probe.probe(spec, ds_url, state.config),
             return_exceptions=True,
         )
-        # Pick the worst non-exception result (degraded > unknown > healthy).
-        worst: ProbeResult | None = None
-        for r in results:
-            if isinstance(r, Exception):
-                continue
-            if r.status == ProbeStatus.UNKNOWN:
-                continue
-            if worst is None or r.status == ProbeStatus.DEGRADED:
-                worst = r
-                if r.status == ProbeStatus.DEGRADED:
-                    break  # degraded is the worst; stop early.
-        if worst is not None:
-            return worst
+        usable = [
+            r for r in results
+            if not isinstance(r, Exception) and r.status != ProbeStatus.UNKNOWN
+        ]
+        if usable:
+            degraded = [r for r in usable if r.status == ProbeStatus.DEGRADED]
+            if degraded:
+                return min(degraded, key=_probe_priority)
+            return usable[0]
         # Fallback: return query_probe result or error.
         return results[0] if not isinstance(results[0], Exception) else ProbeResult(
             panel_id=spec.panel_id,
@@ -277,8 +290,6 @@ async def _probe_variable(vspec: VariableProbeSpec, ds_url: str) -> dict:
     """Probe a template variable using the dedicated VariableProbe."""
     try:
         result = await variable_probe.probe(vspec, ds_url, state.config)
-        if result.status == ProbeStatus.DEGRADED:
-            _add_issue(None, f"${vspec.name}", result.error_type, result.message)
         return result.to_dict()
     except Exception as exc:
         return {"name": vspec.name, "status": "degraded",
@@ -291,7 +302,9 @@ def _add_issue(
     error_type: ErrorType | None,
     message: str,
 ) -> None:
+    state._next_issue_id += 1
     state.issues.append(IssueRecord(
+        event_id=state._next_issue_id,
         timestamp=time.time(),
         panel_id=panel_id,
         panel_title=panel_title,
@@ -301,6 +314,70 @@ def _add_issue(
     # Trim old issues.
     if len(state.issues) > MAX_ISSUES:
         state.issues = state.issues[-MAX_ISSUES:]
+    _sync_issue_event_metrics()
+
+
+def _sync_issue_event_metrics() -> None:
+    current_labels: set[tuple[str, str, str, str, str, str]] = set()
+    for issue in state.issues:
+        labels = (
+            state.dashboard_uid,
+            str(issue.event_id),
+            "" if issue.panel_id is None else str(issue.panel_id),
+            issue.panel_title,
+            issue.error_type,
+            issue.message,
+        )
+        ISSUE_EVENT_TIMESTAMP.labels(*labels).set(issue.timestamp)
+        current_labels.add(labels)
+
+    for labels in state._issue_metric_labels - current_labels:
+        ISSUE_EVENT_TIMESTAMP.remove(*labels)
+
+    state._issue_metric_labels = current_labels
+
+
+def _probe_priority(result: ProbeResult) -> int:
+    if result.error_type in (ErrorType.QUERY_TIMEOUT, ErrorType.PANEL_ERROR):
+        return 0
+    if result.error_type == ErrorType.STALE_DATA:
+        return 1
+    if result.error_type == ErrorType.SLOW_QUERY:
+        return 2
+    if result.error_type == ErrorType.CARDINALITY_SPIKE:
+        return 3
+    if result.error_type == ErrorType.NO_DATA:
+        return 4
+    if result.error_type == ErrorType.METRIC_RENAME:
+        return 5
+    return 99
+
+
+def _variable_issue_message(vr: dict) -> str:
+    if vr.get("error") == ErrorType.VAR_RESOLUTION_FAIL.value:
+        return f'Variable ${vr["name"]} returned empty values'
+    return vr.get("message") or vr.get("error") or f'Variable ${vr["name"]} degraded'
+
+
+def _health_summary(panel_results: list[ProbeResult], variable_results: list[dict]) -> dict[str, int | float]:
+    healthy_panels = sum(1 for r in panel_results if r.status == ProbeStatus.HEALTHY)
+    healthy_variables = sum(
+        1 for vr in variable_results
+        if vr.get("status") == ProbeStatus.HEALTHY.value
+    )
+    total_panels = len(panel_results)
+    total_variables = len(variable_results)
+    total_checks = total_panels + total_variables
+    healthy_checks = healthy_panels + healthy_variables
+    issue_count = total_checks - healthy_checks
+    return {
+        "healthy_panels": healthy_panels,
+        "healthy_variables": healthy_variables,
+        "total_panels": total_panels,
+        "total_variables": total_variables,
+        "health_score": (healthy_checks / total_checks) if total_checks > 0 else 1.0,
+        "issue_count": issue_count,
+    }
 
 
 # ---------------------------------------------------------------------------
@@ -328,9 +405,7 @@ async def metrics():
 @app.get("/health")
 async def health():
     uid = state.dashboard_uid
-    total = len(state.last_results)
-    healthy = sum(1 for r in state.last_results if r.status == ProbeStatus.HEALTHY)
-    score = healthy / total if total > 0 else 1.0
+    summary = _health_summary(state.last_results, state.last_variable_results)
 
     panels = []
     for r in state.last_results:
@@ -357,6 +432,7 @@ async def health():
     issues = []
     for issue in reversed(state.issues[-20:]):
         issues.append({
+            "event_id": issue.event_id,
             "timestamp": issue.timestamp,
             "panel_id": issue.panel_id,
             "panel_title": issue.panel_title,
@@ -367,9 +443,12 @@ async def health():
     return {
         "dashboard_uid": uid,
         "dashboard_title": state.dashboard_title,
-        "health_score": round(score, 4),
-        "total_panels": total,
-        "healthy_panels": healthy,
+        "health_score": round(summary["health_score"], 4),
+        "issue_count": summary["issue_count"],
+        "total_panels": summary["total_panels"],
+        "healthy_panels": summary["healthy_panels"],
+        "total_variables": summary["total_variables"],
+        "healthy_variables": summary["healthy_variables"],
         "load_time_seconds": round(max((r.duration_seconds for r in state.last_results), default=0), 3),
         "last_probe_time": state.last_probe_time,
         "panels": panels,

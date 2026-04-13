@@ -1,12 +1,12 @@
 apiVersion: 1
 groups:
 - orgId: 1
-  name: dashboard-sre-service-health-01
+  name: dashboard-sre-mongodb-ops-01
   folder: Dashboard SRE
   interval: 1m
   rules:
-  - uid: sre-service-health-0-nd-p1
-    title: '[Service Health] Panel ''Request Rate'' -- No Data'
+  - uid: sre-mongodb-ops-01-nd-p1
+    title: '[MongoDB Operations] Panel ''MongoDB Up'' -- No Data'
     condition: C
     data:
     - refId: B
@@ -16,7 +16,7 @@ groups:
         to: 0
       datasourceUid: probe-metrics
       model:
-        expr: dashboard_panel_status{dashboard_uid="service-health-01", panel_id="1",
+        expr: dashboard_panel_status{dashboard_uid="mongodb-ops-01", panel_id="1",
           probe_type="no_data"}
         refId: B
     - refId: C
@@ -50,16 +50,16 @@ groups:
     execErrState: Alerting
     for: 2m
     annotations:
-      summary: Panel 'Request Rate' in dashboard 'Service Health' -- No Data
+      summary: Panel 'MongoDB Up' in dashboard 'MongoDB Operations' -- No Data
       description: Panel has been returning empty results for >2 minutes. The source
         metric may have disappeared or the exporter may be down.
     labels:
       severity: warning
-      dashboard_uid: service-health-01
+      dashboard_uid: mongodb-ops-01
       panel_id: '1'
       probe_type: no_data
-  - uid: sre-service-health-0-sd-p1
-    title: '[Service Health] Panel ''Request Rate'' -- Stale Data'
+  - uid: sre-mongodb-ops-01-sd-p1
+    title: '[MongoDB Operations] Panel ''MongoDB Up'' -- Stale Data'
     condition: C
     data:
     - refId: B
@@ -69,7 +69,7 @@ groups:
         to: 0
       datasourceUid: probe-metrics
       model:
-        expr: dashboard_panel_status{dashboard_uid="service-health-01", panel_id="1",
+        expr: dashboard_panel_status{dashboard_uid="mongodb-ops-01", panel_id="1",
           probe_type="stale_data"}
         refId: B
     - refId: C
@@ -103,16 +103,16 @@ groups:
     execErrState: Alerting
     for: 2m
     annotations:
-      summary: Panel 'Request Rate' in dashboard 'Service Health' -- Stale Data
+      summary: Panel 'MongoDB Up' in dashboard 'MongoDB Operations' -- Stale Data
       description: Panel data has not been refreshed within the expected interval.
         The exporter or scrape target may be unhealthy.
     labels:
       severity: warning
-      dashboard_uid: service-health-01
+      dashboard_uid: mongodb-ops-01
       panel_id: '1'
       probe_type: stale_data
-  - uid: sre-service-health-0-qt-p1
-    title: '[Service Health] Panel ''Request Rate'' -- Query Timeout'
+  - uid: sre-mongodb-ops-01-qt-p1
+    title: '[MongoDB Operations] Panel ''MongoDB Up'' -- Query Timeout'
     condition: C
     data:
     - refId: B
@@ -122,7 +122,7 @@ groups:
         to: 0
       datasourceUid: probe-metrics
       model:
-        expr: dashboard_panel_status{dashboard_uid="service-health-01", panel_id="1",
+        expr: dashboard_panel_status{dashboard_uid="mongodb-ops-01", panel_id="1",
           probe_type="query_timeout"}
         refId: B
     - refId: C
@@ -156,16 +156,16 @@ groups:
     execErrState: Alerting
     for: 2m
     annotations:
-      summary: Panel 'Request Rate' in dashboard 'Service Health' -- Query Timeout
+      summary: Panel 'MongoDB Up' in dashboard 'MongoDB Operations' -- Query Timeout
       description: Panel query has been timing out for >2 minutes. The datasource
         may be overloaded or unreachable.
     labels:
       severity: critical
-      dashboard_uid: service-health-01
+      dashboard_uid: mongodb-ops-01
       panel_id: '1'
       probe_type: query_timeout
-  - uid: sre-service-health-0-sq-p1
-    title: '[Service Health] Panel ''Request Rate'' -- Slow Query'
+  - uid: sre-mongodb-ops-01-sq-p1
+    title: '[MongoDB Operations] Panel ''MongoDB Up'' -- Slow Query'
     condition: C
     data:
     - refId: B
@@ -175,7 +175,7 @@ groups:
         to: 0
       datasourceUid: probe-metrics
       model:
-        expr: dashboard_panel_status{dashboard_uid="service-health-01", panel_id="1",
+        expr: dashboard_panel_status{dashboard_uid="mongodb-ops-01", panel_id="1",
           probe_type="slow_query"}
         refId: B
     - refId: C
@@ -209,15 +209,15 @@ groups:
     execErrState: Alerting
     for: 2m
     annotations:
-      summary: Panel 'Request Rate' in dashboard 'Service Health' -- Slow Query
+      summary: Panel 'MongoDB Up' in dashboard 'MongoDB Operations' -- Slow Query
       description: Panel query execution time exceeds the configured threshold.
     labels:
       severity: warning
-      dashboard_uid: service-health-01
+      dashboard_uid: mongodb-ops-01
       panel_id: '1'
       probe_type: slow_query
-  - uid: sre-service-health-0-cs-p1
-    title: '[Service Health] Panel ''Request Rate'' -- Cardinality Spike'
+  - uid: sre-mongodb-ops-01-cs-p1
+    title: '[MongoDB Operations] Panel ''MongoDB Up'' -- Cardinality Spike'
     condition: C
     data:
     - refId: B
@@ -227,7 +227,7 @@ groups:
         to: 0
       datasourceUid: probe-metrics
       model:
-        expr: dashboard_panel_status{dashboard_uid="service-health-01", panel_id="1",
+        expr: dashboard_panel_status{dashboard_uid="mongodb-ops-01", panel_id="1",
           probe_type="cardinality_spike"}
         refId: B
     - refId: C
@@ -261,1281 +261,17 @@ groups:
     execErrState: Alerting
     for: 2m
     annotations:
-      summary: Panel 'Request Rate' in dashboard 'Service Health' -- Cardinality Spike
-      description: Series count has increased significantly above baseline. This can
-        cause incorrect aggregated values.
-    labels:
-      severity: warning
-      dashboard_uid: service-health-01
-      panel_id: '1'
-      probe_type: cardinality_spike
-  - uid: sre-service-health-0-pe-p1
-    title: '[Service Health] Panel ''Request Rate'' -- Panel Error'
-    condition: C
-    data:
-    - refId: B
-      queryType: ''
-      relativeTimeRange:
-        from: 300
-        to: 0
-      datasourceUid: probe-metrics
-      model:
-        expr: dashboard_panel_status{dashboard_uid="service-health-01", panel_id="1",
-          probe_type="panel_error"}
-        refId: B
-    - refId: C
-      queryType: ''
-      relativeTimeRange:
-        from: 300
-        to: 0
-      datasourceUid: __expr__
-      model:
-        type: classic_conditions
-        refId: C
-        expression: B
-        datasource:
-          uid: __expr__
-          type: __expr__
-        conditions:
-        - type: query
-          query:
-            params:
-            - B
-          reducer:
-            params: []
-            type: last
-          evaluator:
-            params:
-            - 1
-            type: lt
-          operator:
-            type: and
-    noDataState: Alerting
-    execErrState: Alerting
-    for: 2m
-    annotations:
-      summary: Panel 'Request Rate' in dashboard 'Service Health' -- Panel Error
-      description: Panel is returning errors from the datasource.
-    labels:
-      severity: critical
-      dashboard_uid: service-health-01
-      panel_id: '1'
-      probe_type: panel_error
-  - uid: sre-service-health-0-nd-p2
-    title: '[Service Health] Panel ''Error Rate %'' -- No Data'
-    condition: C
-    data:
-    - refId: B
-      queryType: ''
-      relativeTimeRange:
-        from: 300
-        to: 0
-      datasourceUid: probe-metrics
-      model:
-        expr: dashboard_panel_status{dashboard_uid="service-health-01", panel_id="2",
-          probe_type="no_data"}
-        refId: B
-    - refId: C
-      queryType: ''
-      relativeTimeRange:
-        from: 300
-        to: 0
-      datasourceUid: __expr__
-      model:
-        type: classic_conditions
-        refId: C
-        expression: B
-        datasource:
-          uid: __expr__
-          type: __expr__
-        conditions:
-        - type: query
-          query:
-            params:
-            - B
-          reducer:
-            params: []
-            type: last
-          evaluator:
-            params:
-            - 1
-            type: lt
-          operator:
-            type: and
-    noDataState: Alerting
-    execErrState: Alerting
-    for: 2m
-    annotations:
-      summary: Panel 'Error Rate %' in dashboard 'Service Health' -- No Data
-      description: Panel has been returning empty results for >2 minutes. The source
-        metric may have disappeared or the exporter may be down.
-    labels:
-      severity: warning
-      dashboard_uid: service-health-01
-      panel_id: '2'
-      probe_type: no_data
-  - uid: sre-service-health-0-sd-p2
-    title: '[Service Health] Panel ''Error Rate %'' -- Stale Data'
-    condition: C
-    data:
-    - refId: B
-      queryType: ''
-      relativeTimeRange:
-        from: 300
-        to: 0
-      datasourceUid: probe-metrics
-      model:
-        expr: dashboard_panel_status{dashboard_uid="service-health-01", panel_id="2",
-          probe_type="stale_data"}
-        refId: B
-    - refId: C
-      queryType: ''
-      relativeTimeRange:
-        from: 300
-        to: 0
-      datasourceUid: __expr__
-      model:
-        type: classic_conditions
-        refId: C
-        expression: B
-        datasource:
-          uid: __expr__
-          type: __expr__
-        conditions:
-        - type: query
-          query:
-            params:
-            - B
-          reducer:
-            params: []
-            type: last
-          evaluator:
-            params:
-            - 1
-            type: lt
-          operator:
-            type: and
-    noDataState: Alerting
-    execErrState: Alerting
-    for: 2m
-    annotations:
-      summary: Panel 'Error Rate %' in dashboard 'Service Health' -- Stale Data
-      description: Panel data has not been refreshed within the expected interval.
-        The exporter or scrape target may be unhealthy.
-    labels:
-      severity: warning
-      dashboard_uid: service-health-01
-      panel_id: '2'
-      probe_type: stale_data
-  - uid: sre-service-health-0-qt-p2
-    title: '[Service Health] Panel ''Error Rate %'' -- Query Timeout'
-    condition: C
-    data:
-    - refId: B
-      queryType: ''
-      relativeTimeRange:
-        from: 300
-        to: 0
-      datasourceUid: probe-metrics
-      model:
-        expr: dashboard_panel_status{dashboard_uid="service-health-01", panel_id="2",
-          probe_type="query_timeout"}
-        refId: B
-    - refId: C
-      queryType: ''
-      relativeTimeRange:
-        from: 300
-        to: 0
-      datasourceUid: __expr__
-      model:
-        type: classic_conditions
-        refId: C
-        expression: B
-        datasource:
-          uid: __expr__
-          type: __expr__
-        conditions:
-        - type: query
-          query:
-            params:
-            - B
-          reducer:
-            params: []
-            type: last
-          evaluator:
-            params:
-            - 1
-            type: lt
-          operator:
-            type: and
-    noDataState: Alerting
-    execErrState: Alerting
-    for: 2m
-    annotations:
-      summary: Panel 'Error Rate %' in dashboard 'Service Health' -- Query Timeout
-      description: Panel query has been timing out for >2 minutes. The datasource
-        may be overloaded or unreachable.
-    labels:
-      severity: critical
-      dashboard_uid: service-health-01
-      panel_id: '2'
-      probe_type: query_timeout
-  - uid: sre-service-health-0-sq-p2
-    title: '[Service Health] Panel ''Error Rate %'' -- Slow Query'
-    condition: C
-    data:
-    - refId: B
-      queryType: ''
-      relativeTimeRange:
-        from: 300
-        to: 0
-      datasourceUid: probe-metrics
-      model:
-        expr: dashboard_panel_status{dashboard_uid="service-health-01", panel_id="2",
-          probe_type="slow_query"}
-        refId: B
-    - refId: C
-      queryType: ''
-      relativeTimeRange:
-        from: 300
-        to: 0
-      datasourceUid: __expr__
-      model:
-        type: classic_conditions
-        refId: C
-        expression: B
-        datasource:
-          uid: __expr__
-          type: __expr__
-        conditions:
-        - type: query
-          query:
-            params:
-            - B
-          reducer:
-            params: []
-            type: last
-          evaluator:
-            params:
-            - 1
-            type: lt
-          operator:
-            type: and
-    noDataState: Alerting
-    execErrState: Alerting
-    for: 2m
-    annotations:
-      summary: Panel 'Error Rate %' in dashboard 'Service Health' -- Slow Query
-      description: Panel query execution time exceeds the configured threshold.
-    labels:
-      severity: warning
-      dashboard_uid: service-health-01
-      panel_id: '2'
-      probe_type: slow_query
-  - uid: sre-service-health-0-cs-p2
-    title: '[Service Health] Panel ''Error Rate %'' -- Cardinality Spike'
-    condition: C
-    data:
-    - refId: B
-      queryType: ''
-      relativeTimeRange:
-        from: 300
-        to: 0
-      datasourceUid: probe-metrics
-      model:
-        expr: dashboard_panel_status{dashboard_uid="service-health-01", panel_id="2",
-          probe_type="cardinality_spike"}
-        refId: B
-    - refId: C
-      queryType: ''
-      relativeTimeRange:
-        from: 300
-        to: 0
-      datasourceUid: __expr__
-      model:
-        type: classic_conditions
-        refId: C
-        expression: B
-        datasource:
-          uid: __expr__
-          type: __expr__
-        conditions:
-        - type: query
-          query:
-            params:
-            - B
-          reducer:
-            params: []
-            type: last
-          evaluator:
-            params:
-            - 1
-            type: lt
-          operator:
-            type: and
-    noDataState: Alerting
-    execErrState: Alerting
-    for: 2m
-    annotations:
-      summary: Panel 'Error Rate %' in dashboard 'Service Health' -- Cardinality Spike
-      description: Series count has increased significantly above baseline. This can
-        cause incorrect aggregated values.
-    labels:
-      severity: warning
-      dashboard_uid: service-health-01
-      panel_id: '2'
-      probe_type: cardinality_spike
-  - uid: sre-service-health-0-pe-p2
-    title: '[Service Health] Panel ''Error Rate %'' -- Panel Error'
-    condition: C
-    data:
-    - refId: B
-      queryType: ''
-      relativeTimeRange:
-        from: 300
-        to: 0
-      datasourceUid: probe-metrics
-      model:
-        expr: dashboard_panel_status{dashboard_uid="service-health-01", panel_id="2",
-          probe_type="panel_error"}
-        refId: B
-    - refId: C
-      queryType: ''
-      relativeTimeRange:
-        from: 300
-        to: 0
-      datasourceUid: __expr__
-      model:
-        type: classic_conditions
-        refId: C
-        expression: B
-        datasource:
-          uid: __expr__
-          type: __expr__
-        conditions:
-        - type: query
-          query:
-            params:
-            - B
-          reducer:
-            params: []
-            type: last
-          evaluator:
-            params:
-            - 1
-            type: lt
-          operator:
-            type: and
-    noDataState: Alerting
-    execErrState: Alerting
-    for: 2m
-    annotations:
-      summary: Panel 'Error Rate %' in dashboard 'Service Health' -- Panel Error
-      description: Panel is returning errors from the datasource.
-    labels:
-      severity: critical
-      dashboard_uid: service-health-01
-      panel_id: '2'
-      probe_type: panel_error
-  - uid: sre-service-health-0-nd-p3
-    title: '[Service Health] Panel ''P99 Latency'' -- No Data'
-    condition: C
-    data:
-    - refId: B
-      queryType: ''
-      relativeTimeRange:
-        from: 300
-        to: 0
-      datasourceUid: probe-metrics
-      model:
-        expr: dashboard_panel_status{dashboard_uid="service-health-01", panel_id="3",
-          probe_type="no_data"}
-        refId: B
-    - refId: C
-      queryType: ''
-      relativeTimeRange:
-        from: 300
-        to: 0
-      datasourceUid: __expr__
-      model:
-        type: classic_conditions
-        refId: C
-        expression: B
-        datasource:
-          uid: __expr__
-          type: __expr__
-        conditions:
-        - type: query
-          query:
-            params:
-            - B
-          reducer:
-            params: []
-            type: last
-          evaluator:
-            params:
-            - 1
-            type: lt
-          operator:
-            type: and
-    noDataState: Alerting
-    execErrState: Alerting
-    for: 2m
-    annotations:
-      summary: Panel 'P99 Latency' in dashboard 'Service Health' -- No Data
-      description: Panel has been returning empty results for >2 minutes. The source
-        metric may have disappeared or the exporter may be down.
-    labels:
-      severity: warning
-      dashboard_uid: service-health-01
-      panel_id: '3'
-      probe_type: no_data
-  - uid: sre-service-health-0-sd-p3
-    title: '[Service Health] Panel ''P99 Latency'' -- Stale Data'
-    condition: C
-    data:
-    - refId: B
-      queryType: ''
-      relativeTimeRange:
-        from: 300
-        to: 0
-      datasourceUid: probe-metrics
-      model:
-        expr: dashboard_panel_status{dashboard_uid="service-health-01", panel_id="3",
-          probe_type="stale_data"}
-        refId: B
-    - refId: C
-      queryType: ''
-      relativeTimeRange:
-        from: 300
-        to: 0
-      datasourceUid: __expr__
-      model:
-        type: classic_conditions
-        refId: C
-        expression: B
-        datasource:
-          uid: __expr__
-          type: __expr__
-        conditions:
-        - type: query
-          query:
-            params:
-            - B
-          reducer:
-            params: []
-            type: last
-          evaluator:
-            params:
-            - 1
-            type: lt
-          operator:
-            type: and
-    noDataState: Alerting
-    execErrState: Alerting
-    for: 2m
-    annotations:
-      summary: Panel 'P99 Latency' in dashboard 'Service Health' -- Stale Data
-      description: Panel data has not been refreshed within the expected interval.
-        The exporter or scrape target may be unhealthy.
-    labels:
-      severity: warning
-      dashboard_uid: service-health-01
-      panel_id: '3'
-      probe_type: stale_data
-  - uid: sre-service-health-0-qt-p3
-    title: '[Service Health] Panel ''P99 Latency'' -- Query Timeout'
-    condition: C
-    data:
-    - refId: B
-      queryType: ''
-      relativeTimeRange:
-        from: 300
-        to: 0
-      datasourceUid: probe-metrics
-      model:
-        expr: dashboard_panel_status{dashboard_uid="service-health-01", panel_id="3",
-          probe_type="query_timeout"}
-        refId: B
-    - refId: C
-      queryType: ''
-      relativeTimeRange:
-        from: 300
-        to: 0
-      datasourceUid: __expr__
-      model:
-        type: classic_conditions
-        refId: C
-        expression: B
-        datasource:
-          uid: __expr__
-          type: __expr__
-        conditions:
-        - type: query
-          query:
-            params:
-            - B
-          reducer:
-            params: []
-            type: last
-          evaluator:
-            params:
-            - 1
-            type: lt
-          operator:
-            type: and
-    noDataState: Alerting
-    execErrState: Alerting
-    for: 2m
-    annotations:
-      summary: Panel 'P99 Latency' in dashboard 'Service Health' -- Query Timeout
-      description: Panel query has been timing out for >2 minutes. The datasource
-        may be overloaded or unreachable.
-    labels:
-      severity: critical
-      dashboard_uid: service-health-01
-      panel_id: '3'
-      probe_type: query_timeout
-  - uid: sre-service-health-0-sq-p3
-    title: '[Service Health] Panel ''P99 Latency'' -- Slow Query'
-    condition: C
-    data:
-    - refId: B
-      queryType: ''
-      relativeTimeRange:
-        from: 300
-        to: 0
-      datasourceUid: probe-metrics
-      model:
-        expr: dashboard_panel_status{dashboard_uid="service-health-01", panel_id="3",
-          probe_type="slow_query"}
-        refId: B
-    - refId: C
-      queryType: ''
-      relativeTimeRange:
-        from: 300
-        to: 0
-      datasourceUid: __expr__
-      model:
-        type: classic_conditions
-        refId: C
-        expression: B
-        datasource:
-          uid: __expr__
-          type: __expr__
-        conditions:
-        - type: query
-          query:
-            params:
-            - B
-          reducer:
-            params: []
-            type: last
-          evaluator:
-            params:
-            - 1
-            type: lt
-          operator:
-            type: and
-    noDataState: Alerting
-    execErrState: Alerting
-    for: 2m
-    annotations:
-      summary: Panel 'P99 Latency' in dashboard 'Service Health' -- Slow Query
-      description: Panel query execution time exceeds the configured threshold.
-    labels:
-      severity: warning
-      dashboard_uid: service-health-01
-      panel_id: '3'
-      probe_type: slow_query
-  - uid: sre-service-health-0-cs-p3
-    title: '[Service Health] Panel ''P99 Latency'' -- Cardinality Spike'
-    condition: C
-    data:
-    - refId: B
-      queryType: ''
-      relativeTimeRange:
-        from: 300
-        to: 0
-      datasourceUid: probe-metrics
-      model:
-        expr: dashboard_panel_status{dashboard_uid="service-health-01", panel_id="3",
-          probe_type="cardinality_spike"}
-        refId: B
-    - refId: C
-      queryType: ''
-      relativeTimeRange:
-        from: 300
-        to: 0
-      datasourceUid: __expr__
-      model:
-        type: classic_conditions
-        refId: C
-        expression: B
-        datasource:
-          uid: __expr__
-          type: __expr__
-        conditions:
-        - type: query
-          query:
-            params:
-            - B
-          reducer:
-            params: []
-            type: last
-          evaluator:
-            params:
-            - 1
-            type: lt
-          operator:
-            type: and
-    noDataState: Alerting
-    execErrState: Alerting
-    for: 2m
-    annotations:
-      summary: Panel 'P99 Latency' in dashboard 'Service Health' -- Cardinality Spike
-      description: Series count has increased significantly above baseline. This can
-        cause incorrect aggregated values.
-    labels:
-      severity: warning
-      dashboard_uid: service-health-01
-      panel_id: '3'
-      probe_type: cardinality_spike
-  - uid: sre-service-health-0-pe-p3
-    title: '[Service Health] Panel ''P99 Latency'' -- Panel Error'
-    condition: C
-    data:
-    - refId: B
-      queryType: ''
-      relativeTimeRange:
-        from: 300
-        to: 0
-      datasourceUid: probe-metrics
-      model:
-        expr: dashboard_panel_status{dashboard_uid="service-health-01", panel_id="3",
-          probe_type="panel_error"}
-        refId: B
-    - refId: C
-      queryType: ''
-      relativeTimeRange:
-        from: 300
-        to: 0
-      datasourceUid: __expr__
-      model:
-        type: classic_conditions
-        refId: C
-        expression: B
-        datasource:
-          uid: __expr__
-          type: __expr__
-        conditions:
-        - type: query
-          query:
-            params:
-            - B
-          reducer:
-            params: []
-            type: last
-          evaluator:
-            params:
-            - 1
-            type: lt
-          operator:
-            type: and
-    noDataState: Alerting
-    execErrState: Alerting
-    for: 2m
-    annotations:
-      summary: Panel 'P99 Latency' in dashboard 'Service Health' -- Panel Error
-      description: Panel is returning errors from the datasource.
-    labels:
-      severity: critical
-      dashboard_uid: service-health-01
-      panel_id: '3'
-      probe_type: panel_error
-  - uid: sre-service-health-0-nd-p4
-    title: '[Service Health] Panel ''Memory Usage'' -- No Data'
-    condition: C
-    data:
-    - refId: B
-      queryType: ''
-      relativeTimeRange:
-        from: 300
-        to: 0
-      datasourceUid: probe-metrics
-      model:
-        expr: dashboard_panel_status{dashboard_uid="service-health-01", panel_id="4",
-          probe_type="no_data"}
-        refId: B
-    - refId: C
-      queryType: ''
-      relativeTimeRange:
-        from: 300
-        to: 0
-      datasourceUid: __expr__
-      model:
-        type: classic_conditions
-        refId: C
-        expression: B
-        datasource:
-          uid: __expr__
-          type: __expr__
-        conditions:
-        - type: query
-          query:
-            params:
-            - B
-          reducer:
-            params: []
-            type: last
-          evaluator:
-            params:
-            - 1
-            type: lt
-          operator:
-            type: and
-    noDataState: Alerting
-    execErrState: Alerting
-    for: 2m
-    annotations:
-      summary: Panel 'Memory Usage' in dashboard 'Service Health' -- No Data
-      description: Panel has been returning empty results for >2 minutes. The source
-        metric may have disappeared or the exporter may be down.
-    labels:
-      severity: warning
-      dashboard_uid: service-health-01
-      panel_id: '4'
-      probe_type: no_data
-  - uid: sre-service-health-0-sd-p4
-    title: '[Service Health] Panel ''Memory Usage'' -- Stale Data'
-    condition: C
-    data:
-    - refId: B
-      queryType: ''
-      relativeTimeRange:
-        from: 300
-        to: 0
-      datasourceUid: probe-metrics
-      model:
-        expr: dashboard_panel_status{dashboard_uid="service-health-01", panel_id="4",
-          probe_type="stale_data"}
-        refId: B
-    - refId: C
-      queryType: ''
-      relativeTimeRange:
-        from: 300
-        to: 0
-      datasourceUid: __expr__
-      model:
-        type: classic_conditions
-        refId: C
-        expression: B
-        datasource:
-          uid: __expr__
-          type: __expr__
-        conditions:
-        - type: query
-          query:
-            params:
-            - B
-          reducer:
-            params: []
-            type: last
-          evaluator:
-            params:
-            - 1
-            type: lt
-          operator:
-            type: and
-    noDataState: Alerting
-    execErrState: Alerting
-    for: 2m
-    annotations:
-      summary: Panel 'Memory Usage' in dashboard 'Service Health' -- Stale Data
-      description: Panel data has not been refreshed within the expected interval.
-        The exporter or scrape target may be unhealthy.
-    labels:
-      severity: warning
-      dashboard_uid: service-health-01
-      panel_id: '4'
-      probe_type: stale_data
-  - uid: sre-service-health-0-qt-p4
-    title: '[Service Health] Panel ''Memory Usage'' -- Query Timeout'
-    condition: C
-    data:
-    - refId: B
-      queryType: ''
-      relativeTimeRange:
-        from: 300
-        to: 0
-      datasourceUid: probe-metrics
-      model:
-        expr: dashboard_panel_status{dashboard_uid="service-health-01", panel_id="4",
-          probe_type="query_timeout"}
-        refId: B
-    - refId: C
-      queryType: ''
-      relativeTimeRange:
-        from: 300
-        to: 0
-      datasourceUid: __expr__
-      model:
-        type: classic_conditions
-        refId: C
-        expression: B
-        datasource:
-          uid: __expr__
-          type: __expr__
-        conditions:
-        - type: query
-          query:
-            params:
-            - B
-          reducer:
-            params: []
-            type: last
-          evaluator:
-            params:
-            - 1
-            type: lt
-          operator:
-            type: and
-    noDataState: Alerting
-    execErrState: Alerting
-    for: 2m
-    annotations:
-      summary: Panel 'Memory Usage' in dashboard 'Service Health' -- Query Timeout
-      description: Panel query has been timing out for >2 minutes. The datasource
-        may be overloaded or unreachable.
-    labels:
-      severity: critical
-      dashboard_uid: service-health-01
-      panel_id: '4'
-      probe_type: query_timeout
-  - uid: sre-service-health-0-sq-p4
-    title: '[Service Health] Panel ''Memory Usage'' -- Slow Query'
-    condition: C
-    data:
-    - refId: B
-      queryType: ''
-      relativeTimeRange:
-        from: 300
-        to: 0
-      datasourceUid: probe-metrics
-      model:
-        expr: dashboard_panel_status{dashboard_uid="service-health-01", panel_id="4",
-          probe_type="slow_query"}
-        refId: B
-    - refId: C
-      queryType: ''
-      relativeTimeRange:
-        from: 300
-        to: 0
-      datasourceUid: __expr__
-      model:
-        type: classic_conditions
-        refId: C
-        expression: B
-        datasource:
-          uid: __expr__
-          type: __expr__
-        conditions:
-        - type: query
-          query:
-            params:
-            - B
-          reducer:
-            params: []
-            type: last
-          evaluator:
-            params:
-            - 1
-            type: lt
-          operator:
-            type: and
-    noDataState: Alerting
-    execErrState: Alerting
-    for: 2m
-    annotations:
-      summary: Panel 'Memory Usage' in dashboard 'Service Health' -- Slow Query
-      description: Panel query execution time exceeds the configured threshold.
-    labels:
-      severity: warning
-      dashboard_uid: service-health-01
-      panel_id: '4'
-      probe_type: slow_query
-  - uid: sre-service-health-0-cs-p4
-    title: '[Service Health] Panel ''Memory Usage'' -- Cardinality Spike'
-    condition: C
-    data:
-    - refId: B
-      queryType: ''
-      relativeTimeRange:
-        from: 300
-        to: 0
-      datasourceUid: probe-metrics
-      model:
-        expr: dashboard_panel_status{dashboard_uid="service-health-01", panel_id="4",
-          probe_type="cardinality_spike"}
-        refId: B
-    - refId: C
-      queryType: ''
-      relativeTimeRange:
-        from: 300
-        to: 0
-      datasourceUid: __expr__
-      model:
-        type: classic_conditions
-        refId: C
-        expression: B
-        datasource:
-          uid: __expr__
-          type: __expr__
-        conditions:
-        - type: query
-          query:
-            params:
-            - B
-          reducer:
-            params: []
-            type: last
-          evaluator:
-            params:
-            - 1
-            type: lt
-          operator:
-            type: and
-    noDataState: Alerting
-    execErrState: Alerting
-    for: 2m
-    annotations:
-      summary: Panel 'Memory Usage' in dashboard 'Service Health' -- Cardinality Spike
-      description: Series count has increased significantly above baseline. This can
-        cause incorrect aggregated values.
-    labels:
-      severity: warning
-      dashboard_uid: service-health-01
-      panel_id: '4'
-      probe_type: cardinality_spike
-  - uid: sre-service-health-0-pe-p4
-    title: '[Service Health] Panel ''Memory Usage'' -- Panel Error'
-    condition: C
-    data:
-    - refId: B
-      queryType: ''
-      relativeTimeRange:
-        from: 300
-        to: 0
-      datasourceUid: probe-metrics
-      model:
-        expr: dashboard_panel_status{dashboard_uid="service-health-01", panel_id="4",
-          probe_type="panel_error"}
-        refId: B
-    - refId: C
-      queryType: ''
-      relativeTimeRange:
-        from: 300
-        to: 0
-      datasourceUid: __expr__
-      model:
-        type: classic_conditions
-        refId: C
-        expression: B
-        datasource:
-          uid: __expr__
-          type: __expr__
-        conditions:
-        - type: query
-          query:
-            params:
-            - B
-          reducer:
-            params: []
-            type: last
-          evaluator:
-            params:
-            - 1
-            type: lt
-          operator:
-            type: and
-    noDataState: Alerting
-    execErrState: Alerting
-    for: 2m
-    annotations:
-      summary: Panel 'Memory Usage' in dashboard 'Service Health' -- Panel Error
-      description: Panel is returning errors from the datasource.
-    labels:
-      severity: critical
-      dashboard_uid: service-health-01
-      panel_id: '4'
-      probe_type: panel_error
-  - uid: sre-service-health-0-nd-p5
-    title: '[Service Health] Panel ''Pod Readiness'' -- No Data'
-    condition: C
-    data:
-    - refId: B
-      queryType: ''
-      relativeTimeRange:
-        from: 300
-        to: 0
-      datasourceUid: probe-metrics
-      model:
-        expr: dashboard_panel_status{dashboard_uid="service-health-01", panel_id="5",
-          probe_type="no_data"}
-        refId: B
-    - refId: C
-      queryType: ''
-      relativeTimeRange:
-        from: 300
-        to: 0
-      datasourceUid: __expr__
-      model:
-        type: classic_conditions
-        refId: C
-        expression: B
-        datasource:
-          uid: __expr__
-          type: __expr__
-        conditions:
-        - type: query
-          query:
-            params:
-            - B
-          reducer:
-            params: []
-            type: last
-          evaluator:
-            params:
-            - 1
-            type: lt
-          operator:
-            type: and
-    noDataState: Alerting
-    execErrState: Alerting
-    for: 2m
-    annotations:
-      summary: Panel 'Pod Readiness' in dashboard 'Service Health' -- No Data
-      description: Panel has been returning empty results for >2 minutes. The source
-        metric may have disappeared or the exporter may be down.
-    labels:
-      severity: warning
-      dashboard_uid: service-health-01
-      panel_id: '5'
-      probe_type: no_data
-  - uid: sre-service-health-0-sd-p5
-    title: '[Service Health] Panel ''Pod Readiness'' -- Stale Data'
-    condition: C
-    data:
-    - refId: B
-      queryType: ''
-      relativeTimeRange:
-        from: 300
-        to: 0
-      datasourceUid: probe-metrics
-      model:
-        expr: dashboard_panel_status{dashboard_uid="service-health-01", panel_id="5",
-          probe_type="stale_data"}
-        refId: B
-    - refId: C
-      queryType: ''
-      relativeTimeRange:
-        from: 300
-        to: 0
-      datasourceUid: __expr__
-      model:
-        type: classic_conditions
-        refId: C
-        expression: B
-        datasource:
-          uid: __expr__
-          type: __expr__
-        conditions:
-        - type: query
-          query:
-            params:
-            - B
-          reducer:
-            params: []
-            type: last
-          evaluator:
-            params:
-            - 1
-            type: lt
-          operator:
-            type: and
-    noDataState: Alerting
-    execErrState: Alerting
-    for: 2m
-    annotations:
-      summary: Panel 'Pod Readiness' in dashboard 'Service Health' -- Stale Data
-      description: Panel data has not been refreshed within the expected interval.
-        The exporter or scrape target may be unhealthy.
-    labels:
-      severity: warning
-      dashboard_uid: service-health-01
-      panel_id: '5'
-      probe_type: stale_data
-  - uid: sre-service-health-0-qt-p5
-    title: '[Service Health] Panel ''Pod Readiness'' -- Query Timeout'
-    condition: C
-    data:
-    - refId: B
-      queryType: ''
-      relativeTimeRange:
-        from: 300
-        to: 0
-      datasourceUid: probe-metrics
-      model:
-        expr: dashboard_panel_status{dashboard_uid="service-health-01", panel_id="5",
-          probe_type="query_timeout"}
-        refId: B
-    - refId: C
-      queryType: ''
-      relativeTimeRange:
-        from: 300
-        to: 0
-      datasourceUid: __expr__
-      model:
-        type: classic_conditions
-        refId: C
-        expression: B
-        datasource:
-          uid: __expr__
-          type: __expr__
-        conditions:
-        - type: query
-          query:
-            params:
-            - B
-          reducer:
-            params: []
-            type: last
-          evaluator:
-            params:
-            - 1
-            type: lt
-          operator:
-            type: and
-    noDataState: Alerting
-    execErrState: Alerting
-    for: 2m
-    annotations:
-      summary: Panel 'Pod Readiness' in dashboard 'Service Health' -- Query Timeout
-      description: Panel query has been timing out for >2 minutes. The datasource
-        may be overloaded or unreachable.
-    labels:
-      severity: critical
-      dashboard_uid: service-health-01
-      panel_id: '5'
-      probe_type: query_timeout
-  - uid: sre-service-health-0-sq-p5
-    title: '[Service Health] Panel ''Pod Readiness'' -- Slow Query'
-    condition: C
-    data:
-    - refId: B
-      queryType: ''
-      relativeTimeRange:
-        from: 300
-        to: 0
-      datasourceUid: probe-metrics
-      model:
-        expr: dashboard_panel_status{dashboard_uid="service-health-01", panel_id="5",
-          probe_type="slow_query"}
-        refId: B
-    - refId: C
-      queryType: ''
-      relativeTimeRange:
-        from: 300
-        to: 0
-      datasourceUid: __expr__
-      model:
-        type: classic_conditions
-        refId: C
-        expression: B
-        datasource:
-          uid: __expr__
-          type: __expr__
-        conditions:
-        - type: query
-          query:
-            params:
-            - B
-          reducer:
-            params: []
-            type: last
-          evaluator:
-            params:
-            - 1
-            type: lt
-          operator:
-            type: and
-    noDataState: Alerting
-    execErrState: Alerting
-    for: 2m
-    annotations:
-      summary: Panel 'Pod Readiness' in dashboard 'Service Health' -- Slow Query
-      description: Panel query execution time exceeds the configured threshold.
-    labels:
-      severity: warning
-      dashboard_uid: service-health-01
-      panel_id: '5'
-      probe_type: slow_query
-  - uid: sre-service-health-0-cs-p5
-    title: '[Service Health] Panel ''Pod Readiness'' -- Cardinality Spike'
-    condition: C
-    data:
-    - refId: B
-      queryType: ''
-      relativeTimeRange:
-        from: 300
-        to: 0
-      datasourceUid: probe-metrics
-      model:
-        expr: dashboard_panel_status{dashboard_uid="service-health-01", panel_id="5",
-          probe_type="cardinality_spike"}
-        refId: B
-    - refId: C
-      queryType: ''
-      relativeTimeRange:
-        from: 300
-        to: 0
-      datasourceUid: __expr__
-      model:
-        type: classic_conditions
-        refId: C
-        expression: B
-        datasource:
-          uid: __expr__
-          type: __expr__
-        conditions:
-        - type: query
-          query:
-            params:
-            - B
-          reducer:
-            params: []
-            type: last
-          evaluator:
-            params:
-            - 1
-            type: lt
-          operator:
-            type: and
-    noDataState: Alerting
-    execErrState: Alerting
-    for: 2m
-    annotations:
-      summary: Panel 'Pod Readiness' in dashboard 'Service Health' -- Cardinality
+      summary: Panel 'MongoDB Up' in dashboard 'MongoDB Operations' -- Cardinality
         Spike
       description: Series count has increased significantly above baseline. This can
         cause incorrect aggregated values.
     labels:
       severity: warning
-      dashboard_uid: service-health-01
-      panel_id: '5'
+      dashboard_uid: mongodb-ops-01
+      panel_id: '1'
       probe_type: cardinality_spike
-  - uid: sre-service-health-0-pe-p5
-    title: '[Service Health] Panel ''Pod Readiness'' -- Panel Error'
+  - uid: sre-mongodb-ops-01-pe-p1
+    title: '[MongoDB Operations] Panel ''MongoDB Up'' -- Panel Error'
     condition: C
     data:
     - refId: B
@@ -1545,7 +281,7 @@ groups:
         to: 0
       datasourceUid: probe-metrics
       model:
-        expr: dashboard_panel_status{dashboard_uid="service-health-01", panel_id="5",
+        expr: dashboard_panel_status{dashboard_uid="mongodb-ops-01", panel_id="1",
           probe_type="panel_error"}
         refId: B
     - refId: C
@@ -1579,15 +315,15 @@ groups:
     execErrState: Alerting
     for: 2m
     annotations:
-      summary: Panel 'Pod Readiness' in dashboard 'Service Health' -- Panel Error
+      summary: Panel 'MongoDB Up' in dashboard 'MongoDB Operations' -- Panel Error
       description: Panel is returning errors from the datasource.
     labels:
       severity: critical
-      dashboard_uid: service-health-01
-      panel_id: '5'
+      dashboard_uid: mongodb-ops-01
+      panel_id: '1'
       probe_type: panel_error
-  - uid: sre-service-health-0-nd-p6
-    title: '[Service Health] Panel ''Active Instances'' -- No Data'
+  - uid: sre-mongodb-ops-01-nd-p2
+    title: '[MongoDB Operations] Panel ''Operation Rate'' -- No Data'
     condition: C
     data:
     - refId: B
@@ -1597,7 +333,7 @@ groups:
         to: 0
       datasourceUid: probe-metrics
       model:
-        expr: dashboard_panel_status{dashboard_uid="service-health-01", panel_id="6",
+        expr: dashboard_panel_status{dashboard_uid="mongodb-ops-01", panel_id="2",
           probe_type="no_data"}
         refId: B
     - refId: C
@@ -1631,16 +367,16 @@ groups:
     execErrState: Alerting
     for: 2m
     annotations:
-      summary: Panel 'Active Instances' in dashboard 'Service Health' -- No Data
+      summary: Panel 'Operation Rate' in dashboard 'MongoDB Operations' -- No Data
       description: Panel has been returning empty results for >2 minutes. The source
         metric may have disappeared or the exporter may be down.
     labels:
       severity: warning
-      dashboard_uid: service-health-01
-      panel_id: '6'
+      dashboard_uid: mongodb-ops-01
+      panel_id: '2'
       probe_type: no_data
-  - uid: sre-service-health-0-sd-p6
-    title: '[Service Health] Panel ''Active Instances'' -- Stale Data'
+  - uid: sre-mongodb-ops-01-sd-p2
+    title: '[MongoDB Operations] Panel ''Operation Rate'' -- Stale Data'
     condition: C
     data:
     - refId: B
@@ -1650,7 +386,7 @@ groups:
         to: 0
       datasourceUid: probe-metrics
       model:
-        expr: dashboard_panel_status{dashboard_uid="service-health-01", panel_id="6",
+        expr: dashboard_panel_status{dashboard_uid="mongodb-ops-01", panel_id="2",
           probe_type="stale_data"}
         refId: B
     - refId: C
@@ -1684,16 +420,16 @@ groups:
     execErrState: Alerting
     for: 2m
     annotations:
-      summary: Panel 'Active Instances' in dashboard 'Service Health' -- Stale Data
+      summary: Panel 'Operation Rate' in dashboard 'MongoDB Operations' -- Stale Data
       description: Panel data has not been refreshed within the expected interval.
         The exporter or scrape target may be unhealthy.
     labels:
       severity: warning
-      dashboard_uid: service-health-01
-      panel_id: '6'
+      dashboard_uid: mongodb-ops-01
+      panel_id: '2'
       probe_type: stale_data
-  - uid: sre-service-health-0-qt-p6
-    title: '[Service Health] Panel ''Active Instances'' -- Query Timeout'
+  - uid: sre-mongodb-ops-01-qt-p2
+    title: '[MongoDB Operations] Panel ''Operation Rate'' -- Query Timeout'
     condition: C
     data:
     - refId: B
@@ -1703,7 +439,7 @@ groups:
         to: 0
       datasourceUid: probe-metrics
       model:
-        expr: dashboard_panel_status{dashboard_uid="service-health-01", panel_id="6",
+        expr: dashboard_panel_status{dashboard_uid="mongodb-ops-01", panel_id="2",
           probe_type="query_timeout"}
         refId: B
     - refId: C
@@ -1737,16 +473,16 @@ groups:
     execErrState: Alerting
     for: 2m
     annotations:
-      summary: Panel 'Active Instances' in dashboard 'Service Health' -- Query Timeout
+      summary: Panel 'Operation Rate' in dashboard 'MongoDB Operations' -- Query Timeout
       description: Panel query has been timing out for >2 minutes. The datasource
         may be overloaded or unreachable.
     labels:
       severity: critical
-      dashboard_uid: service-health-01
-      panel_id: '6'
+      dashboard_uid: mongodb-ops-01
+      panel_id: '2'
       probe_type: query_timeout
-  - uid: sre-service-health-0-sq-p6
-    title: '[Service Health] Panel ''Active Instances'' -- Slow Query'
+  - uid: sre-mongodb-ops-01-sq-p2
+    title: '[MongoDB Operations] Panel ''Operation Rate'' -- Slow Query'
     condition: C
     data:
     - refId: B
@@ -1756,7 +492,7 @@ groups:
         to: 0
       datasourceUid: probe-metrics
       model:
-        expr: dashboard_panel_status{dashboard_uid="service-health-01", panel_id="6",
+        expr: dashboard_panel_status{dashboard_uid="mongodb-ops-01", panel_id="2",
           probe_type="slow_query"}
         refId: B
     - refId: C
@@ -1790,15 +526,15 @@ groups:
     execErrState: Alerting
     for: 2m
     annotations:
-      summary: Panel 'Active Instances' in dashboard 'Service Health' -- Slow Query
+      summary: Panel 'Operation Rate' in dashboard 'MongoDB Operations' -- Slow Query
       description: Panel query execution time exceeds the configured threshold.
     labels:
       severity: warning
-      dashboard_uid: service-health-01
-      panel_id: '6'
+      dashboard_uid: mongodb-ops-01
+      panel_id: '2'
       probe_type: slow_query
-  - uid: sre-service-health-0-cs-p6
-    title: '[Service Health] Panel ''Active Instances'' -- Cardinality Spike'
+  - uid: sre-mongodb-ops-01-cs-p2
+    title: '[MongoDB Operations] Panel ''Operation Rate'' -- Cardinality Spike'
     condition: C
     data:
     - refId: B
@@ -1808,7 +544,7 @@ groups:
         to: 0
       datasourceUid: probe-metrics
       model:
-        expr: dashboard_panel_status{dashboard_uid="service-health-01", panel_id="6",
+        expr: dashboard_panel_status{dashboard_uid="mongodb-ops-01", panel_id="2",
           probe_type="cardinality_spike"}
         refId: B
     - refId: C
@@ -1842,17 +578,17 @@ groups:
     execErrState: Alerting
     for: 2m
     annotations:
-      summary: Panel 'Active Instances' in dashboard 'Service Health' -- Cardinality
+      summary: Panel 'Operation Rate' in dashboard 'MongoDB Operations' -- Cardinality
         Spike
       description: Series count has increased significantly above baseline. This can
         cause incorrect aggregated values.
     labels:
       severity: warning
-      dashboard_uid: service-health-01
-      panel_id: '6'
+      dashboard_uid: mongodb-ops-01
+      panel_id: '2'
       probe_type: cardinality_spike
-  - uid: sre-service-health-0-pe-p6
-    title: '[Service Health] Panel ''Active Instances'' -- Panel Error'
+  - uid: sre-mongodb-ops-01-pe-p2
+    title: '[MongoDB Operations] Panel ''Operation Rate'' -- Panel Error'
     condition: C
     data:
     - refId: B
@@ -1862,7 +598,7 @@ groups:
         to: 0
       datasourceUid: probe-metrics
       model:
-        expr: dashboard_panel_status{dashboard_uid="service-health-01", panel_id="6",
+        expr: dashboard_panel_status{dashboard_uid="mongodb-ops-01", panel_id="2",
           probe_type="panel_error"}
         refId: B
     - refId: C
@@ -1896,15 +632,15 @@ groups:
     execErrState: Alerting
     for: 2m
     annotations:
-      summary: Panel 'Active Instances' in dashboard 'Service Health' -- Panel Error
+      summary: Panel 'Operation Rate' in dashboard 'MongoDB Operations' -- Panel Error
       description: Panel is returning errors from the datasource.
     labels:
       severity: critical
-      dashboard_uid: service-health-01
-      panel_id: '6'
+      dashboard_uid: mongodb-ops-01
+      panel_id: '2'
       probe_type: panel_error
-  - uid: sre-service-health-0-vf-pod
-    title: '[Service Health] Variable ''pod'' -- Resolution Failed'
+  - uid: sre-mongodb-ops-01-nd-p3
+    title: '[MongoDB Operations] Panel ''Current Connections'' -- No Data'
     condition: C
     data:
     - refId: B
@@ -1914,7 +650,8 @@ groups:
         to: 0
       datasourceUid: probe-metrics
       model:
-        expr: dashboard_variable_status{dashboard_uid="service-health-01", variable_name="pod"}
+        expr: dashboard_panel_status{dashboard_uid="mongodb-ops-01", panel_id="3",
+          probe_type="no_data"}
         refId: B
     - refId: C
       queryType: ''
@@ -1947,16 +684,125 @@ groups:
     execErrState: Alerting
     for: 2m
     annotations:
-      summary: Variable 'pod' in dashboard 'Service Health' failed to resolve
-      description: Template variable pod is returning empty results. All panels depending
-        on this variable will show broken data.
+      summary: Panel 'Current Connections' in dashboard 'MongoDB Operations' -- No
+        Data
+      description: Panel has been returning empty results for >2 minutes. The source
+        metric may have disappeared or the exporter may be down.
+    labels:
+      severity: warning
+      dashboard_uid: mongodb-ops-01
+      panel_id: '3'
+      probe_type: no_data
+  - uid: sre-mongodb-ops-01-sd-p3
+    title: '[MongoDB Operations] Panel ''Current Connections'' -- Stale Data'
+    condition: C
+    data:
+    - refId: B
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: probe-metrics
+      model:
+        expr: dashboard_panel_status{dashboard_uid="mongodb-ops-01", panel_id="3",
+          probe_type="stale_data"}
+        refId: B
+    - refId: C
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: classic_conditions
+        refId: C
+        expression: B
+        datasource:
+          uid: __expr__
+          type: __expr__
+        conditions:
+        - type: query
+          query:
+            params:
+            - B
+          reducer:
+            params: []
+            type: last
+          evaluator:
+            params:
+            - 1
+            type: lt
+          operator:
+            type: and
+    noDataState: Alerting
+    execErrState: Alerting
+    for: 2m
+    annotations:
+      summary: Panel 'Current Connections' in dashboard 'MongoDB Operations' -- Stale
+        Data
+      description: Panel data has not been refreshed within the expected interval.
+        The exporter or scrape target may be unhealthy.
+    labels:
+      severity: warning
+      dashboard_uid: mongodb-ops-01
+      panel_id: '3'
+      probe_type: stale_data
+  - uid: sre-mongodb-ops-01-qt-p3
+    title: '[MongoDB Operations] Panel ''Current Connections'' -- Query Timeout'
+    condition: C
+    data:
+    - refId: B
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: probe-metrics
+      model:
+        expr: dashboard_panel_status{dashboard_uid="mongodb-ops-01", panel_id="3",
+          probe_type="query_timeout"}
+        refId: B
+    - refId: C
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: classic_conditions
+        refId: C
+        expression: B
+        datasource:
+          uid: __expr__
+          type: __expr__
+        conditions:
+        - type: query
+          query:
+            params:
+            - B
+          reducer:
+            params: []
+            type: last
+          evaluator:
+            params:
+            - 1
+            type: lt
+          operator:
+            type: and
+    noDataState: Alerting
+    execErrState: Alerting
+    for: 2m
+    annotations:
+      summary: Panel 'Current Connections' in dashboard 'MongoDB Operations' -- Query
+        Timeout
+      description: Panel query has been timing out for >2 minutes. The datasource
+        may be overloaded or unreachable.
     labels:
       severity: critical
-      dashboard_uid: service-health-01
-      variable_name: pod
-      probe_type: var_resolution_fail
-  - uid: sre-service-health-0-vf-namespace
-    title: '[Service Health] Variable ''namespace'' -- Resolution Failed'
+      dashboard_uid: mongodb-ops-01
+      panel_id: '3'
+      probe_type: query_timeout
+  - uid: sre-mongodb-ops-01-sq-p3
+    title: '[MongoDB Operations] Panel ''Current Connections'' -- Slow Query'
     condition: C
     data:
     - refId: B
@@ -1966,7 +812,8 @@ groups:
         to: 0
       datasourceUid: probe-metrics
       model:
-        expr: dashboard_variable_status{dashboard_uid="service-health-01", variable_name="namespace"}
+        expr: dashboard_panel_status{dashboard_uid="mongodb-ops-01", panel_id="3",
+          probe_type="slow_query"}
         refId: B
     - refId: C
       queryType: ''
@@ -1999,16 +846,1137 @@ groups:
     execErrState: Alerting
     for: 2m
     annotations:
-      summary: Variable 'namespace' in dashboard 'Service Health' failed to resolve
-      description: Template variable namespace is returning empty results. All panels
+      summary: Panel 'Current Connections' in dashboard 'MongoDB Operations' -- Slow
+        Query
+      description: Panel query execution time exceeds the configured threshold.
+    labels:
+      severity: warning
+      dashboard_uid: mongodb-ops-01
+      panel_id: '3'
+      probe_type: slow_query
+  - uid: sre-mongodb-ops-01-cs-p3
+    title: '[MongoDB Operations] Panel ''Current Connections'' -- Cardinality Spike'
+    condition: C
+    data:
+    - refId: B
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: probe-metrics
+      model:
+        expr: dashboard_panel_status{dashboard_uid="mongodb-ops-01", panel_id="3",
+          probe_type="cardinality_spike"}
+        refId: B
+    - refId: C
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: classic_conditions
+        refId: C
+        expression: B
+        datasource:
+          uid: __expr__
+          type: __expr__
+        conditions:
+        - type: query
+          query:
+            params:
+            - B
+          reducer:
+            params: []
+            type: last
+          evaluator:
+            params:
+            - 1
+            type: lt
+          operator:
+            type: and
+    noDataState: Alerting
+    execErrState: Alerting
+    for: 2m
+    annotations:
+      summary: Panel 'Current Connections' in dashboard 'MongoDB Operations' -- Cardinality
+        Spike
+      description: Series count has increased significantly above baseline. This can
+        cause incorrect aggregated values.
+    labels:
+      severity: warning
+      dashboard_uid: mongodb-ops-01
+      panel_id: '3'
+      probe_type: cardinality_spike
+  - uid: sre-mongodb-ops-01-pe-p3
+    title: '[MongoDB Operations] Panel ''Current Connections'' -- Panel Error'
+    condition: C
+    data:
+    - refId: B
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: probe-metrics
+      model:
+        expr: dashboard_panel_status{dashboard_uid="mongodb-ops-01", panel_id="3",
+          probe_type="panel_error"}
+        refId: B
+    - refId: C
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: classic_conditions
+        refId: C
+        expression: B
+        datasource:
+          uid: __expr__
+          type: __expr__
+        conditions:
+        - type: query
+          query:
+            params:
+            - B
+          reducer:
+            params: []
+            type: last
+          evaluator:
+            params:
+            - 1
+            type: lt
+          operator:
+            type: and
+    noDataState: Alerting
+    execErrState: Alerting
+    for: 2m
+    annotations:
+      summary: Panel 'Current Connections' in dashboard 'MongoDB Operations' -- Panel
+        Error
+      description: Panel is returning errors from the datasource.
+    labels:
+      severity: critical
+      dashboard_uid: mongodb-ops-01
+      panel_id: '3'
+      probe_type: panel_error
+  - uid: sre-mongodb-ops-01-nd-p4
+    title: '[MongoDB Operations] Panel ''Resident Memory'' -- No Data'
+    condition: C
+    data:
+    - refId: B
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: probe-metrics
+      model:
+        expr: dashboard_panel_status{dashboard_uid="mongodb-ops-01", panel_id="4",
+          probe_type="no_data"}
+        refId: B
+    - refId: C
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: classic_conditions
+        refId: C
+        expression: B
+        datasource:
+          uid: __expr__
+          type: __expr__
+        conditions:
+        - type: query
+          query:
+            params:
+            - B
+          reducer:
+            params: []
+            type: last
+          evaluator:
+            params:
+            - 1
+            type: lt
+          operator:
+            type: and
+    noDataState: Alerting
+    execErrState: Alerting
+    for: 2m
+    annotations:
+      summary: Panel 'Resident Memory' in dashboard 'MongoDB Operations' -- No Data
+      description: Panel has been returning empty results for >2 minutes. The source
+        metric may have disappeared or the exporter may be down.
+    labels:
+      severity: warning
+      dashboard_uid: mongodb-ops-01
+      panel_id: '4'
+      probe_type: no_data
+  - uid: sre-mongodb-ops-01-sd-p4
+    title: '[MongoDB Operations] Panel ''Resident Memory'' -- Stale Data'
+    condition: C
+    data:
+    - refId: B
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: probe-metrics
+      model:
+        expr: dashboard_panel_status{dashboard_uid="mongodb-ops-01", panel_id="4",
+          probe_type="stale_data"}
+        refId: B
+    - refId: C
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: classic_conditions
+        refId: C
+        expression: B
+        datasource:
+          uid: __expr__
+          type: __expr__
+        conditions:
+        - type: query
+          query:
+            params:
+            - B
+          reducer:
+            params: []
+            type: last
+          evaluator:
+            params:
+            - 1
+            type: lt
+          operator:
+            type: and
+    noDataState: Alerting
+    execErrState: Alerting
+    for: 2m
+    annotations:
+      summary: Panel 'Resident Memory' in dashboard 'MongoDB Operations' -- Stale
+        Data
+      description: Panel data has not been refreshed within the expected interval.
+        The exporter or scrape target may be unhealthy.
+    labels:
+      severity: warning
+      dashboard_uid: mongodb-ops-01
+      panel_id: '4'
+      probe_type: stale_data
+  - uid: sre-mongodb-ops-01-qt-p4
+    title: '[MongoDB Operations] Panel ''Resident Memory'' -- Query Timeout'
+    condition: C
+    data:
+    - refId: B
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: probe-metrics
+      model:
+        expr: dashboard_panel_status{dashboard_uid="mongodb-ops-01", panel_id="4",
+          probe_type="query_timeout"}
+        refId: B
+    - refId: C
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: classic_conditions
+        refId: C
+        expression: B
+        datasource:
+          uid: __expr__
+          type: __expr__
+        conditions:
+        - type: query
+          query:
+            params:
+            - B
+          reducer:
+            params: []
+            type: last
+          evaluator:
+            params:
+            - 1
+            type: lt
+          operator:
+            type: and
+    noDataState: Alerting
+    execErrState: Alerting
+    for: 2m
+    annotations:
+      summary: Panel 'Resident Memory' in dashboard 'MongoDB Operations' -- Query
+        Timeout
+      description: Panel query has been timing out for >2 minutes. The datasource
+        may be overloaded or unreachable.
+    labels:
+      severity: critical
+      dashboard_uid: mongodb-ops-01
+      panel_id: '4'
+      probe_type: query_timeout
+  - uid: sre-mongodb-ops-01-sq-p4
+    title: '[MongoDB Operations] Panel ''Resident Memory'' -- Slow Query'
+    condition: C
+    data:
+    - refId: B
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: probe-metrics
+      model:
+        expr: dashboard_panel_status{dashboard_uid="mongodb-ops-01", panel_id="4",
+          probe_type="slow_query"}
+        refId: B
+    - refId: C
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: classic_conditions
+        refId: C
+        expression: B
+        datasource:
+          uid: __expr__
+          type: __expr__
+        conditions:
+        - type: query
+          query:
+            params:
+            - B
+          reducer:
+            params: []
+            type: last
+          evaluator:
+            params:
+            - 1
+            type: lt
+          operator:
+            type: and
+    noDataState: Alerting
+    execErrState: Alerting
+    for: 2m
+    annotations:
+      summary: Panel 'Resident Memory' in dashboard 'MongoDB Operations' -- Slow Query
+      description: Panel query execution time exceeds the configured threshold.
+    labels:
+      severity: warning
+      dashboard_uid: mongodb-ops-01
+      panel_id: '4'
+      probe_type: slow_query
+  - uid: sre-mongodb-ops-01-cs-p4
+    title: '[MongoDB Operations] Panel ''Resident Memory'' -- Cardinality Spike'
+    condition: C
+    data:
+    - refId: B
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: probe-metrics
+      model:
+        expr: dashboard_panel_status{dashboard_uid="mongodb-ops-01", panel_id="4",
+          probe_type="cardinality_spike"}
+        refId: B
+    - refId: C
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: classic_conditions
+        refId: C
+        expression: B
+        datasource:
+          uid: __expr__
+          type: __expr__
+        conditions:
+        - type: query
+          query:
+            params:
+            - B
+          reducer:
+            params: []
+            type: last
+          evaluator:
+            params:
+            - 1
+            type: lt
+          operator:
+            type: and
+    noDataState: Alerting
+    execErrState: Alerting
+    for: 2m
+    annotations:
+      summary: Panel 'Resident Memory' in dashboard 'MongoDB Operations' -- Cardinality
+        Spike
+      description: Series count has increased significantly above baseline. This can
+        cause incorrect aggregated values.
+    labels:
+      severity: warning
+      dashboard_uid: mongodb-ops-01
+      panel_id: '4'
+      probe_type: cardinality_spike
+  - uid: sre-mongodb-ops-01-pe-p4
+    title: '[MongoDB Operations] Panel ''Resident Memory'' -- Panel Error'
+    condition: C
+    data:
+    - refId: B
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: probe-metrics
+      model:
+        expr: dashboard_panel_status{dashboard_uid="mongodb-ops-01", panel_id="4",
+          probe_type="panel_error"}
+        refId: B
+    - refId: C
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: classic_conditions
+        refId: C
+        expression: B
+        datasource:
+          uid: __expr__
+          type: __expr__
+        conditions:
+        - type: query
+          query:
+            params:
+            - B
+          reducer:
+            params: []
+            type: last
+          evaluator:
+            params:
+            - 1
+            type: lt
+          operator:
+            type: and
+    noDataState: Alerting
+    execErrState: Alerting
+    for: 2m
+    annotations:
+      summary: Panel 'Resident Memory' in dashboard 'MongoDB Operations' -- Panel
+        Error
+      description: Panel is returning errors from the datasource.
+    labels:
+      severity: critical
+      dashboard_uid: mongodb-ops-01
+      panel_id: '4'
+      probe_type: panel_error
+  - uid: sre-mongodb-ops-01-nd-p5
+    title: '[MongoDB Operations] Panel ''Replication Lag'' -- No Data'
+    condition: C
+    data:
+    - refId: B
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: probe-metrics
+      model:
+        expr: dashboard_panel_status{dashboard_uid="mongodb-ops-01", panel_id="5",
+          probe_type="no_data"}
+        refId: B
+    - refId: C
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: classic_conditions
+        refId: C
+        expression: B
+        datasource:
+          uid: __expr__
+          type: __expr__
+        conditions:
+        - type: query
+          query:
+            params:
+            - B
+          reducer:
+            params: []
+            type: last
+          evaluator:
+            params:
+            - 1
+            type: lt
+          operator:
+            type: and
+    noDataState: Alerting
+    execErrState: Alerting
+    for: 2m
+    annotations:
+      summary: Panel 'Replication Lag' in dashboard 'MongoDB Operations' -- No Data
+      description: Panel has been returning empty results for >2 minutes. The source
+        metric may have disappeared or the exporter may be down.
+    labels:
+      severity: warning
+      dashboard_uid: mongodb-ops-01
+      panel_id: '5'
+      probe_type: no_data
+  - uid: sre-mongodb-ops-01-sd-p5
+    title: '[MongoDB Operations] Panel ''Replication Lag'' -- Stale Data'
+    condition: C
+    data:
+    - refId: B
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: probe-metrics
+      model:
+        expr: dashboard_panel_status{dashboard_uid="mongodb-ops-01", panel_id="5",
+          probe_type="stale_data"}
+        refId: B
+    - refId: C
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: classic_conditions
+        refId: C
+        expression: B
+        datasource:
+          uid: __expr__
+          type: __expr__
+        conditions:
+        - type: query
+          query:
+            params:
+            - B
+          reducer:
+            params: []
+            type: last
+          evaluator:
+            params:
+            - 1
+            type: lt
+          operator:
+            type: and
+    noDataState: Alerting
+    execErrState: Alerting
+    for: 2m
+    annotations:
+      summary: Panel 'Replication Lag' in dashboard 'MongoDB Operations' -- Stale
+        Data
+      description: Panel data has not been refreshed within the expected interval.
+        The exporter or scrape target may be unhealthy.
+    labels:
+      severity: warning
+      dashboard_uid: mongodb-ops-01
+      panel_id: '5'
+      probe_type: stale_data
+  - uid: sre-mongodb-ops-01-qt-p5
+    title: '[MongoDB Operations] Panel ''Replication Lag'' -- Query Timeout'
+    condition: C
+    data:
+    - refId: B
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: probe-metrics
+      model:
+        expr: dashboard_panel_status{dashboard_uid="mongodb-ops-01", panel_id="5",
+          probe_type="query_timeout"}
+        refId: B
+    - refId: C
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: classic_conditions
+        refId: C
+        expression: B
+        datasource:
+          uid: __expr__
+          type: __expr__
+        conditions:
+        - type: query
+          query:
+            params:
+            - B
+          reducer:
+            params: []
+            type: last
+          evaluator:
+            params:
+            - 1
+            type: lt
+          operator:
+            type: and
+    noDataState: Alerting
+    execErrState: Alerting
+    for: 2m
+    annotations:
+      summary: Panel 'Replication Lag' in dashboard 'MongoDB Operations' -- Query
+        Timeout
+      description: Panel query has been timing out for >2 minutes. The datasource
+        may be overloaded or unreachable.
+    labels:
+      severity: critical
+      dashboard_uid: mongodb-ops-01
+      panel_id: '5'
+      probe_type: query_timeout
+  - uid: sre-mongodb-ops-01-sq-p5
+    title: '[MongoDB Operations] Panel ''Replication Lag'' -- Slow Query'
+    condition: C
+    data:
+    - refId: B
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: probe-metrics
+      model:
+        expr: dashboard_panel_status{dashboard_uid="mongodb-ops-01", panel_id="5",
+          probe_type="slow_query"}
+        refId: B
+    - refId: C
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: classic_conditions
+        refId: C
+        expression: B
+        datasource:
+          uid: __expr__
+          type: __expr__
+        conditions:
+        - type: query
+          query:
+            params:
+            - B
+          reducer:
+            params: []
+            type: last
+          evaluator:
+            params:
+            - 1
+            type: lt
+          operator:
+            type: and
+    noDataState: Alerting
+    execErrState: Alerting
+    for: 2m
+    annotations:
+      summary: Panel 'Replication Lag' in dashboard 'MongoDB Operations' -- Slow Query
+      description: Panel query execution time exceeds the configured threshold.
+    labels:
+      severity: warning
+      dashboard_uid: mongodb-ops-01
+      panel_id: '5'
+      probe_type: slow_query
+  - uid: sre-mongodb-ops-01-cs-p5
+    title: '[MongoDB Operations] Panel ''Replication Lag'' -- Cardinality Spike'
+    condition: C
+    data:
+    - refId: B
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: probe-metrics
+      model:
+        expr: dashboard_panel_status{dashboard_uid="mongodb-ops-01", panel_id="5",
+          probe_type="cardinality_spike"}
+        refId: B
+    - refId: C
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: classic_conditions
+        refId: C
+        expression: B
+        datasource:
+          uid: __expr__
+          type: __expr__
+        conditions:
+        - type: query
+          query:
+            params:
+            - B
+          reducer:
+            params: []
+            type: last
+          evaluator:
+            params:
+            - 1
+            type: lt
+          operator:
+            type: and
+    noDataState: Alerting
+    execErrState: Alerting
+    for: 2m
+    annotations:
+      summary: Panel 'Replication Lag' in dashboard 'MongoDB Operations' -- Cardinality
+        Spike
+      description: Series count has increased significantly above baseline. This can
+        cause incorrect aggregated values.
+    labels:
+      severity: warning
+      dashboard_uid: mongodb-ops-01
+      panel_id: '5'
+      probe_type: cardinality_spike
+  - uid: sre-mongodb-ops-01-pe-p5
+    title: '[MongoDB Operations] Panel ''Replication Lag'' -- Panel Error'
+    condition: C
+    data:
+    - refId: B
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: probe-metrics
+      model:
+        expr: dashboard_panel_status{dashboard_uid="mongodb-ops-01", panel_id="5",
+          probe_type="panel_error"}
+        refId: B
+    - refId: C
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: classic_conditions
+        refId: C
+        expression: B
+        datasource:
+          uid: __expr__
+          type: __expr__
+        conditions:
+        - type: query
+          query:
+            params:
+            - B
+          reducer:
+            params: []
+            type: last
+          evaluator:
+            params:
+            - 1
+            type: lt
+          operator:
+            type: and
+    noDataState: Alerting
+    execErrState: Alerting
+    for: 2m
+    annotations:
+      summary: Panel 'Replication Lag' in dashboard 'MongoDB Operations' -- Panel
+        Error
+      description: Panel is returning errors from the datasource.
+    labels:
+      severity: critical
+      dashboard_uid: mongodb-ops-01
+      panel_id: '5'
+      probe_type: panel_error
+  - uid: sre-mongodb-ops-01-nd-p6
+    title: '[MongoDB Operations] Panel ''Replica Member Health'' -- No Data'
+    condition: C
+    data:
+    - refId: B
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: probe-metrics
+      model:
+        expr: dashboard_panel_status{dashboard_uid="mongodb-ops-01", panel_id="6",
+          probe_type="no_data"}
+        refId: B
+    - refId: C
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: classic_conditions
+        refId: C
+        expression: B
+        datasource:
+          uid: __expr__
+          type: __expr__
+        conditions:
+        - type: query
+          query:
+            params:
+            - B
+          reducer:
+            params: []
+            type: last
+          evaluator:
+            params:
+            - 1
+            type: lt
+          operator:
+            type: and
+    noDataState: Alerting
+    execErrState: Alerting
+    for: 2m
+    annotations:
+      summary: Panel 'Replica Member Health' in dashboard 'MongoDB Operations' --
+        No Data
+      description: Panel has been returning empty results for >2 minutes. The source
+        metric may have disappeared or the exporter may be down.
+    labels:
+      severity: warning
+      dashboard_uid: mongodb-ops-01
+      panel_id: '6'
+      probe_type: no_data
+  - uid: sre-mongodb-ops-01-sd-p6
+    title: '[MongoDB Operations] Panel ''Replica Member Health'' -- Stale Data'
+    condition: C
+    data:
+    - refId: B
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: probe-metrics
+      model:
+        expr: dashboard_panel_status{dashboard_uid="mongodb-ops-01", panel_id="6",
+          probe_type="stale_data"}
+        refId: B
+    - refId: C
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: classic_conditions
+        refId: C
+        expression: B
+        datasource:
+          uid: __expr__
+          type: __expr__
+        conditions:
+        - type: query
+          query:
+            params:
+            - B
+          reducer:
+            params: []
+            type: last
+          evaluator:
+            params:
+            - 1
+            type: lt
+          operator:
+            type: and
+    noDataState: Alerting
+    execErrState: Alerting
+    for: 2m
+    annotations:
+      summary: Panel 'Replica Member Health' in dashboard 'MongoDB Operations' --
+        Stale Data
+      description: Panel data has not been refreshed within the expected interval.
+        The exporter or scrape target may be unhealthy.
+    labels:
+      severity: warning
+      dashboard_uid: mongodb-ops-01
+      panel_id: '6'
+      probe_type: stale_data
+  - uid: sre-mongodb-ops-01-qt-p6
+    title: '[MongoDB Operations] Panel ''Replica Member Health'' -- Query Timeout'
+    condition: C
+    data:
+    - refId: B
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: probe-metrics
+      model:
+        expr: dashboard_panel_status{dashboard_uid="mongodb-ops-01", panel_id="6",
+          probe_type="query_timeout"}
+        refId: B
+    - refId: C
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: classic_conditions
+        refId: C
+        expression: B
+        datasource:
+          uid: __expr__
+          type: __expr__
+        conditions:
+        - type: query
+          query:
+            params:
+            - B
+          reducer:
+            params: []
+            type: last
+          evaluator:
+            params:
+            - 1
+            type: lt
+          operator:
+            type: and
+    noDataState: Alerting
+    execErrState: Alerting
+    for: 2m
+    annotations:
+      summary: Panel 'Replica Member Health' in dashboard 'MongoDB Operations' --
+        Query Timeout
+      description: Panel query has been timing out for >2 minutes. The datasource
+        may be overloaded or unreachable.
+    labels:
+      severity: critical
+      dashboard_uid: mongodb-ops-01
+      panel_id: '6'
+      probe_type: query_timeout
+  - uid: sre-mongodb-ops-01-sq-p6
+    title: '[MongoDB Operations] Panel ''Replica Member Health'' -- Slow Query'
+    condition: C
+    data:
+    - refId: B
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: probe-metrics
+      model:
+        expr: dashboard_panel_status{dashboard_uid="mongodb-ops-01", panel_id="6",
+          probe_type="slow_query"}
+        refId: B
+    - refId: C
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: classic_conditions
+        refId: C
+        expression: B
+        datasource:
+          uid: __expr__
+          type: __expr__
+        conditions:
+        - type: query
+          query:
+            params:
+            - B
+          reducer:
+            params: []
+            type: last
+          evaluator:
+            params:
+            - 1
+            type: lt
+          operator:
+            type: and
+    noDataState: Alerting
+    execErrState: Alerting
+    for: 2m
+    annotations:
+      summary: Panel 'Replica Member Health' in dashboard 'MongoDB Operations' --
+        Slow Query
+      description: Panel query execution time exceeds the configured threshold.
+    labels:
+      severity: warning
+      dashboard_uid: mongodb-ops-01
+      panel_id: '6'
+      probe_type: slow_query
+  - uid: sre-mongodb-ops-01-cs-p6
+    title: '[MongoDB Operations] Panel ''Replica Member Health'' -- Cardinality Spike'
+    condition: C
+    data:
+    - refId: B
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: probe-metrics
+      model:
+        expr: dashboard_panel_status{dashboard_uid="mongodb-ops-01", panel_id="6",
+          probe_type="cardinality_spike"}
+        refId: B
+    - refId: C
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: classic_conditions
+        refId: C
+        expression: B
+        datasource:
+          uid: __expr__
+          type: __expr__
+        conditions:
+        - type: query
+          query:
+            params:
+            - B
+          reducer:
+            params: []
+            type: last
+          evaluator:
+            params:
+            - 1
+            type: lt
+          operator:
+            type: and
+    noDataState: Alerting
+    execErrState: Alerting
+    for: 2m
+    annotations:
+      summary: Panel 'Replica Member Health' in dashboard 'MongoDB Operations' --
+        Cardinality Spike
+      description: Series count has increased significantly above baseline. This can
+        cause incorrect aggregated values.
+    labels:
+      severity: warning
+      dashboard_uid: mongodb-ops-01
+      panel_id: '6'
+      probe_type: cardinality_spike
+  - uid: sre-mongodb-ops-01-pe-p6
+    title: '[MongoDB Operations] Panel ''Replica Member Health'' -- Panel Error'
+    condition: C
+    data:
+    - refId: B
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: probe-metrics
+      model:
+        expr: dashboard_panel_status{dashboard_uid="mongodb-ops-01", panel_id="6",
+          probe_type="panel_error"}
+        refId: B
+    - refId: C
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: classic_conditions
+        refId: C
+        expression: B
+        datasource:
+          uid: __expr__
+          type: __expr__
+        conditions:
+        - type: query
+          query:
+            params:
+            - B
+          reducer:
+            params: []
+            type: last
+          evaluator:
+            params:
+            - 1
+            type: lt
+          operator:
+            type: and
+    noDataState: Alerting
+    execErrState: Alerting
+    for: 2m
+    annotations:
+      summary: Panel 'Replica Member Health' in dashboard 'MongoDB Operations' --
+        Panel Error
+      description: Panel is returning errors from the datasource.
+    labels:
+      severity: critical
+      dashboard_uid: mongodb-ops-01
+      panel_id: '6'
+      probe_type: panel_error
+  - uid: sre-mongodb-ops-01-vf-instance
+    title: '[MongoDB Operations] Variable ''instance'' -- Resolution Failed'
+    condition: C
+    data:
+    - refId: B
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: probe-metrics
+      model:
+        expr: dashboard_variable_status{dashboard_uid="mongodb-ops-01", variable_name="instance"}
+        refId: B
+    - refId: C
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: classic_conditions
+        refId: C
+        expression: B
+        datasource:
+          uid: __expr__
+          type: __expr__
+        conditions:
+        - type: query
+          query:
+            params:
+            - B
+          reducer:
+            params: []
+            type: last
+          evaluator:
+            params:
+            - 1
+            type: lt
+          operator:
+            type: and
+    noDataState: Alerting
+    execErrState: Alerting
+    for: 2m
+    annotations:
+      summary: Variable 'instance' in dashboard 'MongoDB Operations' failed to resolve
+      description: Template variable instance is returning empty results. All panels
         depending on this variable will show broken data.
     labels:
       severity: critical
-      dashboard_uid: service-health-01
-      variable_name: namespace
+      dashboard_uid: mongodb-ops-01
+      variable_name: instance
       probe_type: var_resolution_fail
-  - uid: sre-service-health-0-hs
-    title: '[Service Health] Health Score Drop'
+  - uid: sre-mongodb-ops-01-vf-replset
+    title: '[MongoDB Operations] Variable ''replset'' -- Resolution Failed'
     condition: C
     data:
     - refId: B
@@ -2018,7 +1986,7 @@ groups:
         to: 0
       datasourceUid: probe-metrics
       model:
-        expr: dashboard_health_score{dashboard_uid="service-health-01"}
+        expr: dashboard_variable_status{dashboard_uid="mongodb-ops-01", variable_name="replset"}
         refId: B
     - refId: C
       queryType: ''
@@ -2051,14 +2019,16 @@ groups:
     execErrState: Alerting
     for: 2m
     annotations:
-      summary: Dashboard 'Service Health' health score has dropped below 100%
-      description: One or more panels or variables are reporting degraded status.
+      summary: Variable 'replset' in dashboard 'MongoDB Operations' failed to resolve
+      description: Template variable replset is returning empty results. All panels
+        depending on this variable will show broken data.
     labels:
-      severity: warning
-      dashboard_uid: service-health-01
-      probe_type: health_score
-  - uid: sre-service-health-0-sl
-    title: '[Service Health] Slow Dashboard Load'
+      severity: critical
+      dashboard_uid: mongodb-ops-01
+      variable_name: replset
+      probe_type: var_resolution_fail
+  - uid: sre-mongodb-ops-01-hs
+    title: '[MongoDB Operations] Health Score Drop'
     condition: C
     data:
     - refId: B
@@ -2068,7 +2038,57 @@ groups:
         to: 0
       datasourceUid: probe-metrics
       model:
-        expr: dashboard_load_time_seconds{dashboard_uid="service-health-01"}
+        expr: dashboard_health_score{dashboard_uid="mongodb-ops-01"}
+        refId: B
+    - refId: C
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: classic_conditions
+        refId: C
+        expression: B
+        datasource:
+          uid: __expr__
+          type: __expr__
+        conditions:
+        - type: query
+          query:
+            params:
+            - B
+          reducer:
+            params: []
+            type: last
+          evaluator:
+            params:
+            - 1
+            type: lt
+          operator:
+            type: and
+    noDataState: Alerting
+    execErrState: Alerting
+    for: 2m
+    annotations:
+      summary: Dashboard 'MongoDB Operations' health score has dropped below 100%
+      description: One or more panels or variables are reporting degraded status.
+    labels:
+      severity: warning
+      dashboard_uid: mongodb-ops-01
+      probe_type: health_score
+  - uid: sre-mongodb-ops-01-sl
+    title: '[MongoDB Operations] Slow Dashboard Load'
+    condition: C
+    data:
+    - refId: B
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: probe-metrics
+      model:
+        expr: dashboard_load_time_seconds{dashboard_uid="mongodb-ops-01"}
         refId: B
     - refId: C
       queryType: ''
@@ -2101,9 +2121,9 @@ groups:
     execErrState: Alerting
     for: 5m
     annotations:
-      summary: Dashboard 'Service Health' is loading slowly (>15s)
+      summary: Dashboard 'MongoDB Operations' is loading slowly (>15s)
       description: The critical path of panel queries exceeds 15 seconds.
     labels:
       severity: warning
-      dashboard_uid: service-health-01
+      dashboard_uid: mongodb-ops-01
       probe_type: slow_dashboard

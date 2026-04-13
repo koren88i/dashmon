@@ -11,6 +11,11 @@ from typing import Any
 
 from probe.config import PanelProbeSpec, VariableProbeSpec
 
+DEFAULT_METRICS_DATASOURCE_NAME = "Probe Metrics"
+DEFAULT_METRICS_DATASOURCE_UID = "probe-metrics"
+DEFAULT_METRICS_DATASOURCE_VARIABLE = "sre_datasource"
+DEFAULT_METRICS_DATASOURCE_REF = "${sre_datasource}"
+
 # ---------------------------------------------------------------------------
 # Grafana panel-type helpers
 # ---------------------------------------------------------------------------
@@ -54,7 +59,7 @@ def _stat_panel(
         "title": title,
         "type": "stat",
         "gridPos": grid,
-        "datasource": {"uid": "${datasource}", "type": "prometheus"},
+        "datasource": {"uid": DEFAULT_METRICS_DATASOURCE_REF, "type": "prometheus"},
         "targets": [{"refId": "A", "expr": expr}],
         "options": {
             "colorMode": color_mode,
@@ -85,7 +90,7 @@ def _timeseries_panel(
         "title": title,
         "type": "timeseries",
         "gridPos": grid,
-        "datasource": {"uid": "${datasource}", "type": "prometheus"},
+        "datasource": {"uid": DEFAULT_METRICS_DATASOURCE_REF, "type": "prometheus"},
         "targets": targets,
         "fieldConfig": {
             "defaults": {"unit": unit},
@@ -99,16 +104,24 @@ def _table_panel(
     title: str,
     expr: str,
     grid: dict,
+    *,
+    unit: str = "",
+    transformations: list[dict] | None = None,
+    field_overrides: list[dict] | None = None,
 ) -> dict:
+    defaults: dict[str, Any] = {}
+    if unit:
+        defaults["unit"] = unit
     return {
         "id": _id(),
         "title": title,
         "type": "table",
         "gridPos": grid,
-        "datasource": {"uid": "${datasource}", "type": "prometheus"},
+        "datasource": {"uid": DEFAULT_METRICS_DATASOURCE_REF, "type": "prometheus"},
         "targets": [{"refId": "A", "expr": expr, "format": "table", "instant": True}],
         "options": {},
-        "fieldConfig": {"defaults": {}, "overrides": []},
+        "fieldConfig": {"defaults": defaults, "overrides": field_overrides or []},
+        "transformations": transformations or [],
     }
 
 
@@ -193,9 +206,50 @@ def generate_meta_dashboard(
     all_panels.append(_row("Issue Log", y))
     y += 1
     all_panels.append(_table_panel(
-        "Recent State Transitions",
-        f'increase(dashboard_panel_error_total{{dashboard_uid="{uid}"}}[5m])',
+        "Recent Issue Events",
+        f'dashboard_issue_event_timestamp_seconds{{dashboard_uid="{uid}"}} * 1000',
         {"h": 8, "w": 24, "x": 0, "y": y},
+        transformations=[
+            {
+                "id": "sortBy",
+                "options": {
+                    "fields": {},
+                    "sort": [{"field": "Value", "desc": True}],
+                },
+            },
+            {
+                "id": "organize",
+                "options": {
+                    "excludeByName": {
+                        "Time": True,
+                        "__name__": True,
+                        "dashboard_uid": True,
+                        "event_id": True,
+                        "instance": True,
+                        "job": True,
+                        "panel_id": True,
+                    },
+                    "indexByName": {
+                        "Value": 0,
+                        "panel_title": 1,
+                        "error_type": 2,
+                        "message": 3,
+                    },
+                    "renameByName": {
+                        "Value": "Event Time",
+                        "panel_title": "Panel",
+                        "error_type": "Type",
+                        "message": "Message",
+                    },
+                },
+            },
+        ],
+        field_overrides=[
+            {
+                "matcher": {"id": "byName", "options": "Event Time"},
+                "properties": [{"id": "unit", "value": "dateTimeAsIso"}],
+            },
+        ],
     ))
     y += 8
 
@@ -224,10 +278,14 @@ def generate_meta_dashboard(
         "templating": {
             "list": [
                 {
-                    "name": "datasource",
+                    "name": DEFAULT_METRICS_DATASOURCE_VARIABLE,
                     "type": "datasource",
                     "query": "prometheus",
-                    "current": {},
+                    "current": {
+                        "selected": True,
+                        "text": DEFAULT_METRICS_DATASOURCE_NAME,
+                        "value": DEFAULT_METRICS_DATASOURCE_UID,
+                    },
                     "hide": 0,
                 }
             ]
@@ -256,7 +314,7 @@ def _overview_panels(uid: str, y: int) -> list[dict]:
         ),
         _stat_panel(
             "Active Issues",
-            f'count(dashboard_panel_status{{dashboard_uid="{uid}", probe_type!="query"}} == 0) or vector(0)',
+            f'dashboard_issue_count{{dashboard_uid="{uid}"}}',
             {"h": 4, "w": 6, "x": 6, "y": y},
             thresholds=[
                 {"color": "green", "value": None},
@@ -347,7 +405,7 @@ def _query_performance_panels(
             "title": "Query Duration Heatmap",
             "type": "heatmap",
             "gridPos": {"h": 8, "w": 8, "x": 16, "y": y},
-            "datasource": {"uid": "${datasource}", "type": "prometheus"},
+            "datasource": {"uid": DEFAULT_METRICS_DATASOURCE_REF, "type": "prometheus"},
             "targets": [{
                 "refId": "A",
                 "expr": f'sum(increase(dashboard_panel_query_duration_seconds_bucket{{dashboard_uid="{uid}"}}[5m])) by (le)',

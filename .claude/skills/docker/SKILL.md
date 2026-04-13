@@ -36,8 +36,9 @@ If a service only needs to be reached by other containers, use `expose:` and lea
 Every host-bound port must appear in a comment block at the top of `compose.yml`:
 ```yaml
 # PORT REGISTRY (host ports this project binds)
-# 8000  — api server        (override: API_PORT)
-# 9090  — metrics endpoint  (override: METRICS_PORT)
+# 8000  — probe-engine API        (override: PROBE_ENGINE_PORT)
+# 9090  — mock-prometheus API     (override: MOCK_BACKEND_PORT)
+# 8080  — UI simulator / nginx    (override: SIMULATOR_PORT)
 ```
 Update this comment whenever a port is added, changed, or removed.
 
@@ -61,7 +62,16 @@ deploy:
       memory: 64M
 ```
 
-Profile with `docker stats` under load; set the limit at ~2× observed peak.
+### Rough starting values for this stack
+
+| Service | CPU limit | Memory limit |
+|---|---|---|
+| FastAPI probe engine (1 worker) | 1.0 | 256M |
+| Mock backend (FastAPI) | 0.5 | 128M |
+| Grafana | 1.0 | 512M |
+| Prometheus | 1.0 | 512M–1G |
+
+Each additional uvicorn worker adds ~50–100 MB RSS. Profile with `docker stats` under load; set the limit at ~2× observed peak.
 
 ---
 
@@ -91,11 +101,11 @@ The `/health` endpoint must:
 Use the long form of `depends_on` — the short form only waits for the container to start, not for the app inside to be ready:
 
 ```yaml
-service_b:
+probe_engine:
   depends_on:
-    service_a:
+    mock_backend:
       condition: service_healthy
-      restart: true   # restart service_b if service_a restarts
+      restart: true   # restart probe_engine if mock_backend restarts
 ```
 
 ---
@@ -123,13 +133,13 @@ networks:
 services:
   proxy:
     networks: [frontend]
-  api:
+  probe_engine:
     networks: [frontend, backend]
-  db:
+  mock_backend:
     networks: [backend]   # not reachable from the host network
 ```
 
-Service names are DNS hostnames on shared networks. Inside a container, `localhost` is the container itself — use the service name.
+Service names are DNS hostnames on shared networks. Inside a container, `localhost` is the container itself — use the service name: `http://mock_backend:9090`.
 
 ---
 
@@ -155,11 +165,11 @@ Never commit `.env`. Never put secrets in environment variables — they appear 
 
 ### Layer order: stable → volatile
 ```dockerfile
-# WRONG — code change busts the dependency cache
+# WRONG — code change busts the pip cache
 COPY . /app
 RUN pip install -r requirements.txt
 
-# CORRECT — dependencies cached independently of code changes
+# CORRECT — requirements cached independently of code changes
 COPY requirements.txt /app/
 RUN pip install --no-cache-dir -r /app/requirements.txt
 COPY . /app
@@ -167,10 +177,10 @@ COPY . /app
 
 ### Always use exec-form CMD
 ```dockerfile
-# GOOD — signals reach the process; clean shutdown
+# GOOD — signals reach the Python process; clean shutdown
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
 
-# BAD — SIGTERM goes to /bin/sh, not the app; 10s kill wait
+# BAD — SIGTERM goes to /bin/sh, not uvicorn; 10s kill wait
 CMD uvicorn main:app --host 0.0.0.0 --port 8000
 ```
 
@@ -207,7 +217,9 @@ x-logging: &default-logging
     max-file: "3"
 
 services:
-  api:
+  probe_engine:
+    logging: *default-logging
+  mock_backend:
     logging: *default-logging
 ```
 

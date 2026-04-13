@@ -8,6 +8,13 @@ datasources:
     access: proxy
     isDefault: false
 
+  - name: MongoDB Mock Prometheus
+    type: prometheus
+    uid: prometheus-mongo
+    url: http://mock-mongo-prometheus:9090
+    access: proxy
+    isDefault: false
+
   - name: Probe Metrics
     type: prometheus
     uid: probe-metrics
