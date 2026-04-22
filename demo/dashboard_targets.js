@@ -4,6 +4,7 @@ window.DASHBOARD_TARGETS = {
     "dashboardUid": "service-health-01",
     "controllerUrl": "http://localhost:8010",
     "probeUrl": "http://localhost:8000",
+    "renderProbeUrl": "http://localhost:8012",
     "grafanaSource": "Service Health",
     "grafanaSre": "[SRE] Service Health",
     "faultGroups": [
@@ -21,10 +22,12 @@ window.DASHBOARD_TARGETS = {
             "target": "http_requests_total",
             "affected_layers": [
               "datasource_api",
-              "grafana_panel_path"
+              "grafana_panel_path",
+              "browser_render"
             ],
             "expected_sre_signals": [
-              "no_data"
+              "no_data",
+              "render_no_data"
             ]
           },
           {
@@ -44,11 +47,13 @@ window.DASHBOARD_TARGETS = {
             "target": "http_requests_total",
             "affected_layers": [
               "datasource_api",
-              "grafana_panel_path"
+              "grafana_panel_path",
+              "browser_render"
             ],
             "expected_sre_signals": [
               "slow_query",
-              "query_timeout"
+              "query_timeout",
+              "render_timeout"
             ]
           },
           {
@@ -57,11 +62,13 @@ window.DASHBOARD_TARGETS = {
             "target": "instance",
             "affected_layers": [
               "variable_resolution",
-              "variable_dependency"
+              "variable_dependency",
+              "browser_render"
             ],
             "expected_sre_signals": [
               "var_resolution_fail",
-              "blocked_by_variable"
+              "blocked_by_variable",
+              "render_no_data"
             ]
           },
           {
@@ -70,11 +77,13 @@ window.DASHBOARD_TARGETS = {
             "target": "instance",
             "affected_layers": [
               "variable_resolution",
-              "variable_dependency"
+              "variable_dependency",
+              "browser_render"
             ],
             "expected_sre_signals": [
               "variable_query_error",
-              "blocked_by_variable"
+              "blocked_by_variable",
+              "render_panel_error"
             ]
           },
           {
@@ -83,11 +92,13 @@ window.DASHBOARD_TARGETS = {
             "target": "process_resident_memory_bytes",
             "affected_layers": [
               "datasource_api",
-              "grafana_panel_path"
+              "grafana_panel_path",
+              "browser_render"
             ],
             "expected_sre_signals": [
               "no_data",
-              "metric_rename"
+              "metric_rename",
+              "render_no_data"
             ]
           },
           {
@@ -118,6 +129,7 @@ window.DASHBOARD_TARGETS = {
     "dashboardUid": "mongodb-ops-01",
     "controllerUrl": "http://localhost:8010",
     "probeUrl": "http://localhost:8002",
+    "renderProbeUrl": "http://localhost:8012",
     "grafanaSource": "MongoDB Operations",
     "grafanaSre": "[SRE] MongoDB Operations",
     "faultGroups": [
@@ -135,10 +147,12 @@ window.DASHBOARD_TARGETS = {
             "target": "mongodb_op_counters_total",
             "affected_layers": [
               "datasource_api",
-              "grafana_panel_path"
+              "grafana_panel_path",
+              "browser_render"
             ],
             "expected_sre_signals": [
-              "no_data"
+              "no_data",
+              "render_no_data"
             ]
           },
           {
@@ -158,11 +172,13 @@ window.DASHBOARD_TARGETS = {
             "target": "mongodb_op_counters_total",
             "affected_layers": [
               "datasource_api",
-              "grafana_panel_path"
+              "grafana_panel_path",
+              "browser_render"
             ],
             "expected_sre_signals": [
               "slow_query",
-              "query_timeout"
+              "query_timeout",
+              "render_timeout"
             ]
           },
           {
@@ -171,11 +187,13 @@ window.DASHBOARD_TARGETS = {
             "target": "instance",
             "affected_layers": [
               "variable_resolution",
-              "variable_dependency"
+              "variable_dependency",
+              "browser_render"
             ],
             "expected_sre_signals": [
               "var_resolution_fail",
-              "blocked_by_variable"
+              "blocked_by_variable",
+              "render_no_data"
             ]
           },
           {
@@ -184,11 +202,13 @@ window.DASHBOARD_TARGETS = {
             "target": "instance",
             "affected_layers": [
               "variable_resolution",
-              "variable_dependency"
+              "variable_dependency",
+              "browser_render"
             ],
             "expected_sre_signals": [
               "variable_query_error",
-              "blocked_by_variable"
+              "blocked_by_variable",
+              "render_panel_error"
             ]
           },
           {
@@ -197,11 +217,13 @@ window.DASHBOARD_TARGETS = {
             "target": "mongodb_memory_resident_bytes",
             "affected_layers": [
               "datasource_api",
-              "grafana_panel_path"
+              "grafana_panel_path",
+              "browser_render"
             ],
             "expected_sre_signals": [
               "no_data",
-              "metric_rename"
+              "metric_rename",
+              "render_no_data"
             ]
           },
           {
@@ -234,6 +256,7 @@ window.DASHBOARD_TARGETS = {
     "dashboardUid": "mongodb-atlas-system-metrics",
     "controllerUrl": "http://localhost:8010",
     "probeUrl": "http://localhost:8004",
+    "renderProbeUrl": "http://localhost:8012",
     "grafanaSource": "MongoDB Atlas System Metrics",
     "grafanaSre": "[SRE] MongoDB Atlas System Metrics",
     "faultGroups": [
@@ -251,10 +274,12 @@ window.DASHBOARD_TARGETS = {
             "target": "mongodb_opcounters_query",
             "affected_layers": [
               "datasource_api",
-              "grafana_panel_path"
+              "grafana_panel_path",
+              "browser_render"
             ],
             "expected_sre_signals": [
-              "no_data"
+              "no_data",
+              "render_no_data"
             ]
           },
           {
@@ -274,11 +299,13 @@ window.DASHBOARD_TARGETS = {
             "target": "mongodb_opcounters_query",
             "affected_layers": [
               "datasource_api",
-              "grafana_panel_path"
+              "grafana_panel_path",
+              "browser_render"
             ],
             "expected_sre_signals": [
               "slow_query",
-              "query_timeout"
+              "query_timeout",
+              "render_timeout"
             ]
           },
           {
@@ -287,11 +314,13 @@ window.DASHBOARD_TARGETS = {
             "target": "group_id",
             "affected_layers": [
               "variable_resolution",
-              "variable_dependency"
+              "variable_dependency",
+              "browser_render"
             ],
             "expected_sre_signals": [
               "var_resolution_fail",
-              "blocked_by_variable"
+              "blocked_by_variable",
+              "render_no_data"
             ]
           },
           {
@@ -300,11 +329,13 @@ window.DASHBOARD_TARGETS = {
             "target": "group_id",
             "affected_layers": [
               "variable_resolution",
-              "variable_dependency"
+              "variable_dependency",
+              "browser_render"
             ],
             "expected_sre_signals": [
               "variable_query_error",
-              "blocked_by_variable"
+              "blocked_by_variable",
+              "render_panel_error"
             ]
           },
           {
@@ -313,11 +344,13 @@ window.DASHBOARD_TARGETS = {
             "target": "mongodb_mem_virtual",
             "affected_layers": [
               "datasource_api",
-              "grafana_panel_path"
+              "grafana_panel_path",
+              "browser_render"
             ],
             "expected_sre_signals": [
               "no_data",
-              "metric_rename"
+              "metric_rename",
+              "render_no_data"
             ]
           },
           {
@@ -353,6 +386,7 @@ window.DASHBOARD_TARGETS = {
     "dashboardUid": "mongodb-live-ops-01",
     "controllerUrl": "http://localhost:8010",
     "probeUrl": "http://localhost:8006",
+    "renderProbeUrl": "http://localhost:8012",
     "grafanaSource": "MongoDB Live Operations",
     "grafanaSre": "[SRE] MongoDB Live Operations",
     "faultGroups": [
@@ -370,10 +404,12 @@ window.DASHBOARD_TARGETS = {
             "target": "mongodb_op_counters_total",
             "affected_layers": [
               "datasource_api",
-              "grafana_panel_path"
+              "grafana_panel_path",
+              "browser_render"
             ],
             "expected_sre_signals": [
-              "no_data"
+              "no_data",
+              "render_no_data"
             ]
           },
           {
@@ -393,11 +429,13 @@ window.DASHBOARD_TARGETS = {
             "target": "mongodb_op_counters_total",
             "affected_layers": [
               "datasource_api",
-              "grafana_panel_path"
+              "grafana_panel_path",
+              "browser_render"
             ],
             "expected_sre_signals": [
               "slow_query",
-              "query_timeout"
+              "query_timeout",
+              "render_timeout"
             ]
           },
           {
@@ -406,11 +444,13 @@ window.DASHBOARD_TARGETS = {
             "target": "instance",
             "affected_layers": [
               "variable_resolution",
-              "variable_dependency"
+              "variable_dependency",
+              "browser_render"
             ],
             "expected_sre_signals": [
               "var_resolution_fail",
-              "blocked_by_variable"
+              "blocked_by_variable",
+              "render_no_data"
             ]
           },
           {
@@ -419,11 +459,13 @@ window.DASHBOARD_TARGETS = {
             "target": "instance",
             "affected_layers": [
               "variable_resolution",
-              "variable_dependency"
+              "variable_dependency",
+              "browser_render"
             ],
             "expected_sre_signals": [
               "variable_query_error",
-              "blocked_by_variable"
+              "blocked_by_variable",
+              "render_panel_error"
             ]
           },
           {
@@ -432,11 +474,13 @@ window.DASHBOARD_TARGETS = {
             "target": "mongodb_memory",
             "affected_layers": [
               "datasource_api",
-              "grafana_panel_path"
+              "grafana_panel_path",
+              "browser_render"
             ],
             "expected_sre_signals": [
               "no_data",
-              "metric_rename"
+              "metric_rename",
+              "render_no_data"
             ]
           },
           {
@@ -455,10 +499,12 @@ window.DASHBOARD_TARGETS = {
             "label": "Grafana Panel 500",
             "target": "mongodb_op_counters_total",
             "affected_layers": [
-              "grafana_panel_path"
+              "grafana_panel_path",
+              "browser_render"
             ],
             "expected_sre_signals": [
-              "panel_error"
+              "panel_error",
+              "render_panel_error"
             ]
           }
         ]

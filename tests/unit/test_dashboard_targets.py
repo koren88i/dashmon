@@ -59,6 +59,8 @@ def test_registry_declares_unique_contract_fields(registry):
                 host_ports.append(target[section]["host_port"])
     services.append(registry["fault_controller"]["service"])
     host_ports.append(registry["fault_controller"]["host_port"])
+    services.append(registry["render_probe"]["service"])
+    host_ports.append(registry["render_probe"]["host_port"])
     assert len(services) == len(set(services))
     assert len(host_ports) == len(set(host_ports))
 
@@ -125,6 +127,20 @@ def test_generated_probe_configs_enable_grafana_only_for_docker(registry):
     assert local_cfg["grafana"]["url"] == "http://localhost:3000"
 
 
+def test_render_probe_defaults(registry):
+    defaults = registry["render_probe_defaults"]
+    render_probe = registry["render_probe"]
+
+    assert defaults["enabled"] is True
+    assert defaults["interval_seconds"] == 15
+    assert defaults["timeout_seconds"] == 15
+    assert defaults["slow_render_seconds"] == 10
+    assert defaults["max_concurrency"] == 2
+    assert defaults["grafana"]["docker_url"] == "http://grafana:3000"
+    assert render_probe["service"] == "browser-render-probe"
+    assert render_probe["host_port"] == 8012
+
+
 def test_check_cli_returns_success(capsys):
     assert main(["--check"]) == 0
     assert "up to date" in capsys.readouterr().out
@@ -141,6 +157,7 @@ def test_simulator_targets_js_contains_current_targets(registry):
 
     assert set(data) == {"service", "mongodb", "mongodb_atlas", "mongodb_live"}
     assert data["service"]["probeUrl"] == "http://localhost:8000"
+    assert data["service"]["renderProbeUrl"] == "http://localhost:8012"
     assert data["mongodb_atlas"]["probeUrl"] == "http://localhost:8004"
     assert data["mongodb_live"]["probeUrl"] == "http://localhost:8006"
     assert data["mongodb"]["controllerUrl"] == "http://localhost:8010"
@@ -156,15 +173,27 @@ def test_simulator_targets_js_contains_current_targets(registry):
         for fault in live_groups["proxy"]["faults"]
         if fault["type"] == "panel_query_http_500"
     )
-    assert panel_fault["affected_layers"] == ["grafana_panel_path"]
-    assert panel_fault["expected_sre_signals"] == ["panel_error"]
+    assert panel_fault["affected_layers"] == ["grafana_panel_path", "browser_render"]
+    assert panel_fault["expected_sre_signals"] == ["panel_error", "render_panel_error"]
     variable_error_fault = next(
         fault
         for fault in live_groups["proxy"]["faults"]
         if fault["type"] == "variable_query_error"
     )
-    assert variable_error_fault["affected_layers"] == ["variable_resolution", "variable_dependency"]
-    assert variable_error_fault["expected_sre_signals"] == ["variable_query_error", "blocked_by_variable"]
+    assert variable_error_fault["affected_layers"] == ["variable_resolution", "variable_dependency", "browser_render"]
+    assert variable_error_fault["expected_sre_signals"] == [
+        "variable_query_error",
+        "blocked_by_variable",
+        "render_panel_error",
+    ]
+
+    no_data_fault = next(
+        fault
+        for fault in data["service"]["faultGroups"][0]["faults"]
+        if fault["type"] == "no_data"
+    )
+    assert "browser_render" in no_data_fault["affected_layers"]
+    assert "render_no_data" in no_data_fault["expected_sre_signals"]
 
     for target in data.values():
         executable_groups = [group for group in target["faultGroups"] if group["enabled"]]

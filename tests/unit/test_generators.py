@@ -117,9 +117,21 @@ def test_meta_dashboard_has_probe_layer_panels(meta):
     assert "Datasource API" in panels
     assert "Grafana Panel Path" in panels
     assert "Variable Dependency" in panels
+    assert "Browser Render" in panels
     assert "GET /api/v1/query" in panels["Datasource API"]["description"]
     assert "/api/ds/query" in panels["Grafana Panel Path"]["description"]
     assert "failed dashboard variables" in panels["Variable Dependency"]["description"]
+    assert "Playwright browser" in panels["Browser Render"]["description"]
+
+
+def test_meta_dashboard_has_browser_render_overview_panels(meta):
+    panels = {panel.get("title"): panel for panel in meta["panels"]}
+    assert panels["Browser Render Time"]["targets"][0]["expr"] == (
+        'dashboard_render_time_seconds{dashboard_uid="service-health-01"}'
+    )
+    assert panels["Last Render Run"]["targets"][0]["expr"] == (
+        'time() - dashboard_render_last_probe_timestamp{dashboard_uid="service-health-01"}'
+    )
 
 
 def test_meta_dashboard_has_variable_error_type_panel(meta):
@@ -149,8 +161,8 @@ def test_alert_rules_api_version(alerts):
 
 def test_alert_rules_count(alerts):
     rules = alerts["groups"][0]["rules"]
-    # 6 panels x 9 probe types + 2 variables + 2 dashboard-level = 58
-    assert len(rules) == 58
+    # 6 panels x 9 probe types + 2 variables + 4 dashboard-level = 60
+    assert len(rules) == 60
 
 
 def test_alert_rules_for_duration(alerts):
@@ -210,6 +222,21 @@ def test_alert_rules_include_variable_dependency_probe(alerts):
     dependency_rule = next(rule for rule in rules if "Variable Dependency" in rule["title"])
     assert dependency_rule["labels"]["probe_type"] == "variable_dependency"
     assert "failed dashboard variable" in dependency_rule["annotations"]["description"]
+
+
+def test_alert_rules_include_browser_render_rules(alerts):
+    rules = alerts["groups"][0]["rules"]
+    render_rule = next(rule for rule in rules if rule["title"].endswith("Browser Render Degraded"))
+    slow_rule = next(rule for rule in rules if rule["title"].endswith("Slow Browser Render"))
+
+    assert render_rule["labels"]["probe_type"] == "browser_render"
+    assert render_rule["data"][0]["model"]["expr"] == (
+        'dashboard_render_status{dashboard_uid="service-health-01"}'
+    )
+    assert slow_rule["labels"]["probe_type"] == "slow_render"
+    assert slow_rule["data"][0]["model"]["expr"] == (
+        'dashboard_render_time_seconds{dashboard_uid="service-health-01"}'
+    )
 
 
 def test_alert_rules_do_not_include_empty_expression_nodes(alerts):
@@ -280,8 +307,8 @@ def test_mongodb_meta_dashboard_defaults_to_probe_metrics_datasource(mongodb_met
 
 def test_mongodb_alert_rules_count(mongodb_alerts):
     rules = mongodb_alerts["groups"][0]["rules"]
-    # 6 panels x 9 probe types + 2 variables + 2 dashboard-level = 58
-    assert len(rules) == 58
+    # 6 panels x 9 probe types + 2 variables + 4 dashboard-level = 60
+    assert len(rules) == 60
 
 
 def test_mongodb_alert_rules_unique_uids(mongodb_alerts):

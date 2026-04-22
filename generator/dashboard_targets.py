@@ -26,16 +26,16 @@ COMPOSE_PATH = REPO_ROOT / "docker-compose.yml"
 
 FAULT_LAYER_DEFAULTS: dict[str, dict[str, list[str]]] = {
     "no_data": {
-        "affected_layers": ["datasource_api", "grafana_panel_path"],
-        "expected_sre_signals": ["no_data"],
+        "affected_layers": ["datasource_api", "grafana_panel_path", "browser_render"],
+        "expected_sre_signals": ["no_data", "render_no_data"],
     },
     "metric_rename": {
-        "affected_layers": ["datasource_api", "grafana_panel_path"],
-        "expected_sre_signals": ["no_data", "metric_rename"],
+        "affected_layers": ["datasource_api", "grafana_panel_path", "browser_render"],
+        "expected_sre_signals": ["no_data", "metric_rename", "render_no_data"],
     },
     "slow_query": {
-        "affected_layers": ["datasource_api", "grafana_panel_path"],
-        "expected_sre_signals": ["slow_query", "query_timeout"],
+        "affected_layers": ["datasource_api", "grafana_panel_path", "browser_render"],
+        "expected_sre_signals": ["slow_query", "query_timeout", "render_timeout"],
     },
     "stale_data": {
         "affected_layers": ["stale_data"],
@@ -46,16 +46,16 @@ FAULT_LAYER_DEFAULTS: dict[str, dict[str, list[str]]] = {
         "expected_sre_signals": ["cardinality_spike"],
     },
     "var_resolution_fail": {
-        "affected_layers": ["variable_resolution", "variable_dependency"],
-        "expected_sre_signals": ["var_resolution_fail", "blocked_by_variable"],
+        "affected_layers": ["variable_resolution", "variable_dependency", "browser_render"],
+        "expected_sre_signals": ["var_resolution_fail", "blocked_by_variable", "render_no_data"],
     },
     "variable_query_error": {
-        "affected_layers": ["variable_resolution", "variable_dependency"],
-        "expected_sre_signals": ["variable_query_error", "blocked_by_variable"],
+        "affected_layers": ["variable_resolution", "variable_dependency", "browser_render"],
+        "expected_sre_signals": ["variable_query_error", "blocked_by_variable", "render_panel_error"],
     },
     "panel_query_http_500": {
-        "affected_layers": ["grafana_panel_path"],
-        "expected_sre_signals": ["panel_error"],
+        "affected_layers": ["grafana_panel_path", "browser_render"],
+        "expected_sre_signals": ["panel_error", "render_panel_error"],
     },
 }
 
@@ -180,6 +180,7 @@ def check_compose_consistency(registry: dict[str, Any]) -> list[str]:
     errors.extend(_check_compose_datasource_dependencies(registry, services, "grafana"))
     errors.extend(_check_compose_dependency_set(registry, services, "demo-ui", "probe"))
     errors.extend(_check_fault_controller_consistency(registry, services))
+    errors.extend(_check_render_probe_consistency(registry, services))
     return errors
 
 
@@ -212,8 +213,10 @@ def _validate_registry(registry: dict[str, Any]) -> None:
         raise DashboardTargetError("dashboard_targets.yaml must define at least one target")
 
     _require_mapping(registry, "probe_defaults")
+    _require_mapping(registry, "render_probe_defaults")
     _require_mapping(registry, "probe_metrics_datasource")
     _require_mapping(registry, "fault_controller")
+    _require_mapping(registry, "render_probe")
 
     unique_fields: dict[str, set[Any]] = {
         "key": set(),
@@ -250,6 +253,10 @@ def _validate_registry(registry: dict[str, Any]) -> None:
     _validate_service_section(controller, "fault_controller")
     _remember_unique(unique_fields["service"], controller["service"], "service")
     _remember_unique(unique_fields["host_port"], controller["host_port"], "host port")
+    render_probe = registry["render_probe"]
+    _validate_service_section(render_probe, "render_probe")
+    _remember_unique(unique_fields["service"], render_probe["service"], "service")
+    _remember_unique(unique_fields["host_port"], render_probe["host_port"], "host port")
 
 
 def _validate_target_shape(target: dict[str, Any]) -> None:
@@ -413,18 +420,29 @@ def _grafana_datasources(registry: dict[str, Any]) -> dict[str, Any]:
 
 
 def _prometheus_config(registry: dict[str, Any]) -> dict[str, Any]:
+    scrape_configs = [
+        {
+            "job_name": target["probe"]["service"],
+            "metrics_path": "/metrics",
+            "static_configs": [
+                {"targets": [f"{target['probe']['service']}:{target['probe']['container_port']}"]}
+            ],
+        }
+        for target in registry["targets"]
+    ]
+    render_probe = registry["render_probe"]
+    scrape_configs.append(
+        {
+            "job_name": render_probe["service"],
+            "metrics_path": "/metrics",
+            "static_configs": [
+                {"targets": [f"{render_probe['service']}:{render_probe['container_port']}"]}
+            ],
+        }
+    )
     return {
         "global": {"scrape_interval": "15s", "evaluation_interval": "15s"},
-        "scrape_configs": [
-            {
-                "job_name": target["probe"]["service"],
-                "metrics_path": "/metrics",
-                "static_configs": [
-                    {"targets": [f"{target['probe']['service']}:{target['probe']['container_port']}"]}
-                ],
-            }
-            for target in registry["targets"]
-        ],
+        "scrape_configs": scrape_configs,
     }
 
 
@@ -451,12 +469,14 @@ def _live_prometheus_config(target: dict[str, Any]) -> dict[str, Any]:
 def _simulator_targets_js(registry: dict[str, Any]) -> str:
     targets: dict[str, Any] = {}
     controller = registry["fault_controller"]
+    render_probe = registry["render_probe"]
     for target in registry["targets"]:
         targets[target["key"]] = {
             "label": target["title"],
             "dashboardUid": target["dashboard_uid"],
             "controllerUrl": controller["browser_url"],
             "probeUrl": target["probe"]["browser_url"],
+            "renderProbeUrl": render_probe["browser_url"],
             "grafanaSource": target["title"],
             "grafanaSre": f"[SRE] {target['title']}",
             "faultGroups": _simulator_fault_groups(target),
@@ -574,6 +594,21 @@ def _check_fault_controller_consistency(registry: dict[str, Any], services: dict
     demo_depends = services.get("demo-ui", {}).get("depends_on", {})
     if controller["service"] not in demo_depends:
         errors.append(f"Compose 'demo-ui' should depend on {controller['service']!r}")
+    return errors
+
+
+def _check_render_probe_consistency(registry: dict[str, Any], services: dict[str, Any]) -> list[str]:
+    render_probe = registry["render_probe"]
+    errors = _check_compose_service_port(render_probe, services, "render_probe", "global")
+    service = services.get(render_probe["service"], {})
+    env = service.get("environment", {})
+    if env.get("DASHBOARD_TARGETS_PATH") != "/app/dashboard_targets.yaml":
+        errors.append("Compose browser render probe should set DASHBOARD_TARGETS_PATH to '/app/dashboard_targets.yaml'")
+    if env.get("RENDER_PROBE_URL_MODE") != "docker":
+        errors.append("Compose browser render probe should set RENDER_PROBE_URL_MODE to 'docker'")
+    depends_on = service.get("depends_on", {})
+    if "grafana" not in depends_on:
+        errors.append("Compose browser render probe should depend on 'grafana'")
     return errors
 
 

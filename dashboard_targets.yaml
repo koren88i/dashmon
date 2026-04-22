@@ -17,6 +17,17 @@ probe_defaults:
     step_seconds: 30
     max_data_points: 1200
 
+render_probe_defaults:
+  enabled: true
+  interval_seconds: 15
+  timeout_seconds: 15
+  slow_render_seconds: 10
+  max_concurrency: 2
+  url_mode: docker
+  grafana:
+    docker_url: http://grafana:3000
+    local_url: http://localhost:3000
+
 probe_metrics_datasource:
   name: Probe Metrics
   type: prometheus
@@ -29,6 +40,13 @@ fault_controller:
   host_port: 8010
   container_port: 8010
   browser_url: http://localhost:8010
+
+render_probe:
+  service: browser-render-probe
+  host_port_env: BROWSER_RENDER_PROBE_PORT
+  host_port: 8012
+  container_port: 8012
+  browser_url: http://localhost:8012
 
 targets:
   - key: service

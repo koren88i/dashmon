@@ -22,3 +22,8 @@ scrape_configs:
   static_configs:
   - targets:
     - probe-engine-mongo-live:8000
+- job_name: browser-render-probe
+  metrics_path: /metrics
+  static_configs:
+  - targets:
+    - browser-render-probe:8012

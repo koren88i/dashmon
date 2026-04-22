@@ -16,6 +16,7 @@ The repo also ships a **self-contained demo** with a mock Prometheus backend, fa
 ## Tech stack
 
 - **Python 3.11+**, **FastAPI** (probe engine + mock backends)
+- **Playwright** (optional browser render probe)
 - **Single-file HTML/JS** for UI simulator (no build step)
 - **Docker Compose** — everything runs with `docker compose up`
 - **Prometheus exposition format** for probe metrics (`/metrics`)
@@ -59,6 +60,7 @@ curl -s -X POST http://localhost:9090/faults/clear \
 | 8000 | Probe engine (`/health`, `/metrics`) |
 | 9091 | Real Prometheus (scrapes probe engine) |
 | 9090 | Mock Prometheus backend + fault injection |
+| 8012 | Browser render probe (`/health`, `/metrics`) |
 
 Override via `.env` (copy from `.env.example`): `GRAFANA_PORT`, `PROMETHEUS_PORT`, `SIMULATOR_PORT`, `PROBE_ENGINE_PORT`, `MOCK_BACKEND_PORT`.
 
@@ -137,6 +139,7 @@ Use the repo docs this way:
 - `README.md` for current setup and operator usage
 - `ARCHITECTURE.md` for current system behavior and topology
 - `AGENTS.md` for repository working conventions
+- `BROWSER_RENDER_PROBE_PLAN.md` for browser render probe implementation notes and future render-fault follow-up
 
 Historical context only:
 

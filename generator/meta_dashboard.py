@@ -315,7 +315,7 @@ def _overview_panels(uid: str, y: int) -> list[dict]:
         _stat_panel(
             "Health Score",
             f'dashboard_health_score{{dashboard_uid="{uid}"}}',
-            {"h": 4, "w": 6, "x": 0, "y": y},
+            {"h": 4, "w": 4, "x": 0, "y": y},
             unit="percentunit",
             decimals=0,
             thresholds=[
@@ -327,7 +327,7 @@ def _overview_panels(uid: str, y: int) -> list[dict]:
         _stat_panel(
             "Active Issues",
             f'dashboard_issue_count{{dashboard_uid="{uid}"}}',
-            {"h": 4, "w": 6, "x": 6, "y": y},
+            {"h": 4, "w": 4, "x": 4, "y": y},
             thresholds=[
                 {"color": "green", "value": None},
                 {"color": "yellow", "value": 1},
@@ -337,7 +337,7 @@ def _overview_panels(uid: str, y: int) -> list[dict]:
         _stat_panel(
             "Estimated Load Time",
             f'dashboard_load_time_seconds{{dashboard_uid="{uid}"}}',
-            {"h": 4, "w": 6, "x": 12, "y": y},
+            {"h": 4, "w": 4, "x": 8, "y": y},
             unit="s",
             decimals=1,
             thresholds=[
@@ -347,9 +347,34 @@ def _overview_panels(uid: str, y: int) -> list[dict]:
             ],
         ),
         _stat_panel(
+            "Browser Render Time",
+            f'dashboard_render_time_seconds{{dashboard_uid="{uid}"}}',
+            {"h": 4, "w": 4, "x": 12, "y": y},
+            unit="s",
+            decimals=1,
+            thresholds=[
+                {"color": "green", "value": None},
+                {"color": "yellow", "value": 5},
+                {"color": "red", "value": 10},
+            ],
+        ),
+        _stat_panel(
             "Last Probe Run",
             f'time() - dashboard_last_probe_timestamp{{dashboard_uid="{uid}"}}',
-            {"h": 4, "w": 6, "x": 18, "y": y},
+            {"h": 4, "w": 4, "x": 16, "y": y},
+            unit="s",
+            decimals=0,
+            thresholds=[
+                {"color": "green", "value": None},
+                {"color": "yellow", "value": 30},
+                {"color": "red", "value": 60},
+            ],
+            no_value="No data yet",
+        ),
+        _stat_panel(
+            "Last Render Run",
+            f'time() - dashboard_render_last_probe_timestamp{{dashboard_uid="{uid}"}}',
+            {"h": 4, "w": 4, "x": 20, "y": y},
             unit="s",
             decimals=0,
             thresholds=[
@@ -391,7 +416,7 @@ def _probe_layer_panels(uid: str, y: int) -> list[dict]:
         _stat_panel(
             "Datasource API",
             f'min(dashboard_panel_status{{dashboard_uid="{uid}", probe_type="datasource_api"}})',
-            {"h": 4, "w": 8, "x": 0, "y": y},
+            {"h": 4, "w": 6, "x": 0, "y": y},
             description=(
                 "Probe engine queries the target datasource or proxy directly with "
                 "Prometheus GET /api/v1/query. This turns red when the direct "
@@ -405,7 +430,7 @@ def _probe_layer_panels(uid: str, y: int) -> list[dict]:
         _stat_panel(
             "Grafana Panel Path",
             f'min(dashboard_panel_status{{dashboard_uid="{uid}", probe_type="grafana_panel_path"}})',
-            {"h": 4, "w": 8, "x": 8, "y": y},
+            {"h": 4, "w": 6, "x": 6, "y": y},
             description=(
                 "Probe engine asks Grafana /api/ds/query to run the panel query "
                 "through Grafana's datasource plugin path. This catches user-facing "
@@ -419,11 +444,25 @@ def _probe_layer_panels(uid: str, y: int) -> list[dict]:
         _stat_panel(
             "Variable Dependency",
             f'min(dashboard_panel_status{{dashboard_uid="{uid}", probe_type="variable_dependency"}}) or vector(1)',
-            {"h": 4, "w": 8, "x": 16, "y": y},
+            {"h": 4, "w": 6, "x": 12, "y": y},
             description=(
                 "Probe engine maps failed dashboard variables back to panels that "
                 "reference them. This turns red when a panel is user-blocked by "
                 "variable interpolation even though underlying data queries may be healthy."
+            ),
+            thresholds=[
+                {"color": "red", "value": None},
+                {"color": "green", "value": 1},
+            ],
+        ),
+        _stat_panel(
+            "Browser Render",
+            f'dashboard_render_status{{dashboard_uid="{uid}"}}',
+            {"h": 4, "w": 6, "x": 18, "y": y},
+            description=(
+                "A Playwright browser opens the real Grafana dashboard and checks "
+                "that visible panels finish rendering without loading, no-data, "
+                "blank, or panel-error states."
             ),
             thresholds=[
                 {"color": "red", "value": None},

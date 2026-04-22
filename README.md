@@ -14,7 +14,8 @@ Use these docs as the current source of truth:
 
 - `README.md` — setup, demo flow, and day-to-day usage
 - `ARCHITECTURE.md` — system design and data flow
-- `CLAUDE.md` — repository workflow guidance for coding agents
+- `AGENTS.md` - repository workflow guidance for coding agents
+- `BROWSER_RENDER_PROBE_PLAN.md` - browser render probe implementation notes and future render-fault follow-up
 
 These files are kept only as historical context:
 
@@ -41,6 +42,7 @@ Then open **http://localhost:8080/simulator.html** in your browser.
 | MongoDB Atlas probe engine | http://localhost:8004/health | MongoDB Atlas System Metrics JSON health summary |
 | MongoDB Live probe engine | http://localhost:8006/health | Live local MongoDB JSON health summary |
 | Fault controller | http://localhost:8010/-/healthy | Browser-facing fault delegation API |
+| Browser render probe | http://localhost:8012/health | Playwright-based Grafana render health summary |
 | Service mock Prometheus | http://localhost:9090/-/healthy | Service metric backend + scoped fault state |
 | MongoDB mock Prometheus | http://localhost:9093/-/healthy | MongoDB metric backend + scoped fault state |
 | MongoDB Atlas mock Prometheus | http://localhost:9095/-/healthy | Atlas-style MongoDB metric backend + scoped fault state |
@@ -110,7 +112,7 @@ mongodb_live
   Grafana/probe-engine -> fault-proxy-mongo-live -> prometheus-mongo-live -> mongodb-exporter -> mongo-live
 ```
 
-The simulator is shared across all targets. It loads `demo/dashboard_targets.js`, switches the selected probe health URL, and sends fault requests through the fault controller. The SRE dashboards are also generated the same way for all three: each probe engine exposes `/metrics`, shared Prometheus scrapes those metrics, and Grafana reads them through the `probe-metrics` datasource.
+The simulator is shared across all targets. It loads `demo/dashboard_targets.js`, switches the selected probe health URL, and sends fault requests through the fault controller. The SRE dashboards are also generated the same way for all targets: each probe engine exposes `/metrics`, the browser render probe exposes render metrics, shared Prometheus scrapes those metrics, and Grafana reads them through the `probe-metrics` datasource.
 
 ---
 
@@ -133,7 +135,7 @@ Faults are grouped by class:
 - `proxy` - deterministic response mutations in front of a real Prometheus API.
 - `infra` - whitelisted infrastructure actions. These are modeled and disabled in this MVP; no Docker-mutating controls are exposed.
 
-Each simulator fault also carries `affected_layers` and `expected_sre_signals`. This keeps the UX honest: a fault can originate in a mock backend, an API proxy, or future infrastructure control, while the SRE signal can come from the raw `datasource_api`, the `grafana_panel_path`, variable resolution, variable dependency impact, staleness, or cardinality checks.
+Each simulator fault also carries `affected_layers` and `expected_sre_signals`. This keeps the UX honest: a fault can originate in a mock backend, an API proxy, or future infrastructure control, while the SRE signal can come from the raw `datasource_api`, the `grafana_panel_path`, `browser_render`, variable resolution, variable dependency impact, staleness, or cardinality checks.
 
 ---
 
@@ -144,6 +146,8 @@ The SRE health score is not allowed to stay green just because Prometheus answer
 This catches the real failure class exposed by MongoDB Live: the raw datasource can be healthy while the user-facing Grafana panel has no data or a plugin error. In `/health`, panel entries now include a `layers` list so you can see cases like `datasource_api=healthy` and `grafana_panel_path=degraded`.
 
 The new `panel_query_http_500` proxy fault proves that contract. It breaks only `POST /api/v1/query_range` for the targeted metric, so raw `GET /api/v1/query` stays healthy while Grafana-style panel queries fail and the SRE dashboard turns red.
+
+The browser render probe is a separate Playwright service. It opens each real Grafana dashboard, scrolls through panels to trigger lazy rendering, and exports `dashboard_render_status`, `dashboard_render_time_seconds`, `dashboard_render_last_probe_timestamp`, and `dashboard_render_error_total`. These metrics are supplementary: they appear in the generated SRE dashboard and alerts, but they do not change the existing `/health` score from the probe engines.
 
 Recent issue events are diagnosis-aware: a new event is logged when a panel changes from one failure diagnosis to another, such as `no_data` to `slow_query`, even if the panel never had a clean healthy cycle between them. Repeated probes of the same diagnosis do not create duplicate rows.
 
@@ -247,6 +251,7 @@ MONGODB_EXPORTER_PORT=9216
 PROMETHEUS_MONGO_LIVE_PORT=9097
 FAULT_PROXY_MONGO_LIVE_PORT=9098
 FAULT_CONTROLLER_PORT=8010
+BROWSER_RENDER_PROBE_PORT=8012
 SIMULATOR_PORT=8080
 ```
 

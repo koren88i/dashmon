@@ -48,7 +48,7 @@
       "type": "stat",
       "gridPos": {
         "h": 4,
-        "w": 6,
+        "w": 4,
         "x": 0,
         "y": 1
       },
@@ -104,8 +104,8 @@
       "type": "stat",
       "gridPos": {
         "h": 4,
-        "w": 6,
-        "x": 6,
+        "w": 4,
+        "x": 4,
         "y": 1
       },
       "datasource": {
@@ -158,8 +158,8 @@
       "type": "stat",
       "gridPos": {
         "h": 4,
-        "w": 6,
-        "x": 12,
+        "w": 4,
+        "x": 8,
         "y": 1
       },
       "datasource": {
@@ -210,12 +210,68 @@
     },
     {
       "id": 5,
+      "title": "Browser Render Time",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 12,
+        "y": 1
+      },
+      "datasource": {
+        "uid": "${sre_datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "dashboard_render_time_seconds{dashboard_uid=\"mongodb-atlas-system-metrics\"}"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 5
+              },
+              {
+                "color": "red",
+                "value": 10
+              }
+            ]
+          },
+          "noValue": "N/A",
+          "unit": "s",
+          "decimals": 1
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 6,
       "title": "Last Probe Run",
       "type": "stat",
       "gridPos": {
         "h": 4,
-        "w": 6,
-        "x": 18,
+        "w": 4,
+        "x": 16,
         "y": 1
       },
       "datasource": {
@@ -265,7 +321,63 @@
       }
     },
     {
-      "id": 6,
+      "id": 7,
+      "title": "Last Render Run",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 20,
+        "y": 1
+      },
+      "datasource": {
+        "uid": "${sre_datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "time() - dashboard_render_last_probe_timestamp{dashboard_uid=\"mongodb-atlas-system-metrics\"}"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 30
+              },
+              {
+                "color": "red",
+                "value": 60
+              }
+            ]
+          },
+          "noValue": "No data yet",
+          "unit": "s",
+          "decimals": 0
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 8,
       "title": "Panel Health",
       "type": "row",
       "gridPos": {
@@ -278,7 +390,7 @@
       "panels": []
     },
     {
-      "id": 7,
+      "id": 9,
       "title": "Group Metadata",
       "type": "stat",
       "gridPos": {
@@ -328,7 +440,7 @@
       }
     },
     {
-      "id": 8,
+      "id": 10,
       "title": "Cluster host list",
       "type": "stat",
       "gridPos": {
@@ -378,7 +490,7 @@
       }
     },
     {
-      "id": 9,
+      "id": 11,
       "title": "Memory - Resident",
       "type": "stat",
       "gridPos": {
@@ -428,7 +540,7 @@
       }
     },
     {
-      "id": 10,
+      "id": 12,
       "title": "Memory - Virtual",
       "type": "stat",
       "gridPos": {
@@ -478,7 +590,7 @@
       }
     },
     {
-      "id": 11,
+      "id": 13,
       "title": "Asserts - Regular",
       "type": "stat",
       "gridPos": {
@@ -528,7 +640,7 @@
       }
     },
     {
-      "id": 12,
+      "id": 14,
       "title": "Asserts - Warning",
       "type": "stat",
       "gridPos": {
@@ -578,7 +690,7 @@
       }
     },
     {
-      "id": 13,
+      "id": 15,
       "title": "Asserts - Message",
       "type": "stat",
       "gridPos": {
@@ -628,7 +740,7 @@
       }
     },
     {
-      "id": 14,
+      "id": 16,
       "title": "Asserts - User",
       "type": "stat",
       "gridPos": {
@@ -678,7 +790,7 @@
       }
     },
     {
-      "id": 15,
+      "id": 17,
       "title": "Cache Activity - Read Into",
       "type": "stat",
       "gridPos": {
@@ -728,7 +840,7 @@
       }
     },
     {
-      "id": 16,
+      "id": 18,
       "title": "Cache Activity - Write From",
       "type": "stat",
       "gridPos": {
@@ -778,7 +890,7 @@
       }
     },
     {
-      "id": 17,
+      "id": 19,
       "title": "Cache Usage - Used",
       "type": "stat",
       "gridPos": {
@@ -828,7 +940,7 @@
       }
     },
     {
-      "id": 18,
+      "id": 20,
       "title": "Cache Usage - Dirty",
       "type": "stat",
       "gridPos": {
@@ -878,7 +990,7 @@
       }
     },
     {
-      "id": 19,
+      "id": 21,
       "title": "Connections - Current",
       "type": "stat",
       "gridPos": {
@@ -928,7 +1040,7 @@
       }
     },
     {
-      "id": 20,
+      "id": 22,
       "title": "Cursors - Total Open",
       "type": "stat",
       "gridPos": {
@@ -978,7 +1090,7 @@
       }
     },
     {
-      "id": 21,
+      "id": 23,
       "title": "Cursors - Timed Out",
       "type": "stat",
       "gridPos": {
@@ -1028,7 +1140,7 @@
       }
     },
     {
-      "id": 22,
+      "id": 24,
       "title": "Document Metrics - Returned",
       "type": "stat",
       "gridPos": {
@@ -1078,7 +1190,7 @@
       }
     },
     {
-      "id": 23,
+      "id": 25,
       "title": "Document Metrics - Inserted",
       "type": "stat",
       "gridPos": {
@@ -1128,7 +1240,7 @@
       }
     },
     {
-      "id": 24,
+      "id": 26,
       "title": "Document Metrics - Updated",
       "type": "stat",
       "gridPos": {
@@ -1178,7 +1290,7 @@
       }
     },
     {
-      "id": 25,
+      "id": 27,
       "title": "Document Metrics - Deleted",
       "type": "stat",
       "gridPos": {
@@ -1228,7 +1340,7 @@
       }
     },
     {
-      "id": 26,
+      "id": 28,
       "title": "Network - Num Requests",
       "type": "stat",
       "gridPos": {
@@ -1278,7 +1390,7 @@
       }
     },
     {
-      "id": 27,
+      "id": 29,
       "title": "Network - Bytes In",
       "type": "stat",
       "gridPos": {
@@ -1328,7 +1440,7 @@
       }
     },
     {
-      "id": 28,
+      "id": 30,
       "title": "Opcounters - Command",
       "type": "stat",
       "gridPos": {
@@ -1378,7 +1490,7 @@
       }
     },
     {
-      "id": 29,
+      "id": 31,
       "title": "Opcounters - Query",
       "type": "stat",
       "gridPos": {
@@ -1428,7 +1540,7 @@
       }
     },
     {
-      "id": 30,
+      "id": 32,
       "title": "Opcounters - Update",
       "type": "stat",
       "gridPos": {
@@ -1478,7 +1590,7 @@
       }
     },
     {
-      "id": 31,
+      "id": 33,
       "title": "Opcounters - Delete",
       "type": "stat",
       "gridPos": {
@@ -1528,7 +1640,7 @@
       }
     },
     {
-      "id": 32,
+      "id": 34,
       "title": "Opcounters - Getmore",
       "type": "stat",
       "gridPos": {
@@ -1578,7 +1690,7 @@
       }
     },
     {
-      "id": 33,
+      "id": 35,
       "title": "Opcounters - Insert",
       "type": "stat",
       "gridPos": {
@@ -1628,7 +1740,7 @@
       }
     },
     {
-      "id": 34,
+      "id": 36,
       "title": "Operation Execution Times - Avg Ms/Read",
       "type": "stat",
       "gridPos": {
@@ -1678,7 +1790,7 @@
       }
     },
     {
-      "id": 35,
+      "id": 37,
       "title": "Operation Execution Times - Avg Ms/Write",
       "type": "stat",
       "gridPos": {
@@ -1728,7 +1840,7 @@
       }
     },
     {
-      "id": 36,
+      "id": 38,
       "title": "Operation Execution Times - Avg Ms/Command",
       "type": "stat",
       "gridPos": {
@@ -1778,7 +1890,7 @@
       }
     },
     {
-      "id": 37,
+      "id": 39,
       "title": "Page Faults",
       "type": "stat",
       "gridPos": {
@@ -1828,7 +1940,7 @@
       }
     },
     {
-      "id": 38,
+      "id": 40,
       "title": "Query Executor - Scanned",
       "type": "stat",
       "gridPos": {
@@ -1878,7 +1990,7 @@
       }
     },
     {
-      "id": 39,
+      "id": 41,
       "title": "Query Executor - Scanned Objects",
       "type": "stat",
       "gridPos": {
@@ -1928,7 +2040,7 @@
       }
     },
     {
-      "id": 40,
+      "id": 42,
       "title": "Queues - Total",
       "type": "stat",
       "gridPos": {
@@ -1978,7 +2090,7 @@
       }
     },
     {
-      "id": 41,
+      "id": 43,
       "title": "Queues - Readers",
       "type": "stat",
       "gridPos": {
@@ -2028,7 +2140,7 @@
       }
     },
     {
-      "id": 42,
+      "id": 44,
       "title": "Queues - Writers",
       "type": "stat",
       "gridPos": {
@@ -2078,7 +2190,7 @@
       }
     },
     {
-      "id": 43,
+      "id": 45,
       "title": "Scan and Order",
       "type": "stat",
       "gridPos": {
@@ -2128,7 +2240,7 @@
       }
     },
     {
-      "id": 44,
+      "id": 46,
       "title": "Tickets Available - Reads",
       "type": "stat",
       "gridPos": {
@@ -2178,7 +2290,7 @@
       }
     },
     {
-      "id": 45,
+      "id": 47,
       "title": "Tickets Available - Writes",
       "type": "stat",
       "gridPos": {
@@ -2228,7 +2340,7 @@
       }
     },
     {
-      "id": 46,
+      "id": 48,
       "title": "Probe Layers",
       "type": "row",
       "gridPos": {
@@ -2241,12 +2353,12 @@
       "panels": []
     },
     {
-      "id": 47,
+      "id": 49,
       "title": "Datasource API",
       "type": "stat",
       "gridPos": {
         "h": 4,
-        "w": 8,
+        "w": 6,
         "x": 0,
         "y": 35
       },
@@ -2292,13 +2404,13 @@
       "description": "Probe engine queries the target datasource or proxy directly with Prometheus GET /api/v1/query. This turns red when the direct datasource path returns errors or no usable data."
     },
     {
-      "id": 48,
+      "id": 50,
       "title": "Grafana Panel Path",
       "type": "stat",
       "gridPos": {
         "h": 4,
-        "w": 8,
-        "x": 8,
+        "w": 6,
+        "x": 6,
         "y": 35
       },
       "datasource": {
@@ -2343,13 +2455,13 @@
       "description": "Probe engine asks Grafana /api/ds/query to run the panel query through Grafana's datasource plugin path. This catches user-facing panel failures even when the direct datasource query is healthy."
     },
     {
-      "id": 49,
+      "id": 51,
       "title": "Variable Dependency",
       "type": "stat",
       "gridPos": {
         "h": 4,
-        "w": 8,
-        "x": 16,
+        "w": 6,
+        "x": 12,
         "y": 35
       },
       "datasource": {
@@ -2394,7 +2506,58 @@
       "description": "Probe engine maps failed dashboard variables back to panels that reference them. This turns red when a panel is user-blocked by variable interpolation even though underlying data queries may be healthy."
     },
     {
-      "id": 50,
+      "id": 52,
+      "title": "Browser Render",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 18,
+        "y": 35
+      },
+      "datasource": {
+        "uid": "${sre_datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "dashboard_render_status{dashboard_uid=\"mongodb-atlas-system-metrics\"}"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "noValue": "N/A"
+        },
+        "overrides": []
+      },
+      "description": "A Playwright browser opens the real Grafana dashboard and checks that visible panels finish rendering without loading, no-data, blank, or panel-error states."
+    },
+    {
+      "id": 53,
       "title": "Query Performance",
       "type": "row",
       "gridPos": {
@@ -2407,7 +2570,7 @@
       "panels": []
     },
     {
-      "id": 51,
+      "id": 54,
       "title": "Query Duration \u2014 p50 / p95",
       "type": "timeseries",
       "gridPos": {
@@ -2825,7 +2988,7 @@
       }
     },
     {
-      "id": 52,
+      "id": 55,
       "title": "Query Duration Heatmap",
       "type": "heatmap",
       "gridPos": {
@@ -2854,7 +3017,7 @@
       }
     },
     {
-      "id": 53,
+      "id": 56,
       "title": "Variable Health",
       "type": "row",
       "gridPos": {
@@ -2867,7 +3030,7 @@
       "panels": []
     },
     {
-      "id": 54,
+      "id": 57,
       "title": "$job",
       "type": "stat",
       "gridPos": {
@@ -2917,7 +3080,7 @@
       }
     },
     {
-      "id": 55,
+      "id": 58,
       "title": "$group_id",
       "type": "stat",
       "gridPos": {
@@ -2967,7 +3130,7 @@
       }
     },
     {
-      "id": 56,
+      "id": 59,
       "title": "$cl_name",
       "type": "stat",
       "gridPos": {
@@ -3017,7 +3180,7 @@
       }
     },
     {
-      "id": 57,
+      "id": 60,
       "title": "$rs_nm",
       "type": "stat",
       "gridPos": {
@@ -3067,7 +3230,7 @@
       }
     },
     {
-      "id": 58,
+      "id": 61,
       "title": "$host",
       "type": "stat",
       "gridPos": {
@@ -3117,7 +3280,7 @@
       }
     },
     {
-      "id": 59,
+      "id": 62,
       "title": "$process_port",
       "type": "stat",
       "gridPos": {
@@ -3167,7 +3330,7 @@
       }
     },
     {
-      "id": 60,
+      "id": 63,
       "title": "Variable Query Duration",
       "type": "timeseries",
       "gridPos": {
@@ -3225,7 +3388,7 @@
       }
     },
     {
-      "id": 61,
+      "id": 64,
       "title": "Variable Error Types",
       "type": "table",
       "gridPos": {
@@ -3273,7 +3436,7 @@
       ]
     },
     {
-      "id": 62,
+      "id": 65,
       "title": "Variable Blast Radius",
       "type": "table",
       "gridPos": {
@@ -3326,7 +3489,7 @@
       ]
     },
     {
-      "id": 63,
+      "id": 66,
       "title": "Issue Log",
       "type": "row",
       "gridPos": {
@@ -3339,7 +3502,7 @@
       "panels": []
     },
     {
-      "id": 64,
+      "id": 67,
       "title": "Recent Issue Events",
       "type": "table",
       "gridPos": {
@@ -3422,7 +3585,7 @@
       ]
     },
     {
-      "id": 65,
+      "id": 68,
       "title": "Alerts",
       "type": "row",
       "gridPos": {
@@ -3435,7 +3598,7 @@
       "panels": []
     },
     {
-      "id": 66,
+      "id": 69,
       "title": "Active Alerts",
       "type": "alertlist",
       "gridPos": {

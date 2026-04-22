@@ -48,7 +48,7 @@
       "type": "stat",
       "gridPos": {
         "h": 4,
-        "w": 6,
+        "w": 4,
         "x": 0,
         "y": 1
       },
@@ -104,8 +104,8 @@
       "type": "stat",
       "gridPos": {
         "h": 4,
-        "w": 6,
-        "x": 6,
+        "w": 4,
+        "x": 4,
         "y": 1
       },
       "datasource": {
@@ -158,8 +158,8 @@
       "type": "stat",
       "gridPos": {
         "h": 4,
-        "w": 6,
-        "x": 12,
+        "w": 4,
+        "x": 8,
         "y": 1
       },
       "datasource": {
@@ -210,12 +210,68 @@
     },
     {
       "id": 5,
+      "title": "Browser Render Time",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 12,
+        "y": 1
+      },
+      "datasource": {
+        "uid": "${sre_datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "dashboard_render_time_seconds{dashboard_uid=\"mongodb-ops-01\"}"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 5
+              },
+              {
+                "color": "red",
+                "value": 10
+              }
+            ]
+          },
+          "noValue": "N/A",
+          "unit": "s",
+          "decimals": 1
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 6,
       "title": "Last Probe Run",
       "type": "stat",
       "gridPos": {
         "h": 4,
-        "w": 6,
-        "x": 18,
+        "w": 4,
+        "x": 16,
         "y": 1
       },
       "datasource": {
@@ -265,7 +321,63 @@
       }
     },
     {
-      "id": 6,
+      "id": 7,
+      "title": "Last Render Run",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 20,
+        "y": 1
+      },
+      "datasource": {
+        "uid": "${sre_datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "time() - dashboard_render_last_probe_timestamp{dashboard_uid=\"mongodb-ops-01\"}"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 30
+              },
+              {
+                "color": "red",
+                "value": 60
+              }
+            ]
+          },
+          "noValue": "No data yet",
+          "unit": "s",
+          "decimals": 0
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 8,
       "title": "Panel Health",
       "type": "row",
       "gridPos": {
@@ -278,7 +390,7 @@
       "panels": []
     },
     {
-      "id": 7,
+      "id": 9,
       "title": "MongoDB Up",
       "type": "stat",
       "gridPos": {
@@ -328,7 +440,7 @@
       }
     },
     {
-      "id": 8,
+      "id": 10,
       "title": "Operation Rate",
       "type": "stat",
       "gridPos": {
@@ -378,7 +490,7 @@
       }
     },
     {
-      "id": 9,
+      "id": 11,
       "title": "Current Connections",
       "type": "stat",
       "gridPos": {
@@ -428,7 +540,7 @@
       }
     },
     {
-      "id": 10,
+      "id": 12,
       "title": "Resident Memory",
       "type": "stat",
       "gridPos": {
@@ -478,7 +590,7 @@
       }
     },
     {
-      "id": 11,
+      "id": 13,
       "title": "Replication Lag",
       "type": "stat",
       "gridPos": {
@@ -528,7 +640,7 @@
       }
     },
     {
-      "id": 12,
+      "id": 14,
       "title": "Replica Member Health",
       "type": "stat",
       "gridPos": {
@@ -578,7 +690,7 @@
       }
     },
     {
-      "id": 13,
+      "id": 15,
       "title": "Probe Layers",
       "type": "row",
       "gridPos": {
@@ -591,12 +703,12 @@
       "panels": []
     },
     {
-      "id": 14,
+      "id": 16,
       "title": "Datasource API",
       "type": "stat",
       "gridPos": {
         "h": 4,
-        "w": 8,
+        "w": 6,
         "x": 0,
         "y": 11
       },
@@ -642,13 +754,13 @@
       "description": "Probe engine queries the target datasource or proxy directly with Prometheus GET /api/v1/query. This turns red when the direct datasource path returns errors or no usable data."
     },
     {
-      "id": 15,
+      "id": 17,
       "title": "Grafana Panel Path",
       "type": "stat",
       "gridPos": {
         "h": 4,
-        "w": 8,
-        "x": 8,
+        "w": 6,
+        "x": 6,
         "y": 11
       },
       "datasource": {
@@ -693,13 +805,13 @@
       "description": "Probe engine asks Grafana /api/ds/query to run the panel query through Grafana's datasource plugin path. This catches user-facing panel failures even when the direct datasource query is healthy."
     },
     {
-      "id": 16,
+      "id": 18,
       "title": "Variable Dependency",
       "type": "stat",
       "gridPos": {
         "h": 4,
-        "w": 8,
-        "x": 16,
+        "w": 6,
+        "x": 12,
         "y": 11
       },
       "datasource": {
@@ -744,7 +856,58 @@
       "description": "Probe engine maps failed dashboard variables back to panels that reference them. This turns red when a panel is user-blocked by variable interpolation even though underlying data queries may be healthy."
     },
     {
-      "id": 17,
+      "id": 19,
+      "title": "Browser Render",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 18,
+        "y": 11
+      },
+      "datasource": {
+        "uid": "${sre_datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "dashboard_render_status{dashboard_uid=\"mongodb-ops-01\"}"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "noValue": "N/A"
+        },
+        "overrides": []
+      },
+      "description": "A Playwright browser opens the real Grafana dashboard and checks that visible panels finish rendering without loading, no-data, blank, or panel-error states."
+    },
+    {
+      "id": 20,
       "title": "Query Performance",
       "type": "row",
       "gridPos": {
@@ -757,7 +920,7 @@
       "panels": []
     },
     {
-      "id": 18,
+      "id": 21,
       "title": "Query Duration \u2014 p50 / p95",
       "type": "timeseries",
       "gridPos": {
@@ -845,7 +1008,7 @@
       }
     },
     {
-      "id": 19,
+      "id": 22,
       "title": "Query Duration Heatmap",
       "type": "heatmap",
       "gridPos": {
@@ -874,7 +1037,7 @@
       }
     },
     {
-      "id": 20,
+      "id": 23,
       "title": "Variable Health",
       "type": "row",
       "gridPos": {
@@ -887,7 +1050,7 @@
       "panels": []
     },
     {
-      "id": 21,
+      "id": 24,
       "title": "$instance",
       "type": "stat",
       "gridPos": {
@@ -937,7 +1100,7 @@
       }
     },
     {
-      "id": 22,
+      "id": 25,
       "title": "$replset",
       "type": "stat",
       "gridPos": {
@@ -987,7 +1150,7 @@
       }
     },
     {
-      "id": 23,
+      "id": 26,
       "title": "Variable Query Duration",
       "type": "timeseries",
       "gridPos": {
@@ -1025,7 +1188,7 @@
       }
     },
     {
-      "id": 24,
+      "id": 27,
       "title": "Variable Error Types",
       "type": "table",
       "gridPos": {
@@ -1073,7 +1236,7 @@
       ]
     },
     {
-      "id": 25,
+      "id": 28,
       "title": "Variable Blast Radius",
       "type": "table",
       "gridPos": {
@@ -1126,7 +1289,7 @@
       ]
     },
     {
-      "id": 26,
+      "id": 29,
       "title": "Issue Log",
       "type": "row",
       "gridPos": {
@@ -1139,7 +1302,7 @@
       "panels": []
     },
     {
-      "id": 27,
+      "id": 30,
       "title": "Recent Issue Events",
       "type": "table",
       "gridPos": {
@@ -1222,7 +1385,7 @@
       ]
     },
     {
-      "id": 28,
+      "id": 31,
       "title": "Alerts",
       "type": "row",
       "gridPos": {
@@ -1235,7 +1398,7 @@
       "panels": []
     },
     {
-      "id": 29,
+      "id": 32,
       "title": "Active Alerts",
       "type": "alertlist",
       "gridPos": {

@@ -19562,3 +19562,105 @@ groups:
       severity: warning
       dashboard_uid: mongodb-atlas-system-metrics
       probe_type: slow_dashboard
+  - uid: sre-mongodb-atlas-sy-br
+    title: '[MongoDB Atlas System Metrics] Browser Render Degraded'
+    condition: C
+    data:
+    - refId: B
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: probe-metrics
+      model:
+        expr: dashboard_render_status{dashboard_uid="mongodb-atlas-system-metrics"}
+        refId: B
+    - refId: C
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: classic_conditions
+        refId: C
+        expression: B
+        datasource:
+          uid: __expr__
+          type: __expr__
+        conditions:
+        - type: query
+          query:
+            params:
+            - B
+          reducer:
+            params: []
+            type: last
+          evaluator:
+            params:
+            - 1
+            type: lt
+          operator:
+            type: and
+    noDataState: Alerting
+    execErrState: Alerting
+    for: 2m
+    annotations:
+      summary: Dashboard 'MongoDB Atlas System Metrics' browser render probe is degraded
+      description: A browser could not render the Grafana dashboard without loading,
+        no-data, blank, or panel-error states.
+    labels:
+      severity: critical
+      dashboard_uid: mongodb-atlas-system-metrics
+      probe_type: browser_render
+  - uid: sre-mongodb-atlas-sy-sr
+    title: '[MongoDB Atlas System Metrics] Slow Browser Render'
+    condition: C
+    data:
+    - refId: B
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: probe-metrics
+      model:
+        expr: dashboard_render_time_seconds{dashboard_uid="mongodb-atlas-system-metrics"}
+        refId: B
+    - refId: C
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: classic_conditions
+        refId: C
+        expression: B
+        datasource:
+          uid: __expr__
+          type: __expr__
+        conditions:
+        - type: query
+          query:
+            params:
+            - B
+          reducer:
+            params: []
+            type: last
+          evaluator:
+            params:
+            - 10
+            type: gt
+          operator:
+            type: and
+    noDataState: OK
+    execErrState: Alerting
+    for: 5m
+    annotations:
+      summary: Dashboard 'MongoDB Atlas System Metrics' browser render is slow (>10s)
+      description: A Playwright browser took more than 10 seconds to render the full
+        Grafana dashboard.
+    labels:
+      severity: warning
+      dashboard_uid: mongodb-atlas-system-metrics
+      probe_type: slow_render

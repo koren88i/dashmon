@@ -19,7 +19,7 @@ _UID_SHORT: dict[str, str] = {
     "slow_query": "sq", "cardinality_spike": "cs", "panel_error": "pe",
     "var_resolution_fail": "vf", "health_score": "hs", "slow_dashboard": "sl",
     "datasource_api": "da", "grafana_panel_path": "gp",
-    "variable_dependency": "vd",
+    "variable_dependency": "vd", "browser_render": "br", "slow_render": "sr",
 }
 
 # Probe types that generate per-panel alerts.
@@ -104,6 +104,8 @@ def generate_alert_rules(
     # Dashboard-level rules.
     rules.append(_dashboard_health_rule(uid, title, datasource_uid))
     rules.append(_dashboard_slow_load_rule(uid, title, datasource_uid))
+    rules.append(_dashboard_render_status_rule(uid, title, datasource_uid))
+    rules.append(_dashboard_slow_render_rule(uid, title, datasource_uid))
 
     return {
         "apiVersion": 1,
@@ -311,5 +313,91 @@ def _dashboard_slow_load_rule(
             "severity": "warning",
             "dashboard_uid": dashboard_uid,
             "probe_type": "slow_dashboard",
+        },
+    }
+
+
+def _dashboard_render_status_rule(
+    dashboard_uid: str,
+    dashboard_title: str,
+    datasource_uid: str,
+) -> dict:
+    return {
+        "uid": f"sre-{dashboard_uid[:16]}-br",
+        "title": f"[{dashboard_title}] Browser Render Degraded",
+        "condition": "C",
+        "data": [
+            {
+                "refId": "B",
+                "queryType": "",
+                "relativeTimeRange": {"from": 300, "to": 0},
+                "datasourceUid": datasource_uid,
+                "model": {
+                    "expr": f'dashboard_render_status{{dashboard_uid="{dashboard_uid}"}}',
+                    "refId": "B",
+                },
+            },
+            {
+                "refId": "C",
+                "queryType": "",
+                "relativeTimeRange": {"from": 300, "to": 0},
+                "datasourceUid": "__expr__",
+                "model": _classic_condition("B", "lt", 1),
+            },
+        ],
+        "noDataState": "Alerting",
+        "execErrState": "Alerting",
+        "for": "2m",
+        "annotations": {
+            "summary": f"Dashboard '{dashboard_title}' browser render probe is degraded",
+            "description": "A browser could not render the Grafana dashboard without loading, no-data, blank, or panel-error states.",
+        },
+        "labels": {
+            "severity": "critical",
+            "dashboard_uid": dashboard_uid,
+            "probe_type": "browser_render",
+        },
+    }
+
+
+def _dashboard_slow_render_rule(
+    dashboard_uid: str,
+    dashboard_title: str,
+    datasource_uid: str,
+) -> dict:
+    return {
+        "uid": f"sre-{dashboard_uid[:16]}-sr",
+        "title": f"[{dashboard_title}] Slow Browser Render",
+        "condition": "C",
+        "data": [
+            {
+                "refId": "B",
+                "queryType": "",
+                "relativeTimeRange": {"from": 300, "to": 0},
+                "datasourceUid": datasource_uid,
+                "model": {
+                    "expr": f'dashboard_render_time_seconds{{dashboard_uid="{dashboard_uid}"}}',
+                    "refId": "B",
+                },
+            },
+            {
+                "refId": "C",
+                "queryType": "",
+                "relativeTimeRange": {"from": 300, "to": 0},
+                "datasourceUid": "__expr__",
+                "model": _classic_condition("B", "gt", 10),
+            },
+        ],
+        "noDataState": "OK",
+        "execErrState": "Alerting",
+        "for": "5m",
+        "annotations": {
+            "summary": f"Dashboard '{dashboard_title}' browser render is slow (>10s)",
+            "description": "A Playwright browser took more than 10 seconds to render the full Grafana dashboard.",
+        },
+        "labels": {
+            "severity": "warning",
+            "dashboard_uid": dashboard_uid,
+            "probe_type": "slow_render",
         },
     }

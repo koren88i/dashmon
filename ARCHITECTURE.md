@@ -37,6 +37,10 @@ fault_proxy/
 fault_controller/
         -> api.py (browser-facing target/group fault delegation)
 
+render_probe/
+        -> app.py       (FastAPI /health + /metrics)
+        -> probe.py     (Playwright browser render checks)
+
 demo/
         ├──→ simulator.html     (no-build UI)
         └──→ dashboard_targets.js (generated selector/fault targets)
@@ -115,13 +119,35 @@ layer rather than misreported as `no_data`.
 Engine-level detection:
 - `SLOW_DASHBOARD` — max panel query duration exceeds `slow_dashboard_seconds` threshold.
 
+### `render_probe/`
+
+FastAPI app that runs separately from the probe engines. It loads
+`dashboard_targets.yaml`, derives each Grafana dashboard URL from the target
+`dashboard_uid`, opens the real Grafana page with Playwright, scrolls through
+the dashboard to trigger lazy panels, and classifies the page as healthy only
+when visible panels finish rendering without loading, no-data, blank, or
+panel-error states.
+
+Browser render metrics are supplementary and do not change
+`dashboard_health_score` in v1.
+
+| Metric | Type | Description |
+|---|---|---|
+| `dashboard_render_status` | Gauge | 1=browser render healthy, 0=degraded |
+| `dashboard_render_time_seconds` | Gauge | Browser-observed time to render the full dashboard |
+| `dashboard_render_last_probe_timestamp` | Gauge | Unix epoch of the most recent browser render probe |
+| `dashboard_render_error_total` | Counter | Cumulative render failures by dashboard and error type |
+
+Render error types are `render_timeout`, `render_navigation_error`,
+`render_panel_error`, `render_no_data`, and `render_blank`.
+
 ### `generator/meta_dashboard.py`
 
 Generates a Grafana dashboard JSON for the meta-dashboard. The output has seven rows:
 
-1. **Overview** — health score, active issue count, estimated load time, time since last probe.
+1. **Overview** — health score, active issue count, estimated load time, browser render time, time since last probe, and time since last render probe.
 2. **Panel health grid** — one stat panel per target panel, green/red.
-3. **Probe Layers** — compact raw datasource, Grafana panel-path, and variable-dependency breakdown.
+3. **Probe Layers** — compact raw datasource, Grafana panel-path, variable-dependency, and browser-render breakdown.
 4. **Query performance** — p50/p95 timeseries + heatmap.
 5. **Variable health** — per-variable status badges, query duration timeseries, recent variable error types, and variable blast radius.
 6. **Issue log** — table of recent error increments.
@@ -138,7 +164,7 @@ and hard query failures can be distinguished.
 
 ### `generator/alert_rules.py`
 
-Generates Grafana Alerting provisioning YAML. Rule count: `panels × 8 probe types + variables + 2 dashboard-level rules`. For 6 panels and 2 variables: 52 rules total.
+Generates Grafana Alerting provisioning YAML. Rule count: `panels × 9 probe types + variables + 4 dashboard-level rules`. For 6 panels and 2 variables: 60 rules total.
 
 Each rule fires after 2 minutes of continuous degradation (`for: 2m`) to suppress transient blips.
 
@@ -162,7 +188,7 @@ Fault groups are part of the registry contract:
 - `infra` groups model whitelisted infrastructure actions. They are disabled in this MVP and return a stable disabled response through the controller.
 
 Fault entries also include generated simulator metadata:
-- `affected_layers` describes where the dashboard failure should appear (`datasource_api`, `grafana_panel_path`, `variable_resolution`, `variable_dependency`, `stale_data`, or `cardinality_spike`).
+- `affected_layers` describes where the dashboard failure should appear (`datasource_api`, `grafana_panel_path`, `browser_render`, `variable_resolution`, `variable_dependency`, `stale_data`, or `cardinality_spike`).
 - `expected_sre_signals` names the SRE error types the operator should see.
 
 ### MongoDB target variants
@@ -344,7 +370,7 @@ The current demo intentionally uses a registry plus isolated source-dashboard pa
 - MongoDB Atlas System Metrics: `mock-mongo-atlas-prometheus` -> `probe-engine-mongo-atlas` -> `dashboard_uid="mongodb-atlas-system-metrics"`
 - MongoDB Live Operations: `mongo-live` -> `mongodb-exporter` -> `prometheus-mongo-live` -> `fault-proxy-mongo-live` -> `probe-engine-mongo-live` -> `dashboard_uid="mongodb-live-ops-01"`
 
-All probe engines expose the same SRE metric names, scoped by `dashboard_uid`. Real Prometheus scrapes every probe target, and Grafana uses those scraped metrics for all SRE dashboards.
+All probe engines expose the same SRE metric names, scoped by `dashboard_uid`. The browser render probe exposes dashboard-level render metrics with the same `dashboard_uid` label. Real Prometheus scrapes every probe target, and Grafana uses those scraped metrics for all SRE dashboards.
 
 ```
 ┌──────────────────────────────────────────────┐

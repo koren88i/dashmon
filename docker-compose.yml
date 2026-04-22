@@ -15,6 +15,7 @@
 # 9098  - Live MongoDB fault proxy (override: FAULT_PROXY_MONGO_LIVE_PORT)
 # 8006  - Live MongoDB probe API   (override: PROBE_ENGINE_MONGO_LIVE_PORT)
 # 8010  - Fault controller API     (override: FAULT_CONTROLLER_PORT)
+# 8012  - Browser render probe API (override: BROWSER_RENDER_PROBE_PORT)
 
 x-logging: &default-logging
   driver: json-file
@@ -353,6 +354,36 @@ services:
         reservations:
           cpus: "0.25"
           memory: 64M
+
+  browser-render-probe:
+    build:
+      context: .
+      dockerfile: Dockerfile.render-probe
+    ports:
+      - "${BROWSER_RENDER_PROBE_PORT:-8012}:8012"
+    environment:
+      DASHBOARD_TARGETS_PATH: /app/dashboard_targets.yaml
+      RENDER_PROBE_URL_MODE: docker
+    depends_on:
+      grafana:
+        condition: service_healthy
+        restart: true
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8012/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    restart: unless-stopped
+    logging: *default-logging
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
+        reservations:
+          cpus: "0.25"
+          memory: 128M
 
   demo-ui:
     build: ./demo
