@@ -18,11 +18,13 @@ class FaultType(str, Enum):
     METRIC_RENAME = "metric_rename"
     CARDINALITY_SPIKE = "cardinality_spike"
     VAR_RESOLUTION_FAIL = "var_resolution_fail"
+    VARIABLE_QUERY_ERROR = "variable_query_error"
+    PANEL_QUERY_HTTP_500 = "panel_query_http_500"
 
 
 # Descriptions and expected demo behavior for each fault type.
 # Single source of truth --served via GET /faults/types.
-FAULT_INFO: dict[str, dict[str, str]] = {
+FAULT_INFO: dict[FaultType, dict[str, str]] = {
     FaultType.NO_DATA: {
         "description": "Makes the target metric return zero results, as if the exporter stopped emitting it.",
         "expect": "The selected Grafana source dashboard shows blank/failed panels. SRE view turns the affected panels red and health score drops.",
@@ -44,8 +46,16 @@ FAULT_INFO: dict[str, dict[str, str]] = {
         "expect": "Grafana Service Health panels may look plausible but be wrong (over-aggregated). SRE view detects CARDINALITY_SPIKE.",
     },
     FaultType.VAR_RESOLUTION_FAIL: {
-        "description": "Makes the label_values endpoint return an empty list, breaking template variable dropdowns.",
-        "expect": "SRE view shows the affected variable badge as red and dashboard health drops. Check the real Grafana dashboard to inspect variable-dependent breakage.",
+        "description": "Makes Prometheus variable-discovery endpoints return empty results, breaking template variable dropdowns.",
+        "expect": "SRE view shows the affected variable and dependent panels as red. In Grafana, label_values dropdowns should lose their options even if already-selected panel values can still render.",
+    },
+    FaultType.VARIABLE_QUERY_ERROR: {
+        "description": "Makes Prometheus variable-discovery endpoints return HTTP 500, simulating a hard variable query failure.",
+        "expect": "Grafana should surface a variable query error or failed dropdown refresh. SRE view shows the affected variable and dependent panels as red.",
+    },
+    FaultType.PANEL_QUERY_HTTP_500: {
+        "description": "Returns HTTP 500 only for Grafana-style POST range queries, while raw instant queries stay healthy.",
+        "expect": "The source Grafana dashboard shows datasource/panel errors. SRE shows datasource_api healthy but grafana_panel_path red.",
     },
 }
 
@@ -112,15 +122,29 @@ class FaultInjector:
         return self._faults.get("all")
 
     def get_fault_for_label(self, label_name: str) -> FaultRecord | None:
-        """Return var_resolution_fail fault targeting this label query."""
+        """Return a variable fault targeting this label query."""
         self._expire()
         # Check for faults targeting any variable / label name
         record = self._faults.get(label_name)
-        if record is not None and record.fault_type == FaultType.VAR_RESOLUTION_FAIL:
+        if record is not None and record.fault_type in (FaultType.VAR_RESOLUTION_FAIL, FaultType.VARIABLE_QUERY_ERROR):
             return record
         record = self._faults.get("all")
-        if record is not None and record.fault_type == FaultType.VAR_RESOLUTION_FAIL:
+        if record is not None and record.fault_type in (FaultType.VAR_RESOLUTION_FAIL, FaultType.VARIABLE_QUERY_ERROR):
             return record
+        return None
+
+    def get_variable_discovery_fault(self) -> FaultRecord | None:
+        """Return an active variable fault that should break series discovery.
+
+        Grafana often implements label_values(metric, label) by calling
+        /api/v1/series?match[]=metric and extracting labels client-side. That
+        endpoint does not carry the label name, so any active variable fault can
+        affect series discovery to be visible in real Grafana dropdowns.
+        """
+        self._expire()
+        for record in self._faults.values():
+            if record.fault_type in (FaultType.VAR_RESOLUTION_FAIL, FaultType.VARIABLE_QUERY_ERROR):
+                return record
         return None
 
     def _expire(self) -> None:

@@ -14,6 +14,7 @@ import time
 
 from fastapi import FastAPI, Form, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
 from mock_backend.fault_injector import FAULT_INFO, FaultInjector, FaultType
@@ -120,9 +121,11 @@ async def range_query_post(
     return await _handle_range(query, start, end, step)
 
 
-async def _handle_label_values(label_name: str) -> dict:
+async def _handle_label_values(label_name: str) -> dict | JSONResponse:
     fault = injector.get_fault_for_label(label_name)
     if fault is not None:
+        if fault.fault_type == FaultType.VARIABLE_QUERY_ERROR:
+            return _variable_query_error_response()
         return {"status": "success", "data": []}
 
     values = get_label_values(label_name)
@@ -155,11 +158,28 @@ async def series_post(request: Request):
     return _handle_series(match)
 
 
-def _handle_series(match: list[str]) -> dict:
+def _handle_series(match: list[str]) -> dict | JSONResponse:
+    fault = injector.get_variable_discovery_fault()
+    if fault is not None:
+        if fault.fault_type == FaultType.VARIABLE_QUERY_ERROR:
+            return _variable_query_error_response()
+        return {"status": "success", "data": []}
+
     results: list[dict] = []
     for m in match:
         results.extend(get_series(m))
     return {"status": "success", "data": results}
+
+
+def _variable_query_error_response() -> JSONResponse:
+    return JSONResponse(
+        status_code=500,
+        content={
+            "status": "error",
+            "errorType": "execution",
+            "error": "simulated variable query failure",
+        },
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -229,7 +249,7 @@ async def _apply_fault_instant(
     if fault_type == FaultType.CARDINALITY_SPIKE:
         return _spike_instant(metric_name, query)
 
-    # VAR_RESOLUTION_FAIL only applies to label_values; pass through here.
+    # Variable-discovery faults only affect label/series endpoints; pass through here.
     return get_instant_query_result(query)
 
 

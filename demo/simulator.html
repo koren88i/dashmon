@@ -53,6 +53,15 @@
   .fault-buttons button.active { border-color: var(--red); background: #3a2020; color: var(--red); }
   .fault-buttons button.clear { border-color: var(--green); }
   .fault-buttons button.clear:hover { background: #1a3020; }
+  .fault-class { width: 100%; border-top: 1px solid var(--border); padding-top: 12px; margin-top: 8px; }
+  .fault-class:first-child { border-top: 0; padding-top: 0; margin-top: 0; }
+  .fault-class h2 { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+  .fault-class .desc { color: var(--muted); font-size: 0.75rem; margin-bottom: 8px; line-height: 1.4; }
+  .fault-kind { border: 1px solid var(--border); border-radius: 4px; padding: 2px 6px;
+                font-size: 0.65rem; text-transform: uppercase; color: var(--yellow); }
+  .fault-class.disabled { opacity: 0.65; }
+  .fault-class.disabled button { cursor: not-allowed; }
+  .disabled-note { color: var(--yellow); font-size: 0.75rem; margin-bottom: 8px; }
 
   /* Info tooltips */
   .fault-group { display: inline-flex; align-items: center; gap: 2px; }
@@ -72,6 +81,10 @@
   .tooltip .tip-expect::before { content: "Expect: "; font-weight: 600; }
   .tooltip .tip-target { font-size: 0.7rem; color: var(--yellow); line-height: 1.5; margin-bottom: 6px; }
   .tooltip .tip-target::before { content: "Target: "; font-weight: 600; }
+  .tooltip .tip-origin { font-size: 0.7rem; color: var(--muted); line-height: 1.5; margin-bottom: 6px; }
+  .tooltip .tip-origin::before { content: "Origin: "; font-weight: 600; }
+  .tooltip .tip-detect { font-size: 0.7rem; color: var(--blue); line-height: 1.5; margin-bottom: 6px; }
+  .tooltip .tip-detect::before { content: "SRE detection: "; font-weight: 600; }
 
   /* Issue log */
   .issue-log { max-height: 200px; overflow-y: auto; font-family: 'Menlo', 'Consolas', monospace;
@@ -130,64 +143,14 @@
   <div class="issue-log" id="issueLog"><div class="entry" style="color:var(--muted)">No issues yet.</div></div>
 </div>
 
+<script src="dashboard_targets.js"></script>
 <script>
 // ---------------------------------------------------------------------------
 // Configuration
 // ---------------------------------------------------------------------------
 const POLL_INTERVAL = 5000;   // ms
 
-const DASHBOARDS = {
-  service: {
-    label: 'Service Health',
-    dashboardUid: 'service-health-01',
-    mockUrl: 'http://localhost:9090',
-    probeUrl: 'http://localhost:8000',
-    grafanaSource: 'Service Health',
-    grafanaSre: '[SRE] Service Health',
-    faults: [
-      { type: 'no_data',             label: 'No Data',           target: 'http_requests_total' },
-      { type: 'stale_data',          label: 'Stale Data',        target: 'http_requests_total' },
-      { type: 'slow_query',          label: 'Slow Query',        target: 'http_requests_total' },
-      { type: 'var_resolution_fail', label: 'Var Fail',          target: 'instance' },
-      { type: 'metric_rename',       label: 'Metric Rename',     target: 'process_resident_memory_bytes' },
-      { type: 'cardinality_spike',   label: 'Cardinality Spike', target: 'http_requests_total' },
-    ],
-    surfaces: {
-      http_requests_total: 'Grafana panels: Request Rate, Error Rate %',
-      process_resident_memory_bytes: 'Grafana panel: Memory Usage',
-      up: 'Grafana panel: Active Instances',
-      kube_pod_status_ready: 'Grafana panel: Pod Readiness',
-      instance: 'Grafana variable $pod',
-      namespace: 'Grafana variable $namespace',
-    },
-  },
-  mongodb: {
-    label: 'MongoDB Operations',
-    dashboardUid: 'mongodb-ops-01',
-    mockUrl: 'http://localhost:9093',
-    probeUrl: 'http://localhost:8002',
-    grafanaSource: 'MongoDB Operations',
-    grafanaSre: '[SRE] MongoDB Operations',
-    faults: [
-      { type: 'no_data',             label: 'No Data',           target: 'mongodb_op_counters_total' },
-      { type: 'stale_data',          label: 'Stale Data',        target: 'mongodb_op_counters_total' },
-      { type: 'slow_query',          label: 'Slow Query',        target: 'mongodb_op_counters_total' },
-      { type: 'var_resolution_fail', label: 'Var Fail',          target: 'instance' },
-      { type: 'metric_rename',       label: 'Metric Rename',     target: 'mongodb_memory_resident_bytes' },
-      { type: 'cardinality_spike',   label: 'Cardinality Spike', target: 'mongodb_op_counters_total' },
-    ],
-    surfaces: {
-      mongodb_up: 'Grafana panel: MongoDB Up',
-      mongodb_op_counters_total: 'Grafana panel: Operation Rate',
-      mongodb_connections: 'Grafana panel: Current Connections',
-      mongodb_memory_resident_bytes: 'Grafana panel: Resident Memory',
-      mongodb_mongod_replset_member_replication_lag: 'Grafana panel: Replication Lag',
-      mongodb_mongod_replset_member_health: 'Grafana panel: Replica Member Health',
-      instance: 'Grafana variable $instance',
-      replset: 'Grafana variable $replset',
-    },
-  },
-};
+const DASHBOARDS = window.DASHBOARD_TARGETS || {};
 
 // ---------------------------------------------------------------------------
 // State
@@ -195,8 +158,8 @@ const DASHBOARDS = {
 let activeFaults = new Set();
 let seenIssueTimestamps = new Set();
 let faultInfo = {};  // populated from GET /faults/types
-let currentDashboardKey = 'service';
-let currentDashboard = DASHBOARDS[currentDashboardKey];
+let currentDashboardKey = Object.keys(DASHBOARDS)[0] || '';
+let currentDashboard = DASHBOARDS[currentDashboardKey] || {};
 
 // ---------------------------------------------------------------------------
 // Build UI: dashboard selector
@@ -206,6 +169,10 @@ const targetMeta = document.getElementById('targetMeta');
 
 function buildDashboardSelector() {
   dashboardSelect.innerHTML = '';
+  if (!Object.keys(DASHBOARDS).length) {
+    targetMeta.textContent = 'Dashboard target registry did not load.';
+    return;
+  }
   for (const [key, dashboard] of Object.entries(DASHBOARDS)) {
     const option = document.createElement('option');
     option.value = key;
@@ -217,6 +184,7 @@ function buildDashboardSelector() {
 }
 
 async function selectDashboard(key) {
+  if (!DASHBOARDS[key]) return;
   currentDashboardKey = key;
   currentDashboard = DASHBOARDS[key];
   activeFaults = new Set();
@@ -225,7 +193,7 @@ async function selectDashboard(key) {
   if (activeTooltip) { activeTooltip.classList.remove('visible'); activeTooltip = null; }
   targetMeta.textContent =
     `Source: ${currentDashboard.grafanaSource} | SRE: ${currentDashboard.grafanaSre} | ` +
-    `Probe: ${currentDashboard.probeUrl} | Faults: ${currentDashboard.mockUrl}`;
+    `Probe: ${currentDashboard.probeUrl} | Controller: ${currentDashboard.controllerUrl}`;
   resetSreView();
   buildFaultButtons();
   await loadFaultInfo();
@@ -262,41 +230,67 @@ let activeTooltip = null;
 
 function buildFaultButtons() {
   btnContainer.innerHTML = '';
-  for (const f of currentDashboard.faults) {
-    const group = document.createElement('span');
-    group.className = 'fault-group';
-    group.style.position = 'relative';
+  for (const faultGroup of currentDashboard.faultGroups || []) {
+    const section = document.createElement('div');
+    section.className = 'fault-class' + (faultGroup.enabled ? '' : ' disabled');
 
-    const btn = document.createElement('button');
-    btn.textContent = f.label;
-    btn.dataset.type = f.type;
-    btn.dataset.key = faultKey(f);
-    btn.addEventListener('click', () => toggleFault(f, btn));
-    group.appendChild(btn);
+    const header = document.createElement('h2');
+    header.innerHTML = `${faultGroup.label} <span class="fault-kind">${faultGroup.kind}</span>`;
+    section.appendChild(header);
 
-    const info = document.createElement('button');
-    info.className = 'info-btn';
-    info.textContent = 'i';
-    info.addEventListener('click', (e) => { e.stopPropagation(); showTooltip(group, f); });
-    group.appendChild(info);
+    const desc = document.createElement('div');
+    desc.className = 'desc';
+    desc.textContent = faultGroup.description || '';
+    section.appendChild(desc);
 
-    // Tooltip element (hidden by default).
-    const tip = document.createElement('div');
-    tip.className = 'tooltip';
-    tip.id = `tip-${f.type}`;
-    group.appendChild(tip);
+    if (!faultGroup.enabled) {
+      const note = document.createElement('div');
+      note.className = 'disabled-note';
+      note.textContent = faultGroup.disabledReason || 'This fault class is not executable in this slice.';
+      section.appendChild(note);
+    }
 
-    btnContainer.appendChild(group);
+    const buttons = document.createElement('div');
+    buttons.className = 'fault-buttons';
+    for (const f of faultGroup.faults || []) {
+      const group = document.createElement('span');
+      group.className = 'fault-group';
+      group.style.position = 'relative';
+
+      const btn = document.createElement('button');
+      btn.textContent = f.label;
+      btn.dataset.type = f.type;
+      btn.dataset.group = faultGroup.key;
+      btn.dataset.key = faultKey(faultGroup, f);
+      btn.disabled = !faultGroup.enabled;
+      btn.addEventListener('click', () => toggleFault(faultGroup, f, btn));
+      group.appendChild(btn);
+
+      const info = document.createElement('button');
+      info.className = 'info-btn';
+      info.textContent = 'i';
+      info.addEventListener('click', (e) => { e.stopPropagation(); showTooltip(group, f, faultGroup); });
+      group.appendChild(info);
+
+      const tip = document.createElement('div');
+      tip.className = 'tooltip';
+      tip.id = `tip-${faultGroup.key}-${f.type}`;
+      group.appendChild(tip);
+
+      buttons.appendChild(group);
+    }
+    section.appendChild(buttons);
+    btnContainer.appendChild(section);
   }
   const clearBtn = document.createElement('button');
-  clearBtn.textContent = 'Clear All';
+  clearBtn.textContent = 'Clear All Executable';
   clearBtn.className = 'clear';
   clearBtn.addEventListener('click', clearAll);
   btnContainer.appendChild(clearBtn);
 }
 
-function faultKey(fault) {
-  return `${fault.type}:${fault.target}`;
+function faultKey(faultGroup, fault) {
+  return `${faultGroup.key}:${fault.type}:${fault.target}`;
 }
 
 function updateFaultButtonStates() {
@@ -308,13 +302,13 @@ function updateFaultButtonStates() {
 function getAffectedPanels(fault) {
   // Map fault target to the real Grafana surfaces that operators should inspect.
   const surface = currentDashboard.surfaces[fault.target];
-  if (fault.type === 'var_resolution_fail') {
+  if (fault.type === 'var_resolution_fail' || fault.type === 'variable_query_error') {
     return `${surface || 'Grafana variable'} (label: ${fault.target})`;
   }
   return surface || currentDashboard.grafanaSource;
 }
 
-function showTooltip(group, fault) {
+function showTooltip(group, fault, faultGroup) {
   const tip = group.querySelector('.tooltip');
   // Toggle off if same tooltip is already visible.
   if (tip.classList.contains('visible')) {
@@ -327,13 +321,23 @@ function showTooltip(group, fault) {
 
   const fi = faultInfo[fault.type];
   const targetLine = `<div class="tip-target">${getAffectedPanels(fault)} (${fault.target})</div>`;
+  const originLine = `<div class="tip-origin">${faultGroup.label} (${faultGroup.kind})</div>`;
+  const detection = (fault.expected_sre_signals || []).join(', ') || 'not specified';
+  const layers = (fault.affected_layers || []).join(', ') || 'not specified';
+  const detectionLine = `<div class="tip-detect">${detection} via ${layers}</div>`;
   if (fi) {
     tip.innerHTML = `<div class="tip-title">${fault.type.replace(/_/g, ' ').toUpperCase()}</div>` +
+      originLine +
       targetLine +
+      detectionLine +
       `<div class="tip-desc">${fi.description}</div>` +
       `<div class="tip-expect">${fi.expect}</div>`;
   } else {
-    tip.innerHTML = '<div class="tip-desc">Loading…</div>';
+    tip.innerHTML = `<div class="tip-title">${fault.type.replace(/_/g, ' ').toUpperCase()}</div>` +
+      originLine +
+      targetLine +
+      detectionLine +
+      '<div class="tip-desc">Modeled infrastructure action. This class is visible for planning, but disabled in this MVP.</div>';
   }
   tip.classList.add('visible');
   activeTooltip = tip;
@@ -346,16 +350,16 @@ document.addEventListener('click', () => {
 
 async function loadFaultInfo() {
   try {
-    const resp = await fetch(`${currentDashboard.mockUrl}/faults/types`);
+    const resp = await fetch(`${currentDashboard.controllerUrl}/faults/types`);
     faultInfo = await resp.json();
   } catch (e) { /* info tooltips degrade gracefully */ }
 }
 
 async function syncActiveFaults() {
   try {
-    const resp = await fetch(`${currentDashboard.mockUrl}/faults/active`);
+    const resp = await fetch(`${currentDashboard.controllerUrl}/faults/active?target_key=${encodeURIComponent(currentDashboardKey)}`);
     const body = await resp.json();
-    activeFaults = new Set((body.faults || []).map((f) => `${f.type}:${f.target}`));
+    activeFaults = new Set((body.faults || []).map((f) => `${f.group_key}:${f.type}:${f.target}`));
     updateFaultButtonStates();
   } catch (e) {
     activeFaults = new Set();
@@ -409,14 +413,19 @@ async function fetchHealth() {
       const badge = document.createElement('span');
       const ok = v.status === 'healthy';
       badge.className = 'badge ' + (ok ? 'ok' : 'bad');
-      badge.textContent = ok ? `$${v.name} ✓` : `$${v.name} ✗`;
+      if (ok) {
+        badge.textContent = `$${v.name} OK`;
+      } else {
+        badge.textContent = `$${v.name} FAIL ${v.error || ''}`;
+        if (v.message) badge.title = v.message;
+      }
       varContainer.appendChild(badge);
     }
 
     // Issue log — only add new entries.
     const logEl = document.getElementById('issueLog');
     for (const issue of h.issues || []) {
-      const key = `${issue.timestamp}-${issue.panel_title}-${issue.error_type}`;
+      const key = `${issue.timestamp}-${issue.panel_title}-${issue.probe_type || ''}-${issue.error_type}`;
       if (seenIssueTimestamps.has(key)) continue;
       seenIssueTimestamps.add(key);
       // Remove placeholder.
@@ -425,9 +434,10 @@ async function fetchHealth() {
       entry.className = 'entry';
       const time = new Date(issue.timestamp * 1000).toLocaleTimeString();
       const isRecovery = issue.error_type === 'recovered';
+      const path = issue.probe_type ? ` [${issue.probe_type}]` : '';
       entry.innerHTML = `<span class="ts">${time}</span>  ` +
         `<span class="${isRecovery ? 'ok' : 'err'}">${issue.panel_title}</span> → ` +
-        `<span class="${isRecovery ? 'ok' : 'err'}">${issue.error_type}</span>: ${issue.message}`;
+        `<span class="${isRecovery ? 'ok' : 'err'}">${issue.error_type}</span>${path}: ${issue.message}`;
       logEl.prepend(entry);
     }
 
@@ -444,26 +454,32 @@ async function fetchHealth() {
 // ---------------------------------------------------------------------------
 // Fault injection
 // ---------------------------------------------------------------------------
-async function toggleFault(fault, btn) {
-  const key = faultKey(fault);
+async function toggleFault(faultGroup, fault, btn) {
+  const key = faultKey(faultGroup, fault);
   if (activeFaults.has(key)) {
-    await fetch(`${currentDashboard.mockUrl}/faults/clear`, {
+    await fetch(`${currentDashboard.controllerUrl}/faults/clear`, {
       method: 'POST', headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ target: fault.target }),
+      body: JSON.stringify({ target_key: currentDashboardKey, group_key: faultGroup.key, target: fault.target }),
     });
   } else {
-    await fetch(`${currentDashboard.mockUrl}/faults/inject`, {
+    await fetch(`${currentDashboard.controllerUrl}/faults/inject`, {
       method: 'POST', headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ type: fault.type, target: fault.target, duration_seconds: 0 }),
+      body: JSON.stringify({
+        target_key: currentDashboardKey,
+        group_key: faultGroup.key,
+        type: fault.type,
+        target: fault.target,
+        duration_seconds: 0,
+      }),
     });
   }
   await syncActiveFaults();
 }
 
 async function clearAll() {
-  await fetch(`${currentDashboard.mockUrl}/faults/clear`, {
+  await fetch(`${currentDashboard.controllerUrl}/faults/clear`, {
     method: 'POST', headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({ target: 'all' }),
+    body: JSON.stringify({ target_key: currentDashboardKey, target: 'all' }),
   });
   activeFaults.clear();
   updateFaultButtonStates();

@@ -7,7 +7,13 @@ thresholds:
   scrape_interval_seconds: 15
   cardinality_spike_ratio: 1.5
   query_timeout_seconds: 25.0
+grafana:
+  enabled: true
+  url: http://grafana:3000
+  query_range_seconds: 3600
+  step_seconds: 30
+  max_data_points: 1200
 datasources:
-  - uid: "prometheus-main"
-    url: "http://mock-prometheus:9090"
-    type: prometheus
+- uid: prometheus-main
+  url: http://mock-prometheus:9090
+  type: prometheus

@@ -5,6 +5,167 @@ groups:
   folder: Dashboard SRE
   interval: 1m
   rules:
+  - uid: sre-mongodb-ops-01-da-p1
+    title: '[MongoDB Operations] Panel ''MongoDB Up'' -- Datasource API'
+    condition: C
+    data:
+    - refId: B
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: probe-metrics
+      model:
+        expr: dashboard_panel_status{dashboard_uid="mongodb-ops-01", panel_id="1",
+          probe_type="datasource_api"}
+        refId: B
+    - refId: C
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: classic_conditions
+        refId: C
+        expression: B
+        datasource:
+          uid: __expr__
+          type: __expr__
+        conditions:
+        - type: query
+          query:
+            params:
+            - B
+          reducer:
+            params: []
+            type: last
+          evaluator:
+            params:
+            - 1
+            type: lt
+          operator:
+            type: and
+    noDataState: Alerting
+    execErrState: Alerting
+    for: 2m
+    annotations:
+      summary: Panel 'MongoDB Up' in dashboard 'MongoDB Operations' -- Datasource
+        API
+      description: Raw datasource API checks are failing for this panel.
+    labels:
+      severity: critical
+      dashboard_uid: mongodb-ops-01
+      panel_id: '1'
+      probe_type: datasource_api
+  - uid: sre-mongodb-ops-01-gp-p1
+    title: '[MongoDB Operations] Panel ''MongoDB Up'' -- Grafana Panel Path'
+    condition: C
+    data:
+    - refId: B
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: probe-metrics
+      model:
+        expr: dashboard_panel_status{dashboard_uid="mongodb-ops-01", panel_id="1",
+          probe_type="grafana_panel_path"}
+        refId: B
+    - refId: C
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: classic_conditions
+        refId: C
+        expression: B
+        datasource:
+          uid: __expr__
+          type: __expr__
+        conditions:
+        - type: query
+          query:
+            params:
+            - B
+          reducer:
+            params: []
+            type: last
+          evaluator:
+            params:
+            - 1
+            type: lt
+          operator:
+            type: and
+    noDataState: Alerting
+    execErrState: Alerting
+    for: 2m
+    annotations:
+      summary: Panel 'MongoDB Up' in dashboard 'MongoDB Operations' -- Grafana Panel
+        Path
+      description: Grafana's datasource plugin path is failing for this panel, even
+        if raw datasource checks pass.
+    labels:
+      severity: critical
+      dashboard_uid: mongodb-ops-01
+      panel_id: '1'
+      probe_type: grafana_panel_path
+  - uid: sre-mongodb-ops-01-vd-p1
+    title: '[MongoDB Operations] Panel ''MongoDB Up'' -- Variable Dependency'
+    condition: C
+    data:
+    - refId: B
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: probe-metrics
+      model:
+        expr: dashboard_panel_status{dashboard_uid="mongodb-ops-01", panel_id="1",
+          probe_type="variable_dependency"}
+        refId: B
+    - refId: C
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: classic_conditions
+        refId: C
+        expression: B
+        datasource:
+          uid: __expr__
+          type: __expr__
+        conditions:
+        - type: query
+          query:
+            params:
+            - B
+          reducer:
+            params: []
+            type: last
+          evaluator:
+            params:
+            - 1
+            type: lt
+          operator:
+            type: and
+    noDataState: Alerting
+    execErrState: Alerting
+    for: 2m
+    annotations:
+      summary: Panel 'MongoDB Up' in dashboard 'MongoDB Operations' -- Variable Dependency
+      description: Panel depends on a failed dashboard variable. The underlying data
+        may be healthy, but the user-facing dashboard query cannot be rendered with
+        the failed variable.
+    labels:
+      severity: critical
+      dashboard_uid: mongodb-ops-01
+      panel_id: '1'
+      probe_type: variable_dependency
   - uid: sre-mongodb-ops-01-nd-p1
     title: '[MongoDB Operations] Panel ''MongoDB Up'' -- No Data'
     condition: C
@@ -322,6 +483,168 @@ groups:
       dashboard_uid: mongodb-ops-01
       panel_id: '1'
       probe_type: panel_error
+  - uid: sre-mongodb-ops-01-da-p2
+    title: '[MongoDB Operations] Panel ''Operation Rate'' -- Datasource API'
+    condition: C
+    data:
+    - refId: B
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: probe-metrics
+      model:
+        expr: dashboard_panel_status{dashboard_uid="mongodb-ops-01", panel_id="2",
+          probe_type="datasource_api"}
+        refId: B
+    - refId: C
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: classic_conditions
+        refId: C
+        expression: B
+        datasource:
+          uid: __expr__
+          type: __expr__
+        conditions:
+        - type: query
+          query:
+            params:
+            - B
+          reducer:
+            params: []
+            type: last
+          evaluator:
+            params:
+            - 1
+            type: lt
+          operator:
+            type: and
+    noDataState: Alerting
+    execErrState: Alerting
+    for: 2m
+    annotations:
+      summary: Panel 'Operation Rate' in dashboard 'MongoDB Operations' -- Datasource
+        API
+      description: Raw datasource API checks are failing for this panel.
+    labels:
+      severity: critical
+      dashboard_uid: mongodb-ops-01
+      panel_id: '2'
+      probe_type: datasource_api
+  - uid: sre-mongodb-ops-01-gp-p2
+    title: '[MongoDB Operations] Panel ''Operation Rate'' -- Grafana Panel Path'
+    condition: C
+    data:
+    - refId: B
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: probe-metrics
+      model:
+        expr: dashboard_panel_status{dashboard_uid="mongodb-ops-01", panel_id="2",
+          probe_type="grafana_panel_path"}
+        refId: B
+    - refId: C
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: classic_conditions
+        refId: C
+        expression: B
+        datasource:
+          uid: __expr__
+          type: __expr__
+        conditions:
+        - type: query
+          query:
+            params:
+            - B
+          reducer:
+            params: []
+            type: last
+          evaluator:
+            params:
+            - 1
+            type: lt
+          operator:
+            type: and
+    noDataState: Alerting
+    execErrState: Alerting
+    for: 2m
+    annotations:
+      summary: Panel 'Operation Rate' in dashboard 'MongoDB Operations' -- Grafana
+        Panel Path
+      description: Grafana's datasource plugin path is failing for this panel, even
+        if raw datasource checks pass.
+    labels:
+      severity: critical
+      dashboard_uid: mongodb-ops-01
+      panel_id: '2'
+      probe_type: grafana_panel_path
+  - uid: sre-mongodb-ops-01-vd-p2
+    title: '[MongoDB Operations] Panel ''Operation Rate'' -- Variable Dependency'
+    condition: C
+    data:
+    - refId: B
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: probe-metrics
+      model:
+        expr: dashboard_panel_status{dashboard_uid="mongodb-ops-01", panel_id="2",
+          probe_type="variable_dependency"}
+        refId: B
+    - refId: C
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: classic_conditions
+        refId: C
+        expression: B
+        datasource:
+          uid: __expr__
+          type: __expr__
+        conditions:
+        - type: query
+          query:
+            params:
+            - B
+          reducer:
+            params: []
+            type: last
+          evaluator:
+            params:
+            - 1
+            type: lt
+          operator:
+            type: and
+    noDataState: Alerting
+    execErrState: Alerting
+    for: 2m
+    annotations:
+      summary: Panel 'Operation Rate' in dashboard 'MongoDB Operations' -- Variable
+        Dependency
+      description: Panel depends on a failed dashboard variable. The underlying data
+        may be healthy, but the user-facing dashboard query cannot be rendered with
+        the failed variable.
+    labels:
+      severity: critical
+      dashboard_uid: mongodb-ops-01
+      panel_id: '2'
+      probe_type: variable_dependency
   - uid: sre-mongodb-ops-01-nd-p2
     title: '[MongoDB Operations] Panel ''Operation Rate'' -- No Data'
     condition: C
@@ -639,6 +962,168 @@ groups:
       dashboard_uid: mongodb-ops-01
       panel_id: '2'
       probe_type: panel_error
+  - uid: sre-mongodb-ops-01-da-p3
+    title: '[MongoDB Operations] Panel ''Current Connections'' -- Datasource API'
+    condition: C
+    data:
+    - refId: B
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: probe-metrics
+      model:
+        expr: dashboard_panel_status{dashboard_uid="mongodb-ops-01", panel_id="3",
+          probe_type="datasource_api"}
+        refId: B
+    - refId: C
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: classic_conditions
+        refId: C
+        expression: B
+        datasource:
+          uid: __expr__
+          type: __expr__
+        conditions:
+        - type: query
+          query:
+            params:
+            - B
+          reducer:
+            params: []
+            type: last
+          evaluator:
+            params:
+            - 1
+            type: lt
+          operator:
+            type: and
+    noDataState: Alerting
+    execErrState: Alerting
+    for: 2m
+    annotations:
+      summary: Panel 'Current Connections' in dashboard 'MongoDB Operations' -- Datasource
+        API
+      description: Raw datasource API checks are failing for this panel.
+    labels:
+      severity: critical
+      dashboard_uid: mongodb-ops-01
+      panel_id: '3'
+      probe_type: datasource_api
+  - uid: sre-mongodb-ops-01-gp-p3
+    title: '[MongoDB Operations] Panel ''Current Connections'' -- Grafana Panel Path'
+    condition: C
+    data:
+    - refId: B
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: probe-metrics
+      model:
+        expr: dashboard_panel_status{dashboard_uid="mongodb-ops-01", panel_id="3",
+          probe_type="grafana_panel_path"}
+        refId: B
+    - refId: C
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: classic_conditions
+        refId: C
+        expression: B
+        datasource:
+          uid: __expr__
+          type: __expr__
+        conditions:
+        - type: query
+          query:
+            params:
+            - B
+          reducer:
+            params: []
+            type: last
+          evaluator:
+            params:
+            - 1
+            type: lt
+          operator:
+            type: and
+    noDataState: Alerting
+    execErrState: Alerting
+    for: 2m
+    annotations:
+      summary: Panel 'Current Connections' in dashboard 'MongoDB Operations' -- Grafana
+        Panel Path
+      description: Grafana's datasource plugin path is failing for this panel, even
+        if raw datasource checks pass.
+    labels:
+      severity: critical
+      dashboard_uid: mongodb-ops-01
+      panel_id: '3'
+      probe_type: grafana_panel_path
+  - uid: sre-mongodb-ops-01-vd-p3
+    title: '[MongoDB Operations] Panel ''Current Connections'' -- Variable Dependency'
+    condition: C
+    data:
+    - refId: B
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: probe-metrics
+      model:
+        expr: dashboard_panel_status{dashboard_uid="mongodb-ops-01", panel_id="3",
+          probe_type="variable_dependency"}
+        refId: B
+    - refId: C
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: classic_conditions
+        refId: C
+        expression: B
+        datasource:
+          uid: __expr__
+          type: __expr__
+        conditions:
+        - type: query
+          query:
+            params:
+            - B
+          reducer:
+            params: []
+            type: last
+          evaluator:
+            params:
+            - 1
+            type: lt
+          operator:
+            type: and
+    noDataState: Alerting
+    execErrState: Alerting
+    for: 2m
+    annotations:
+      summary: Panel 'Current Connections' in dashboard 'MongoDB Operations' -- Variable
+        Dependency
+      description: Panel depends on a failed dashboard variable. The underlying data
+        may be healthy, but the user-facing dashboard query cannot be rendered with
+        the failed variable.
+    labels:
+      severity: critical
+      dashboard_uid: mongodb-ops-01
+      panel_id: '3'
+      probe_type: variable_dependency
   - uid: sre-mongodb-ops-01-nd-p3
     title: '[MongoDB Operations] Panel ''Current Connections'' -- No Data'
     condition: C
@@ -961,6 +1446,168 @@ groups:
       dashboard_uid: mongodb-ops-01
       panel_id: '3'
       probe_type: panel_error
+  - uid: sre-mongodb-ops-01-da-p4
+    title: '[MongoDB Operations] Panel ''Resident Memory'' -- Datasource API'
+    condition: C
+    data:
+    - refId: B
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: probe-metrics
+      model:
+        expr: dashboard_panel_status{dashboard_uid="mongodb-ops-01", panel_id="4",
+          probe_type="datasource_api"}
+        refId: B
+    - refId: C
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: classic_conditions
+        refId: C
+        expression: B
+        datasource:
+          uid: __expr__
+          type: __expr__
+        conditions:
+        - type: query
+          query:
+            params:
+            - B
+          reducer:
+            params: []
+            type: last
+          evaluator:
+            params:
+            - 1
+            type: lt
+          operator:
+            type: and
+    noDataState: Alerting
+    execErrState: Alerting
+    for: 2m
+    annotations:
+      summary: Panel 'Resident Memory' in dashboard 'MongoDB Operations' -- Datasource
+        API
+      description: Raw datasource API checks are failing for this panel.
+    labels:
+      severity: critical
+      dashboard_uid: mongodb-ops-01
+      panel_id: '4'
+      probe_type: datasource_api
+  - uid: sre-mongodb-ops-01-gp-p4
+    title: '[MongoDB Operations] Panel ''Resident Memory'' -- Grafana Panel Path'
+    condition: C
+    data:
+    - refId: B
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: probe-metrics
+      model:
+        expr: dashboard_panel_status{dashboard_uid="mongodb-ops-01", panel_id="4",
+          probe_type="grafana_panel_path"}
+        refId: B
+    - refId: C
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: classic_conditions
+        refId: C
+        expression: B
+        datasource:
+          uid: __expr__
+          type: __expr__
+        conditions:
+        - type: query
+          query:
+            params:
+            - B
+          reducer:
+            params: []
+            type: last
+          evaluator:
+            params:
+            - 1
+            type: lt
+          operator:
+            type: and
+    noDataState: Alerting
+    execErrState: Alerting
+    for: 2m
+    annotations:
+      summary: Panel 'Resident Memory' in dashboard 'MongoDB Operations' -- Grafana
+        Panel Path
+      description: Grafana's datasource plugin path is failing for this panel, even
+        if raw datasource checks pass.
+    labels:
+      severity: critical
+      dashboard_uid: mongodb-ops-01
+      panel_id: '4'
+      probe_type: grafana_panel_path
+  - uid: sre-mongodb-ops-01-vd-p4
+    title: '[MongoDB Operations] Panel ''Resident Memory'' -- Variable Dependency'
+    condition: C
+    data:
+    - refId: B
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: probe-metrics
+      model:
+        expr: dashboard_panel_status{dashboard_uid="mongodb-ops-01", panel_id="4",
+          probe_type="variable_dependency"}
+        refId: B
+    - refId: C
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: classic_conditions
+        refId: C
+        expression: B
+        datasource:
+          uid: __expr__
+          type: __expr__
+        conditions:
+        - type: query
+          query:
+            params:
+            - B
+          reducer:
+            params: []
+            type: last
+          evaluator:
+            params:
+            - 1
+            type: lt
+          operator:
+            type: and
+    noDataState: Alerting
+    execErrState: Alerting
+    for: 2m
+    annotations:
+      summary: Panel 'Resident Memory' in dashboard 'MongoDB Operations' -- Variable
+        Dependency
+      description: Panel depends on a failed dashboard variable. The underlying data
+        may be healthy, but the user-facing dashboard query cannot be rendered with
+        the failed variable.
+    labels:
+      severity: critical
+      dashboard_uid: mongodb-ops-01
+      panel_id: '4'
+      probe_type: variable_dependency
   - uid: sre-mongodb-ops-01-nd-p4
     title: '[MongoDB Operations] Panel ''Resident Memory'' -- No Data'
     condition: C
@@ -1281,6 +1928,168 @@ groups:
       dashboard_uid: mongodb-ops-01
       panel_id: '4'
       probe_type: panel_error
+  - uid: sre-mongodb-ops-01-da-p5
+    title: '[MongoDB Operations] Panel ''Replication Lag'' -- Datasource API'
+    condition: C
+    data:
+    - refId: B
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: probe-metrics
+      model:
+        expr: dashboard_panel_status{dashboard_uid="mongodb-ops-01", panel_id="5",
+          probe_type="datasource_api"}
+        refId: B
+    - refId: C
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: classic_conditions
+        refId: C
+        expression: B
+        datasource:
+          uid: __expr__
+          type: __expr__
+        conditions:
+        - type: query
+          query:
+            params:
+            - B
+          reducer:
+            params: []
+            type: last
+          evaluator:
+            params:
+            - 1
+            type: lt
+          operator:
+            type: and
+    noDataState: Alerting
+    execErrState: Alerting
+    for: 2m
+    annotations:
+      summary: Panel 'Replication Lag' in dashboard 'MongoDB Operations' -- Datasource
+        API
+      description: Raw datasource API checks are failing for this panel.
+    labels:
+      severity: critical
+      dashboard_uid: mongodb-ops-01
+      panel_id: '5'
+      probe_type: datasource_api
+  - uid: sre-mongodb-ops-01-gp-p5
+    title: '[MongoDB Operations] Panel ''Replication Lag'' -- Grafana Panel Path'
+    condition: C
+    data:
+    - refId: B
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: probe-metrics
+      model:
+        expr: dashboard_panel_status{dashboard_uid="mongodb-ops-01", panel_id="5",
+          probe_type="grafana_panel_path"}
+        refId: B
+    - refId: C
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: classic_conditions
+        refId: C
+        expression: B
+        datasource:
+          uid: __expr__
+          type: __expr__
+        conditions:
+        - type: query
+          query:
+            params:
+            - B
+          reducer:
+            params: []
+            type: last
+          evaluator:
+            params:
+            - 1
+            type: lt
+          operator:
+            type: and
+    noDataState: Alerting
+    execErrState: Alerting
+    for: 2m
+    annotations:
+      summary: Panel 'Replication Lag' in dashboard 'MongoDB Operations' -- Grafana
+        Panel Path
+      description: Grafana's datasource plugin path is failing for this panel, even
+        if raw datasource checks pass.
+    labels:
+      severity: critical
+      dashboard_uid: mongodb-ops-01
+      panel_id: '5'
+      probe_type: grafana_panel_path
+  - uid: sre-mongodb-ops-01-vd-p5
+    title: '[MongoDB Operations] Panel ''Replication Lag'' -- Variable Dependency'
+    condition: C
+    data:
+    - refId: B
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: probe-metrics
+      model:
+        expr: dashboard_panel_status{dashboard_uid="mongodb-ops-01", panel_id="5",
+          probe_type="variable_dependency"}
+        refId: B
+    - refId: C
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: classic_conditions
+        refId: C
+        expression: B
+        datasource:
+          uid: __expr__
+          type: __expr__
+        conditions:
+        - type: query
+          query:
+            params:
+            - B
+          reducer:
+            params: []
+            type: last
+          evaluator:
+            params:
+            - 1
+            type: lt
+          operator:
+            type: and
+    noDataState: Alerting
+    execErrState: Alerting
+    for: 2m
+    annotations:
+      summary: Panel 'Replication Lag' in dashboard 'MongoDB Operations' -- Variable
+        Dependency
+      description: Panel depends on a failed dashboard variable. The underlying data
+        may be healthy, but the user-facing dashboard query cannot be rendered with
+        the failed variable.
+    labels:
+      severity: critical
+      dashboard_uid: mongodb-ops-01
+      panel_id: '5'
+      probe_type: variable_dependency
   - uid: sre-mongodb-ops-01-nd-p5
     title: '[MongoDB Operations] Panel ''Replication Lag'' -- No Data'
     condition: C
@@ -1601,6 +2410,169 @@ groups:
       dashboard_uid: mongodb-ops-01
       panel_id: '5'
       probe_type: panel_error
+  - uid: sre-mongodb-ops-01-da-p6
+    title: '[MongoDB Operations] Panel ''Replica Member Health'' -- Datasource API'
+    condition: C
+    data:
+    - refId: B
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: probe-metrics
+      model:
+        expr: dashboard_panel_status{dashboard_uid="mongodb-ops-01", panel_id="6",
+          probe_type="datasource_api"}
+        refId: B
+    - refId: C
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: classic_conditions
+        refId: C
+        expression: B
+        datasource:
+          uid: __expr__
+          type: __expr__
+        conditions:
+        - type: query
+          query:
+            params:
+            - B
+          reducer:
+            params: []
+            type: last
+          evaluator:
+            params:
+            - 1
+            type: lt
+          operator:
+            type: and
+    noDataState: Alerting
+    execErrState: Alerting
+    for: 2m
+    annotations:
+      summary: Panel 'Replica Member Health' in dashboard 'MongoDB Operations' --
+        Datasource API
+      description: Raw datasource API checks are failing for this panel.
+    labels:
+      severity: critical
+      dashboard_uid: mongodb-ops-01
+      panel_id: '6'
+      probe_type: datasource_api
+  - uid: sre-mongodb-ops-01-gp-p6
+    title: '[MongoDB Operations] Panel ''Replica Member Health'' -- Grafana Panel
+      Path'
+    condition: C
+    data:
+    - refId: B
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: probe-metrics
+      model:
+        expr: dashboard_panel_status{dashboard_uid="mongodb-ops-01", panel_id="6",
+          probe_type="grafana_panel_path"}
+        refId: B
+    - refId: C
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: classic_conditions
+        refId: C
+        expression: B
+        datasource:
+          uid: __expr__
+          type: __expr__
+        conditions:
+        - type: query
+          query:
+            params:
+            - B
+          reducer:
+            params: []
+            type: last
+          evaluator:
+            params:
+            - 1
+            type: lt
+          operator:
+            type: and
+    noDataState: Alerting
+    execErrState: Alerting
+    for: 2m
+    annotations:
+      summary: Panel 'Replica Member Health' in dashboard 'MongoDB Operations' --
+        Grafana Panel Path
+      description: Grafana's datasource plugin path is failing for this panel, even
+        if raw datasource checks pass.
+    labels:
+      severity: critical
+      dashboard_uid: mongodb-ops-01
+      panel_id: '6'
+      probe_type: grafana_panel_path
+  - uid: sre-mongodb-ops-01-vd-p6
+    title: '[MongoDB Operations] Panel ''Replica Member Health'' -- Variable Dependency'
+    condition: C
+    data:
+    - refId: B
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: probe-metrics
+      model:
+        expr: dashboard_panel_status{dashboard_uid="mongodb-ops-01", panel_id="6",
+          probe_type="variable_dependency"}
+        refId: B
+    - refId: C
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: classic_conditions
+        refId: C
+        expression: B
+        datasource:
+          uid: __expr__
+          type: __expr__
+        conditions:
+        - type: query
+          query:
+            params:
+            - B
+          reducer:
+            params: []
+            type: last
+          evaluator:
+            params:
+            - 1
+            type: lt
+          operator:
+            type: and
+    noDataState: Alerting
+    execErrState: Alerting
+    for: 2m
+    annotations:
+      summary: Panel 'Replica Member Health' in dashboard 'MongoDB Operations' --
+        Variable Dependency
+      description: Panel depends on a failed dashboard variable. The underlying data
+        may be healthy, but the user-facing dashboard query cannot be rendered with
+        the failed variable.
+    labels:
+      severity: critical
+      dashboard_uid: mongodb-ops-01
+      panel_id: '6'
+      probe_type: variable_dependency
   - uid: sre-mongodb-ops-01-nd-p6
     title: '[MongoDB Operations] Panel ''Replica Member Health'' -- No Data'
     condition: C
@@ -1924,7 +2896,7 @@ groups:
       panel_id: '6'
       probe_type: panel_error
   - uid: sre-mongodb-ops-01-vf-instance
-    title: '[MongoDB Operations] Variable ''instance'' -- Resolution Failed'
+    title: '[MongoDB Operations] Variable ''instance'' -- Resolution or Query Failed'
     condition: C
     data:
     - refId: B
@@ -1968,15 +2940,16 @@ groups:
     for: 2m
     annotations:
       summary: Variable 'instance' in dashboard 'MongoDB Operations' failed to resolve
-      description: Template variable instance is returning empty results. All panels
-        depending on this variable will show broken data.
+        or query
+      description: Template variable instance is empty or failing to query. Panels
+        depending on this variable may show broken data or keep stale selected values.
     labels:
       severity: critical
       dashboard_uid: mongodb-ops-01
       variable_name: instance
-      probe_type: var_resolution_fail
+      probe_type: variable_resolution
   - uid: sre-mongodb-ops-01-vf-replset
-    title: '[MongoDB Operations] Variable ''replset'' -- Resolution Failed'
+    title: '[MongoDB Operations] Variable ''replset'' -- Resolution or Query Failed'
     condition: C
     data:
     - refId: B
@@ -2020,13 +2993,14 @@ groups:
     for: 2m
     annotations:
       summary: Variable 'replset' in dashboard 'MongoDB Operations' failed to resolve
-      description: Template variable replset is returning empty results. All panels
-        depending on this variable will show broken data.
+        or query
+      description: Template variable replset is empty or failing to query. Panels
+        depending on this variable may show broken data or keep stale selected values.
     labels:
       severity: critical
       dashboard_uid: mongodb-ops-01
       variable_name: replset
-      probe_type: var_resolution_fail
+      probe_type: variable_resolution
   - uid: sre-mongodb-ops-01-hs
     title: '[MongoDB Operations] Health Score Drop'
     condition: C

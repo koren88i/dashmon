@@ -112,6 +112,29 @@ def test_meta_dashboard_defaults_to_probe_metrics_datasource(meta):
     assert datasource["current"]["value"] == "probe-metrics"
 
 
+def test_meta_dashboard_has_probe_layer_panels(meta):
+    panels = {panel.get("title"): panel for panel in meta["panels"]}
+    assert "Datasource API" in panels
+    assert "Grafana Panel Path" in panels
+    assert "Variable Dependency" in panels
+    assert "GET /api/v1/query" in panels["Datasource API"]["description"]
+    assert "/api/ds/query" in panels["Grafana Panel Path"]["description"]
+    assert "failed dashboard variables" in panels["Variable Dependency"]["description"]
+
+
+def test_meta_dashboard_has_variable_error_type_panel(meta):
+    panels = {panel.get("title"): panel for panel in meta["panels"]}
+    assert "Variable Error Types" in panels
+    expr = panels["Variable Error Types"]["targets"][0]["expr"]
+    assert "dashboard_variable_error_total" in expr
+    assert "variable_name" in expr
+    assert "error_type" in expr
+    assert "Variable Blast Radius" in panels
+    blast_expr = panels["Variable Blast Radius"]["targets"][0]["expr"]
+    assert "dashboard_variable_dependency_impact" in blast_expr
+    assert "== 1" in blast_expr
+
+
 # ---------------------------------------------------------------------------
 # Alert rules
 # ---------------------------------------------------------------------------
@@ -126,8 +149,8 @@ def test_alert_rules_api_version(alerts):
 
 def test_alert_rules_count(alerts):
     rules = alerts["groups"][0]["rules"]
-    # 6 panels × 6 probe types + 2 variables + 2 dashboard-level = 40
-    assert len(rules) == 40
+    # 6 panels x 9 probe types + 2 variables + 2 dashboard-level = 58
+    assert len(rules) == 58
 
 
 def test_alert_rules_for_duration(alerts):
@@ -174,6 +197,21 @@ def test_alert_rules_use_concrete_probe_metrics_datasource(alerts):
         )
 
 
+def test_variable_alert_rule_covers_empty_and_hard_failures(alerts):
+    rules = alerts["groups"][0]["rules"]
+    variable_rule = next(rule for rule in rules if "Variable 'pod'" in rule["title"])
+    assert "Resolution or Query Failed" in variable_rule["title"]
+    assert variable_rule["labels"]["probe_type"] == "variable_resolution"
+    assert "empty or failing to query" in variable_rule["annotations"]["description"]
+
+
+def test_alert_rules_include_variable_dependency_probe(alerts):
+    rules = alerts["groups"][0]["rules"]
+    dependency_rule = next(rule for rule in rules if "Variable Dependency" in rule["title"])
+    assert dependency_rule["labels"]["probe_type"] == "variable_dependency"
+    assert "failed dashboard variable" in dependency_rule["annotations"]["description"]
+
+
 def test_alert_rules_do_not_include_empty_expression_nodes(alerts):
     rules = alerts["groups"][0]["rules"]
     for rule in rules:
@@ -217,7 +255,9 @@ def test_meta_dashboard_recent_errors_panel_matches_query(meta):
     assert organize["options"]["excludeByName"]["instance"] is True
     assert organize["options"]["excludeByName"]["job"] is True
     assert organize["options"]["renameByName"]["Value"] == "Event Time"
+    assert organize["options"]["renameByName"]["probe_type"] == "Path"
     assert organize["options"]["renameByName"]["error_type"] == "Type"
+    assert organize["options"]["indexByName"]["probe_type"] == 2
 
 
 def test_mongodb_meta_dashboard_uid_and_title(mongodb_meta):
@@ -240,8 +280,8 @@ def test_mongodb_meta_dashboard_defaults_to_probe_metrics_datasource(mongodb_met
 
 def test_mongodb_alert_rules_count(mongodb_alerts):
     rules = mongodb_alerts["groups"][0]["rules"]
-    # 6 panels x 6 probe types + 2 variables + 2 dashboard-level = 40
-    assert len(rules) == 40
+    # 6 panels x 9 probe types + 2 variables + 2 dashboard-level = 58
+    assert len(rules) == 58
 
 
 def test_mongodb_alert_rules_unique_uids(mongodb_alerts):

@@ -77,6 +77,13 @@ VARIABLE_QUERY_DURATION = Histogram(
     registry=REGISTRY,
 )
 
+VARIABLE_DEPENDENCY_IMPACT = Gauge(
+    "dashboard_variable_dependency_impact",
+    "Panels currently blocked by failed dashboard variables",
+    ["dashboard_uid", "variable_name", "panel_id", "panel_title", "error_type"],
+    registry=REGISTRY,
+)
+
 # ---------------------------------------------------------------------------
 # Dashboard-level metrics
 # ---------------------------------------------------------------------------
@@ -98,7 +105,7 @@ ISSUE_COUNT = Gauge(
 ISSUE_EVENT_TIMESTAMP = Gauge(
     "dashboard_issue_event_timestamp_seconds",
     "Timestamp of recent issue state transitions",
-    ["dashboard_uid", "event_id", "panel_id", "panel_title", "error_type", "message"],
+    ["dashboard_uid", "event_id", "panel_id", "panel_title", "probe_type", "error_type", "message"],
     registry=REGISTRY,
 )
 

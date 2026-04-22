@@ -39,6 +39,7 @@ def _stat_panel(
     expr: str,
     grid: dict,
     *,
+    description: str = "",
     unit: str = "",
     thresholds: list[dict] | None = None,
     color_mode: str = "background",
@@ -54,7 +55,7 @@ def _stat_panel(
         overrides["unit"] = unit
     if decimals is not None:
         overrides["decimals"] = decimals
-    return {
+    panel = {
         "id": _id(),
         "title": title,
         "type": "stat",
@@ -76,6 +77,9 @@ def _stat_panel(
             "overrides": [],
         },
     }
+    if description:
+        panel["description"] = description
+    return panel
 
 
 def _timeseries_panel(
@@ -189,20 +193,26 @@ def generate_meta_dashboard(
     grid_rows = (len(panels) + 5) // 6  # 6 panels per row, 4h each
     y += grid_rows * 4
 
-    # ---- Row 3: Query performance ----
+    # ---- Row 3: Probe layers ----
+    all_panels.append(_row("Probe Layers", y))
+    y += 1
+    all_panels.extend(_probe_layer_panels(uid, y))
+    y += 4
+
+    # ---- Row 4: Query performance ----
     all_panels.append(_row("Query Performance", y))
     y += 1
     all_panels.extend(_query_performance_panels(uid, panels, y))
     y += 8
 
-    # ---- Row 4: Variable health ----
+    # ---- Row 5: Variable health ----
     if variables:
         all_panels.append(_row("Variable Health", y))
         y += 1
         all_panels.extend(_variable_health_panels(uid, variables, y))
         y += 8
 
-    # ---- Row 5: Issue log ----
+    # ---- Row 6: Issue log ----
     all_panels.append(_row("Issue Log", y))
     y += 1
     all_panels.append(_table_panel(
@@ -220,28 +230,30 @@ def generate_meta_dashboard(
             {
                 "id": "organize",
                 "options": {
-                    "excludeByName": {
-                        "Time": True,
-                        "__name__": True,
-                        "dashboard_uid": True,
-                        "event_id": True,
+                "excludeByName": {
+                    "Time": True,
+                    "__name__": True,
+                    "dashboard_uid": True,
+                    "event_id": True,
                         "instance": True,
                         "job": True,
                         "panel_id": True,
-                    },
-                    "indexByName": {
-                        "Value": 0,
-                        "panel_title": 1,
-                        "error_type": 2,
-                        "message": 3,
-                    },
-                    "renameByName": {
-                        "Value": "Event Time",
-                        "panel_title": "Panel",
-                        "error_type": "Type",
-                        "message": "Message",
-                    },
                 },
+                "indexByName": {
+                    "Value": 0,
+                    "panel_title": 1,
+                    "probe_type": 2,
+                    "error_type": 3,
+                    "message": 4,
+                },
+                "renameByName": {
+                    "Value": "Event Time",
+                    "panel_title": "Panel",
+                    "probe_type": "Path",
+                    "error_type": "Type",
+                    "message": "Message",
+                },
+            },
             },
         ],
         field_overrides=[
@@ -253,7 +265,7 @@ def generate_meta_dashboard(
     ))
     y += 8
 
-    # ---- Row 6: Alerts ----
+    # ---- Row 7: Alerts ----
     all_panels.append(_row("Alerts", y))
     y += 1
     all_panels.append(_alertlist_panel(
@@ -374,6 +386,53 @@ def _panel_health_grid(
     return result
 
 
+def _probe_layer_panels(uid: str, y: int) -> list[dict]:
+    return [
+        _stat_panel(
+            "Datasource API",
+            f'min(dashboard_panel_status{{dashboard_uid="{uid}", probe_type="datasource_api"}})',
+            {"h": 4, "w": 8, "x": 0, "y": y},
+            description=(
+                "Probe engine queries the target datasource or proxy directly with "
+                "Prometheus GET /api/v1/query. This turns red when the direct "
+                "datasource path returns errors or no usable data."
+            ),
+            thresholds=[
+                {"color": "red", "value": None},
+                {"color": "green", "value": 1},
+            ],
+        ),
+        _stat_panel(
+            "Grafana Panel Path",
+            f'min(dashboard_panel_status{{dashboard_uid="{uid}", probe_type="grafana_panel_path"}})',
+            {"h": 4, "w": 8, "x": 8, "y": y},
+            description=(
+                "Probe engine asks Grafana /api/ds/query to run the panel query "
+                "through Grafana's datasource plugin path. This catches user-facing "
+                "panel failures even when the direct datasource query is healthy."
+            ),
+            thresholds=[
+                {"color": "red", "value": None},
+                {"color": "green", "value": 1},
+            ],
+        ),
+        _stat_panel(
+            "Variable Dependency",
+            f'min(dashboard_panel_status{{dashboard_uid="{uid}", probe_type="variable_dependency"}}) or vector(1)',
+            {"h": 4, "w": 8, "x": 16, "y": y},
+            description=(
+                "Probe engine maps failed dashboard variables back to panels that "
+                "reference them. This turns red when a panel is user-blocked by "
+                "variable interpolation even though underlying data queries may be healthy."
+            ),
+            thresholds=[
+                {"color": "red", "value": None},
+                {"color": "green", "value": 1},
+            ],
+        ),
+    ]
+
+
 def _query_performance_panels(
     uid: str,
     panels: list[PanelProbeSpec],
@@ -448,7 +507,61 @@ def _variable_health_panels(
     result.append(_timeseries_panel(
         "Variable Query Duration",
         var_targets,
-        {"h": 4, "w": 24, "x": 0, "y": y + 4},
+        {"h": 4, "w": 8, "x": 0, "y": y + 4},
+    ))
+    result.append(_table_panel(
+        "Variable Error Types",
+        f'sum by (variable_name, error_type) '
+        f'(increase(dashboard_variable_error_total{{dashboard_uid="{uid}"}}[1h]))',
+        {"h": 4, "w": 8, "x": 8, "y": y + 4},
+        transformations=[
+            {
+                "id": "organize",
+                "options": {
+                    "excludeByName": {"Time": True},
+                    "indexByName": {
+                        "variable_name": 0,
+                        "error_type": 1,
+                        "Value": 2,
+                    },
+                    "renameByName": {
+                        "variable_name": "Variable",
+                        "error_type": "Type",
+                        "Value": "Events",
+                    },
+                },
+            },
+        ],
+    ))
+    result.append(_table_panel(
+        "Variable Blast Radius",
+        f'dashboard_variable_dependency_impact{{dashboard_uid="{uid}"}} == 1',
+        {"h": 4, "w": 8, "x": 16, "y": y + 4},
+        transformations=[
+            {
+                "id": "organize",
+                "options": {
+                    "excludeByName": {
+                        "Time": True,
+                        "__name__": True,
+                        "dashboard_uid": True,
+                        "panel_id": True,
+                    },
+                    "indexByName": {
+                        "variable_name": 0,
+                        "panel_title": 1,
+                        "error_type": 2,
+                        "Value": 3,
+                    },
+                    "renameByName": {
+                        "variable_name": "Variable",
+                        "panel_title": "Panel",
+                        "error_type": "Variable Error",
+                        "Value": "Impacted",
+                    },
+                },
+            },
+        ],
     ))
 
     return result

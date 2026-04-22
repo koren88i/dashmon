@@ -15,9 +15,13 @@ COPY --chown=appuser:appgroup probe/ ./probe/
 COPY --chown=appuser:appgroup generator/ ./generator/
 COPY --chown=appuser:appgroup demo/example_dashboard.json ./demo/example_dashboard.json
 COPY --chown=appuser:appgroup demo/mongodb_dashboard.json ./demo/mongodb_dashboard.json
+COPY --chown=appuser:appgroup demo/mongodb_atlas_system_metrics_dashboard.json ./demo/mongodb_atlas_system_metrics_dashboard.json
+COPY --chown=appuser:appgroup demo/mongodb_live_dashboard.json ./demo/mongodb_live_dashboard.json
 COPY --chown=appuser:appgroup config.yaml .
 COPY --chown=appuser:appgroup config.docker.yaml .
 COPY --chown=appuser:appgroup config.mongo.docker.yaml .
+COPY --chown=appuser:appgroup config.mongo-atlas.docker.yaml .
+COPY --chown=appuser:appgroup config.mongo-live.docker.yaml .
 
 USER appuser
 

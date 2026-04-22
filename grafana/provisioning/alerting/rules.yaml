@@ -5,6 +5,166 @@ groups:
   folder: Dashboard SRE
   interval: 1m
   rules:
+  - uid: sre-service-health-0-da-p1
+    title: '[Service Health] Panel ''Request Rate'' -- Datasource API'
+    condition: C
+    data:
+    - refId: B
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: probe-metrics
+      model:
+        expr: dashboard_panel_status{dashboard_uid="service-health-01", panel_id="1",
+          probe_type="datasource_api"}
+        refId: B
+    - refId: C
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: classic_conditions
+        refId: C
+        expression: B
+        datasource:
+          uid: __expr__
+          type: __expr__
+        conditions:
+        - type: query
+          query:
+            params:
+            - B
+          reducer:
+            params: []
+            type: last
+          evaluator:
+            params:
+            - 1
+            type: lt
+          operator:
+            type: and
+    noDataState: Alerting
+    execErrState: Alerting
+    for: 2m
+    annotations:
+      summary: Panel 'Request Rate' in dashboard 'Service Health' -- Datasource API
+      description: Raw datasource API checks are failing for this panel.
+    labels:
+      severity: critical
+      dashboard_uid: service-health-01
+      panel_id: '1'
+      probe_type: datasource_api
+  - uid: sre-service-health-0-gp-p1
+    title: '[Service Health] Panel ''Request Rate'' -- Grafana Panel Path'
+    condition: C
+    data:
+    - refId: B
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: probe-metrics
+      model:
+        expr: dashboard_panel_status{dashboard_uid="service-health-01", panel_id="1",
+          probe_type="grafana_panel_path"}
+        refId: B
+    - refId: C
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: classic_conditions
+        refId: C
+        expression: B
+        datasource:
+          uid: __expr__
+          type: __expr__
+        conditions:
+        - type: query
+          query:
+            params:
+            - B
+          reducer:
+            params: []
+            type: last
+          evaluator:
+            params:
+            - 1
+            type: lt
+          operator:
+            type: and
+    noDataState: Alerting
+    execErrState: Alerting
+    for: 2m
+    annotations:
+      summary: Panel 'Request Rate' in dashboard 'Service Health' -- Grafana Panel
+        Path
+      description: Grafana's datasource plugin path is failing for this panel, even
+        if raw datasource checks pass.
+    labels:
+      severity: critical
+      dashboard_uid: service-health-01
+      panel_id: '1'
+      probe_type: grafana_panel_path
+  - uid: sre-service-health-0-vd-p1
+    title: '[Service Health] Panel ''Request Rate'' -- Variable Dependency'
+    condition: C
+    data:
+    - refId: B
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: probe-metrics
+      model:
+        expr: dashboard_panel_status{dashboard_uid="service-health-01", panel_id="1",
+          probe_type="variable_dependency"}
+        refId: B
+    - refId: C
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: classic_conditions
+        refId: C
+        expression: B
+        datasource:
+          uid: __expr__
+          type: __expr__
+        conditions:
+        - type: query
+          query:
+            params:
+            - B
+          reducer:
+            params: []
+            type: last
+          evaluator:
+            params:
+            - 1
+            type: lt
+          operator:
+            type: and
+    noDataState: Alerting
+    execErrState: Alerting
+    for: 2m
+    annotations:
+      summary: Panel 'Request Rate' in dashboard 'Service Health' -- Variable Dependency
+      description: Panel depends on a failed dashboard variable. The underlying data
+        may be healthy, but the user-facing dashboard query cannot be rendered with
+        the failed variable.
+    labels:
+      severity: critical
+      dashboard_uid: service-health-01
+      panel_id: '1'
+      probe_type: variable_dependency
   - uid: sre-service-health-0-nd-p1
     title: '[Service Health] Panel ''Request Rate'' -- No Data'
     condition: C
@@ -321,6 +481,166 @@ groups:
       dashboard_uid: service-health-01
       panel_id: '1'
       probe_type: panel_error
+  - uid: sre-service-health-0-da-p2
+    title: '[Service Health] Panel ''Error Rate %'' -- Datasource API'
+    condition: C
+    data:
+    - refId: B
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: probe-metrics
+      model:
+        expr: dashboard_panel_status{dashboard_uid="service-health-01", panel_id="2",
+          probe_type="datasource_api"}
+        refId: B
+    - refId: C
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: classic_conditions
+        refId: C
+        expression: B
+        datasource:
+          uid: __expr__
+          type: __expr__
+        conditions:
+        - type: query
+          query:
+            params:
+            - B
+          reducer:
+            params: []
+            type: last
+          evaluator:
+            params:
+            - 1
+            type: lt
+          operator:
+            type: and
+    noDataState: Alerting
+    execErrState: Alerting
+    for: 2m
+    annotations:
+      summary: Panel 'Error Rate %' in dashboard 'Service Health' -- Datasource API
+      description: Raw datasource API checks are failing for this panel.
+    labels:
+      severity: critical
+      dashboard_uid: service-health-01
+      panel_id: '2'
+      probe_type: datasource_api
+  - uid: sre-service-health-0-gp-p2
+    title: '[Service Health] Panel ''Error Rate %'' -- Grafana Panel Path'
+    condition: C
+    data:
+    - refId: B
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: probe-metrics
+      model:
+        expr: dashboard_panel_status{dashboard_uid="service-health-01", panel_id="2",
+          probe_type="grafana_panel_path"}
+        refId: B
+    - refId: C
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: classic_conditions
+        refId: C
+        expression: B
+        datasource:
+          uid: __expr__
+          type: __expr__
+        conditions:
+        - type: query
+          query:
+            params:
+            - B
+          reducer:
+            params: []
+            type: last
+          evaluator:
+            params:
+            - 1
+            type: lt
+          operator:
+            type: and
+    noDataState: Alerting
+    execErrState: Alerting
+    for: 2m
+    annotations:
+      summary: Panel 'Error Rate %' in dashboard 'Service Health' -- Grafana Panel
+        Path
+      description: Grafana's datasource plugin path is failing for this panel, even
+        if raw datasource checks pass.
+    labels:
+      severity: critical
+      dashboard_uid: service-health-01
+      panel_id: '2'
+      probe_type: grafana_panel_path
+  - uid: sre-service-health-0-vd-p2
+    title: '[Service Health] Panel ''Error Rate %'' -- Variable Dependency'
+    condition: C
+    data:
+    - refId: B
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: probe-metrics
+      model:
+        expr: dashboard_panel_status{dashboard_uid="service-health-01", panel_id="2",
+          probe_type="variable_dependency"}
+        refId: B
+    - refId: C
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: classic_conditions
+        refId: C
+        expression: B
+        datasource:
+          uid: __expr__
+          type: __expr__
+        conditions:
+        - type: query
+          query:
+            params:
+            - B
+          reducer:
+            params: []
+            type: last
+          evaluator:
+            params:
+            - 1
+            type: lt
+          operator:
+            type: and
+    noDataState: Alerting
+    execErrState: Alerting
+    for: 2m
+    annotations:
+      summary: Panel 'Error Rate %' in dashboard 'Service Health' -- Variable Dependency
+      description: Panel depends on a failed dashboard variable. The underlying data
+        may be healthy, but the user-facing dashboard query cannot be rendered with
+        the failed variable.
+    labels:
+      severity: critical
+      dashboard_uid: service-health-01
+      panel_id: '2'
+      probe_type: variable_dependency
   - uid: sre-service-health-0-nd-p2
     title: '[Service Health] Panel ''Error Rate %'' -- No Data'
     condition: C
@@ -637,6 +957,166 @@ groups:
       dashboard_uid: service-health-01
       panel_id: '2'
       probe_type: panel_error
+  - uid: sre-service-health-0-da-p3
+    title: '[Service Health] Panel ''P99 Latency'' -- Datasource API'
+    condition: C
+    data:
+    - refId: B
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: probe-metrics
+      model:
+        expr: dashboard_panel_status{dashboard_uid="service-health-01", panel_id="3",
+          probe_type="datasource_api"}
+        refId: B
+    - refId: C
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: classic_conditions
+        refId: C
+        expression: B
+        datasource:
+          uid: __expr__
+          type: __expr__
+        conditions:
+        - type: query
+          query:
+            params:
+            - B
+          reducer:
+            params: []
+            type: last
+          evaluator:
+            params:
+            - 1
+            type: lt
+          operator:
+            type: and
+    noDataState: Alerting
+    execErrState: Alerting
+    for: 2m
+    annotations:
+      summary: Panel 'P99 Latency' in dashboard 'Service Health' -- Datasource API
+      description: Raw datasource API checks are failing for this panel.
+    labels:
+      severity: critical
+      dashboard_uid: service-health-01
+      panel_id: '3'
+      probe_type: datasource_api
+  - uid: sre-service-health-0-gp-p3
+    title: '[Service Health] Panel ''P99 Latency'' -- Grafana Panel Path'
+    condition: C
+    data:
+    - refId: B
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: probe-metrics
+      model:
+        expr: dashboard_panel_status{dashboard_uid="service-health-01", panel_id="3",
+          probe_type="grafana_panel_path"}
+        refId: B
+    - refId: C
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: classic_conditions
+        refId: C
+        expression: B
+        datasource:
+          uid: __expr__
+          type: __expr__
+        conditions:
+        - type: query
+          query:
+            params:
+            - B
+          reducer:
+            params: []
+            type: last
+          evaluator:
+            params:
+            - 1
+            type: lt
+          operator:
+            type: and
+    noDataState: Alerting
+    execErrState: Alerting
+    for: 2m
+    annotations:
+      summary: Panel 'P99 Latency' in dashboard 'Service Health' -- Grafana Panel
+        Path
+      description: Grafana's datasource plugin path is failing for this panel, even
+        if raw datasource checks pass.
+    labels:
+      severity: critical
+      dashboard_uid: service-health-01
+      panel_id: '3'
+      probe_type: grafana_panel_path
+  - uid: sre-service-health-0-vd-p3
+    title: '[Service Health] Panel ''P99 Latency'' -- Variable Dependency'
+    condition: C
+    data:
+    - refId: B
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: probe-metrics
+      model:
+        expr: dashboard_panel_status{dashboard_uid="service-health-01", panel_id="3",
+          probe_type="variable_dependency"}
+        refId: B
+    - refId: C
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: classic_conditions
+        refId: C
+        expression: B
+        datasource:
+          uid: __expr__
+          type: __expr__
+        conditions:
+        - type: query
+          query:
+            params:
+            - B
+          reducer:
+            params: []
+            type: last
+          evaluator:
+            params:
+            - 1
+            type: lt
+          operator:
+            type: and
+    noDataState: Alerting
+    execErrState: Alerting
+    for: 2m
+    annotations:
+      summary: Panel 'P99 Latency' in dashboard 'Service Health' -- Variable Dependency
+      description: Panel depends on a failed dashboard variable. The underlying data
+        may be healthy, but the user-facing dashboard query cannot be rendered with
+        the failed variable.
+    labels:
+      severity: critical
+      dashboard_uid: service-health-01
+      panel_id: '3'
+      probe_type: variable_dependency
   - uid: sre-service-health-0-nd-p3
     title: '[Service Health] Panel ''P99 Latency'' -- No Data'
     condition: C
@@ -953,6 +1433,166 @@ groups:
       dashboard_uid: service-health-01
       panel_id: '3'
       probe_type: panel_error
+  - uid: sre-service-health-0-da-p4
+    title: '[Service Health] Panel ''Memory Usage'' -- Datasource API'
+    condition: C
+    data:
+    - refId: B
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: probe-metrics
+      model:
+        expr: dashboard_panel_status{dashboard_uid="service-health-01", panel_id="4",
+          probe_type="datasource_api"}
+        refId: B
+    - refId: C
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: classic_conditions
+        refId: C
+        expression: B
+        datasource:
+          uid: __expr__
+          type: __expr__
+        conditions:
+        - type: query
+          query:
+            params:
+            - B
+          reducer:
+            params: []
+            type: last
+          evaluator:
+            params:
+            - 1
+            type: lt
+          operator:
+            type: and
+    noDataState: Alerting
+    execErrState: Alerting
+    for: 2m
+    annotations:
+      summary: Panel 'Memory Usage' in dashboard 'Service Health' -- Datasource API
+      description: Raw datasource API checks are failing for this panel.
+    labels:
+      severity: critical
+      dashboard_uid: service-health-01
+      panel_id: '4'
+      probe_type: datasource_api
+  - uid: sre-service-health-0-gp-p4
+    title: '[Service Health] Panel ''Memory Usage'' -- Grafana Panel Path'
+    condition: C
+    data:
+    - refId: B
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: probe-metrics
+      model:
+        expr: dashboard_panel_status{dashboard_uid="service-health-01", panel_id="4",
+          probe_type="grafana_panel_path"}
+        refId: B
+    - refId: C
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: classic_conditions
+        refId: C
+        expression: B
+        datasource:
+          uid: __expr__
+          type: __expr__
+        conditions:
+        - type: query
+          query:
+            params:
+            - B
+          reducer:
+            params: []
+            type: last
+          evaluator:
+            params:
+            - 1
+            type: lt
+          operator:
+            type: and
+    noDataState: Alerting
+    execErrState: Alerting
+    for: 2m
+    annotations:
+      summary: Panel 'Memory Usage' in dashboard 'Service Health' -- Grafana Panel
+        Path
+      description: Grafana's datasource plugin path is failing for this panel, even
+        if raw datasource checks pass.
+    labels:
+      severity: critical
+      dashboard_uid: service-health-01
+      panel_id: '4'
+      probe_type: grafana_panel_path
+  - uid: sre-service-health-0-vd-p4
+    title: '[Service Health] Panel ''Memory Usage'' -- Variable Dependency'
+    condition: C
+    data:
+    - refId: B
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: probe-metrics
+      model:
+        expr: dashboard_panel_status{dashboard_uid="service-health-01", panel_id="4",
+          probe_type="variable_dependency"}
+        refId: B
+    - refId: C
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: classic_conditions
+        refId: C
+        expression: B
+        datasource:
+          uid: __expr__
+          type: __expr__
+        conditions:
+        - type: query
+          query:
+            params:
+            - B
+          reducer:
+            params: []
+            type: last
+          evaluator:
+            params:
+            - 1
+            type: lt
+          operator:
+            type: and
+    noDataState: Alerting
+    execErrState: Alerting
+    for: 2m
+    annotations:
+      summary: Panel 'Memory Usage' in dashboard 'Service Health' -- Variable Dependency
+      description: Panel depends on a failed dashboard variable. The underlying data
+        may be healthy, but the user-facing dashboard query cannot be rendered with
+        the failed variable.
+    labels:
+      severity: critical
+      dashboard_uid: service-health-01
+      panel_id: '4'
+      probe_type: variable_dependency
   - uid: sre-service-health-0-nd-p4
     title: '[Service Health] Panel ''Memory Usage'' -- No Data'
     condition: C
@@ -1269,6 +1909,166 @@ groups:
       dashboard_uid: service-health-01
       panel_id: '4'
       probe_type: panel_error
+  - uid: sre-service-health-0-da-p5
+    title: '[Service Health] Panel ''Pod Readiness'' -- Datasource API'
+    condition: C
+    data:
+    - refId: B
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: probe-metrics
+      model:
+        expr: dashboard_panel_status{dashboard_uid="service-health-01", panel_id="5",
+          probe_type="datasource_api"}
+        refId: B
+    - refId: C
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: classic_conditions
+        refId: C
+        expression: B
+        datasource:
+          uid: __expr__
+          type: __expr__
+        conditions:
+        - type: query
+          query:
+            params:
+            - B
+          reducer:
+            params: []
+            type: last
+          evaluator:
+            params:
+            - 1
+            type: lt
+          operator:
+            type: and
+    noDataState: Alerting
+    execErrState: Alerting
+    for: 2m
+    annotations:
+      summary: Panel 'Pod Readiness' in dashboard 'Service Health' -- Datasource API
+      description: Raw datasource API checks are failing for this panel.
+    labels:
+      severity: critical
+      dashboard_uid: service-health-01
+      panel_id: '5'
+      probe_type: datasource_api
+  - uid: sre-service-health-0-gp-p5
+    title: '[Service Health] Panel ''Pod Readiness'' -- Grafana Panel Path'
+    condition: C
+    data:
+    - refId: B
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: probe-metrics
+      model:
+        expr: dashboard_panel_status{dashboard_uid="service-health-01", panel_id="5",
+          probe_type="grafana_panel_path"}
+        refId: B
+    - refId: C
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: classic_conditions
+        refId: C
+        expression: B
+        datasource:
+          uid: __expr__
+          type: __expr__
+        conditions:
+        - type: query
+          query:
+            params:
+            - B
+          reducer:
+            params: []
+            type: last
+          evaluator:
+            params:
+            - 1
+            type: lt
+          operator:
+            type: and
+    noDataState: Alerting
+    execErrState: Alerting
+    for: 2m
+    annotations:
+      summary: Panel 'Pod Readiness' in dashboard 'Service Health' -- Grafana Panel
+        Path
+      description: Grafana's datasource plugin path is failing for this panel, even
+        if raw datasource checks pass.
+    labels:
+      severity: critical
+      dashboard_uid: service-health-01
+      panel_id: '5'
+      probe_type: grafana_panel_path
+  - uid: sre-service-health-0-vd-p5
+    title: '[Service Health] Panel ''Pod Readiness'' -- Variable Dependency'
+    condition: C
+    data:
+    - refId: B
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: probe-metrics
+      model:
+        expr: dashboard_panel_status{dashboard_uid="service-health-01", panel_id="5",
+          probe_type="variable_dependency"}
+        refId: B
+    - refId: C
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: classic_conditions
+        refId: C
+        expression: B
+        datasource:
+          uid: __expr__
+          type: __expr__
+        conditions:
+        - type: query
+          query:
+            params:
+            - B
+          reducer:
+            params: []
+            type: last
+          evaluator:
+            params:
+            - 1
+            type: lt
+          operator:
+            type: and
+    noDataState: Alerting
+    execErrState: Alerting
+    for: 2m
+    annotations:
+      summary: Panel 'Pod Readiness' in dashboard 'Service Health' -- Variable Dependency
+      description: Panel depends on a failed dashboard variable. The underlying data
+        may be healthy, but the user-facing dashboard query cannot be rendered with
+        the failed variable.
+    labels:
+      severity: critical
+      dashboard_uid: service-health-01
+      panel_id: '5'
+      probe_type: variable_dependency
   - uid: sre-service-health-0-nd-p5
     title: '[Service Health] Panel ''Pod Readiness'' -- No Data'
     condition: C
@@ -1586,6 +2386,168 @@ groups:
       dashboard_uid: service-health-01
       panel_id: '5'
       probe_type: panel_error
+  - uid: sre-service-health-0-da-p6
+    title: '[Service Health] Panel ''Active Instances'' -- Datasource API'
+    condition: C
+    data:
+    - refId: B
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: probe-metrics
+      model:
+        expr: dashboard_panel_status{dashboard_uid="service-health-01", panel_id="6",
+          probe_type="datasource_api"}
+        refId: B
+    - refId: C
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: classic_conditions
+        refId: C
+        expression: B
+        datasource:
+          uid: __expr__
+          type: __expr__
+        conditions:
+        - type: query
+          query:
+            params:
+            - B
+          reducer:
+            params: []
+            type: last
+          evaluator:
+            params:
+            - 1
+            type: lt
+          operator:
+            type: and
+    noDataState: Alerting
+    execErrState: Alerting
+    for: 2m
+    annotations:
+      summary: Panel 'Active Instances' in dashboard 'Service Health' -- Datasource
+        API
+      description: Raw datasource API checks are failing for this panel.
+    labels:
+      severity: critical
+      dashboard_uid: service-health-01
+      panel_id: '6'
+      probe_type: datasource_api
+  - uid: sre-service-health-0-gp-p6
+    title: '[Service Health] Panel ''Active Instances'' -- Grafana Panel Path'
+    condition: C
+    data:
+    - refId: B
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: probe-metrics
+      model:
+        expr: dashboard_panel_status{dashboard_uid="service-health-01", panel_id="6",
+          probe_type="grafana_panel_path"}
+        refId: B
+    - refId: C
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: classic_conditions
+        refId: C
+        expression: B
+        datasource:
+          uid: __expr__
+          type: __expr__
+        conditions:
+        - type: query
+          query:
+            params:
+            - B
+          reducer:
+            params: []
+            type: last
+          evaluator:
+            params:
+            - 1
+            type: lt
+          operator:
+            type: and
+    noDataState: Alerting
+    execErrState: Alerting
+    for: 2m
+    annotations:
+      summary: Panel 'Active Instances' in dashboard 'Service Health' -- Grafana Panel
+        Path
+      description: Grafana's datasource plugin path is failing for this panel, even
+        if raw datasource checks pass.
+    labels:
+      severity: critical
+      dashboard_uid: service-health-01
+      panel_id: '6'
+      probe_type: grafana_panel_path
+  - uid: sre-service-health-0-vd-p6
+    title: '[Service Health] Panel ''Active Instances'' -- Variable Dependency'
+    condition: C
+    data:
+    - refId: B
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: probe-metrics
+      model:
+        expr: dashboard_panel_status{dashboard_uid="service-health-01", panel_id="6",
+          probe_type="variable_dependency"}
+        refId: B
+    - refId: C
+      queryType: ''
+      relativeTimeRange:
+        from: 300
+        to: 0
+      datasourceUid: __expr__
+      model:
+        type: classic_conditions
+        refId: C
+        expression: B
+        datasource:
+          uid: __expr__
+          type: __expr__
+        conditions:
+        - type: query
+          query:
+            params:
+            - B
+          reducer:
+            params: []
+            type: last
+          evaluator:
+            params:
+            - 1
+            type: lt
+          operator:
+            type: and
+    noDataState: Alerting
+    execErrState: Alerting
+    for: 2m
+    annotations:
+      summary: Panel 'Active Instances' in dashboard 'Service Health' -- Variable
+        Dependency
+      description: Panel depends on a failed dashboard variable. The underlying data
+        may be healthy, but the user-facing dashboard query cannot be rendered with
+        the failed variable.
+    labels:
+      severity: critical
+      dashboard_uid: service-health-01
+      panel_id: '6'
+      probe_type: variable_dependency
   - uid: sre-service-health-0-nd-p6
     title: '[Service Health] Panel ''Active Instances'' -- No Data'
     condition: C
@@ -1904,7 +2866,7 @@ groups:
       panel_id: '6'
       probe_type: panel_error
   - uid: sre-service-health-0-vf-pod
-    title: '[Service Health] Variable ''pod'' -- Resolution Failed'
+    title: '[Service Health] Variable ''pod'' -- Resolution or Query Failed'
     condition: C
     data:
     - refId: B
@@ -1947,16 +2909,16 @@ groups:
     execErrState: Alerting
     for: 2m
     annotations:
-      summary: Variable 'pod' in dashboard 'Service Health' failed to resolve
-      description: Template variable pod is returning empty results. All panels depending
-        on this variable will show broken data.
+      summary: Variable 'pod' in dashboard 'Service Health' failed to resolve or query
+      description: Template variable pod is empty or failing to query. Panels depending
+        on this variable may show broken data or keep stale selected values.
     labels:
       severity: critical
       dashboard_uid: service-health-01
       variable_name: pod
-      probe_type: var_resolution_fail
+      probe_type: variable_resolution
   - uid: sre-service-health-0-vf-namespace
-    title: '[Service Health] Variable ''namespace'' -- Resolution Failed'
+    title: '[Service Health] Variable ''namespace'' -- Resolution or Query Failed'
     condition: C
     data:
     - refId: B
@@ -2000,13 +2962,14 @@ groups:
     for: 2m
     annotations:
       summary: Variable 'namespace' in dashboard 'Service Health' failed to resolve
-      description: Template variable namespace is returning empty results. All panels
-        depending on this variable will show broken data.
+        or query
+      description: Template variable namespace is empty or failing to query. Panels
+        depending on this variable may show broken data or keep stale selected values.
     labels:
       severity: critical
       dashboard_uid: service-health-01
       variable_name: namespace
-      probe_type: var_resolution_fail
+      probe_type: variable_resolution
   - uid: sre-service-health-0-hs
     title: '[Service Health] Health Score Drop'
     condition: C

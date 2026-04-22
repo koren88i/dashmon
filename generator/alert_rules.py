@@ -18,10 +18,19 @@ _UID_SHORT: dict[str, str] = {
     "no_data": "nd", "stale_data": "sd", "query_timeout": "qt",
     "slow_query": "sq", "cardinality_spike": "cs", "panel_error": "pe",
     "var_resolution_fail": "vf", "health_score": "hs", "slow_dashboard": "sl",
+    "datasource_api": "da", "grafana_panel_path": "gp",
+    "variable_dependency": "vd",
 }
 
 # Probe types that generate per-panel alerts.
 _PANEL_PROBE_TYPES = [
+    ("datasource_api", "Datasource API", "critical",
+     "Raw datasource API checks are failing for this panel."),
+    ("grafana_panel_path", "Grafana Panel Path", "critical",
+     "Grafana's datasource plugin path is failing for this panel, even if raw datasource checks pass."),
+    ("variable_dependency", "Variable Dependency", "critical",
+     "Panel depends on a failed dashboard variable. The underlying data may be healthy, "
+     "but the user-facing dashboard query cannot be rendered with the failed variable."),
     ("no_data", "No Data", "warning",
      "Panel has been returning empty results for >2 minutes. "
      "The source metric may have disappeared or the exporter may be down."),
@@ -177,7 +186,7 @@ def _variable_rule(
     rule_uid = f"sre-{dashboard_uid[:16]}-vf-{var.name}"
     return {
         "uid": rule_uid,
-        "title": f"[{dashboard_title}] Variable '{var.name}' -- Resolution Failed",
+        "title": f"[{dashboard_title}] Variable '{var.name}' -- Resolution or Query Failed",
         "condition": "C",
         "data": [
             {
@@ -205,17 +214,17 @@ def _variable_rule(
         "execErrState": "Alerting",
         "for": "2m",
         "annotations": {
-            "summary": f"Variable '{var.name}' in dashboard '{dashboard_title}' failed to resolve",
+            "summary": f"Variable '{var.name}' in dashboard '{dashboard_title}' failed to resolve or query",
             "description": (
-                f"Template variable {var.name} is returning empty results. "
-                "All panels depending on this variable will show broken data."
+                f"Template variable {var.name} is empty or failing to query. "
+                "Panels depending on this variable may show broken data or keep stale selected values."
             ),
         },
         "labels": {
             "severity": "critical",
             "dashboard_uid": dashboard_uid,
             "variable_name": var.name,
-            "probe_type": "var_resolution_fail",
+            "probe_type": "variable_resolution",
         },
     }
 

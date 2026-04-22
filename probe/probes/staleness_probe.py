@@ -52,6 +52,7 @@ class StalenessProbe:
                 panel_id=spec.panel_id,
                 panel_title=spec.panel_title,
                 status=ProbeStatus.UNKNOWN,
+                probe_type="stale_data",
                 duration_seconds=time.monotonic() - start,
             )
 
@@ -63,6 +64,7 @@ class StalenessProbe:
                 panel_id=spec.panel_id,
                 panel_title=spec.panel_title,
                 status=ProbeStatus.UNKNOWN,
+                probe_type="stale_data",
                 duration_seconds=duration,
             )
 
@@ -74,6 +76,7 @@ class StalenessProbe:
                 panel_id=spec.panel_id,
                 panel_title=spec.panel_title,
                 status=ProbeStatus.DEGRADED,
+                probe_type="stale_data",
                 error_type=ErrorType.STALE_DATA,
                 message=f"Data is {age:.0f}s old (threshold: {threshold:.0f}s)",
                 duration_seconds=duration,
@@ -84,6 +87,7 @@ class StalenessProbe:
             panel_id=spec.panel_id,
             panel_title=spec.panel_title,
             status=ProbeStatus.HEALTHY,
+            probe_type="stale_data",
             duration_seconds=duration,
             max_timestamp=max_ts,
         )

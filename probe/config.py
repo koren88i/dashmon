@@ -26,6 +26,8 @@ class PanelProbeSpec:
     datasource_type: str
     queries: list[str]
     expected_min_series: int = 1
+    raw_queries: list[str] = field(default_factory=list)
+    variable_dependencies: list[str] = field(default_factory=list)
 
 
 @dataclass
@@ -47,6 +49,8 @@ class ErrorType(str, Enum):
     METRIC_RENAME = "metric_rename"
     QUERY_TIMEOUT = "query_timeout"
     VAR_RESOLUTION_FAIL = "var_resolution_fail"
+    VARIABLE_QUERY_ERROR = "variable_query_error"
+    BLOCKED_BY_VARIABLE = "blocked_by_variable"
     SLOW_QUERY = "slow_query"
     SLOW_DASHBOARD = "slow_dashboard"
     CARDINALITY_SPIKE = "cardinality_spike"
@@ -64,6 +68,7 @@ class ProbeResult:
     panel_id: int
     panel_title: str
     status: ProbeStatus
+    probe_type: str = "datasource_api"
     error_type: ErrorType | None = None
     message: str = ""
     duration_seconds: float = 0.0
@@ -82,6 +87,15 @@ class DatasourceConfig:
     ds_type: str = "prometheus"
 
 
+@dataclass
+class GrafanaProbeConfig:
+    enabled: bool = False
+    url: str = "http://localhost:3000"
+    query_range_seconds: float = 3600.0
+    step_seconds: float = 30.0
+    max_data_points: int = 1200
+
+
 # ---------------------------------------------------------------------------
 # Runtime config
 # ---------------------------------------------------------------------------
@@ -97,6 +111,7 @@ class ProbeConfig:
     cardinality_spike_ratio: float = 1.5
     query_timeout_seconds: float = 25.0
     datasources: list[DatasourceConfig] = field(default_factory=list)
+    grafana: GrafanaProbeConfig = field(default_factory=GrafanaProbeConfig)
 
     @classmethod
     def defaults(cls) -> ProbeConfig:
@@ -120,6 +135,7 @@ class ProbeConfig:
             )
             for d in data.get("datasources", [])
         ]
+        grafana_data = data.get("grafana", {}) or {}
         return cls(
             probe_interval_seconds=data.get("probe_interval_seconds", 15.0),
             max_concurrency=data.get("max_concurrency", 10),
@@ -130,6 +146,13 @@ class ProbeConfig:
             cardinality_spike_ratio=thresholds.get("cardinality_spike_ratio", 1.5),
             query_timeout_seconds=thresholds.get("query_timeout_seconds", 25.0),
             datasources=ds_list,
+            grafana=GrafanaProbeConfig(
+                enabled=grafana_data.get("enabled", False),
+                url=grafana_data.get("url", "http://localhost:3000"),
+                query_range_seconds=grafana_data.get("query_range_seconds", 3600.0),
+                step_seconds=grafana_data.get("step_seconds", 30.0),
+                max_data_points=grafana_data.get("max_data_points", 1200),
+            ),
         )
 
     def url_for_datasource(self, uid: str) -> str | None:

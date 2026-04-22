@@ -1,0 +1,1214 @@
+{
+  "id": null,
+  "uid": "sre-mongodb-live-ops-01",
+  "title": "[SRE] MongoDB Live Operations",
+  "description": "Meta-dashboard monitoring the health of 'MongoDB Live Operations'",
+  "schemaVersion": 39,
+  "version": 1,
+  "timezone": "browser",
+  "editable": true,
+  "graphTooltip": 1,
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "refresh": "10s",
+  "templating": {
+    "list": [
+      {
+        "name": "sre_datasource",
+        "type": "datasource",
+        "query": "prometheus",
+        "current": {
+          "selected": true,
+          "text": "Probe Metrics",
+          "value": "probe-metrics"
+        },
+        "hide": 0
+      }
+    ]
+  },
+  "panels": [
+    {
+      "id": 1,
+      "title": "Overview",
+      "type": "row",
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "collapsed": false,
+      "panels": []
+    },
+    {
+      "id": 2,
+      "title": "Health Score",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 0,
+        "y": 1
+      },
+      "datasource": {
+        "uid": "${sre_datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "dashboard_health_score{dashboard_uid=\"mongodb-live-ops-01\"}"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 0.8
+              },
+              {
+                "color": "green",
+                "value": 1.0
+              }
+            ]
+          },
+          "noValue": "N/A",
+          "unit": "percentunit",
+          "decimals": 0
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 3,
+      "title": "Active Issues",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 6,
+        "y": 1
+      },
+      "datasource": {
+        "uid": "${sre_datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "dashboard_issue_count{dashboard_uid=\"mongodb-live-ops-01\"}"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 1
+              },
+              {
+                "color": "red",
+                "value": 3
+              }
+            ]
+          },
+          "noValue": "N/A"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 4,
+      "title": "Estimated Load Time",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 12,
+        "y": 1
+      },
+      "datasource": {
+        "uid": "${sre_datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "dashboard_load_time_seconds{dashboard_uid=\"mongodb-live-ops-01\"}"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 5
+              },
+              {
+                "color": "red",
+                "value": 15
+              }
+            ]
+          },
+          "noValue": "N/A",
+          "unit": "s",
+          "decimals": 1
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 5,
+      "title": "Last Probe Run",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 18,
+        "y": 1
+      },
+      "datasource": {
+        "uid": "${sre_datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "time() - dashboard_last_probe_timestamp{dashboard_uid=\"mongodb-live-ops-01\"}"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 30
+              },
+              {
+                "color": "red",
+                "value": 60
+              }
+            ]
+          },
+          "noValue": "No data yet",
+          "unit": "s",
+          "decimals": 0
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 6,
+      "title": "Panel Health",
+      "type": "row",
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 5
+      },
+      "collapsed": false,
+      "panels": []
+    },
+    {
+      "id": 7,
+      "title": "MongoDB Up",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 0,
+        "y": 6
+      },
+      "datasource": {
+        "uid": "${sre_datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "min(dashboard_panel_status{dashboard_uid=\"mongodb-live-ops-01\", panel_id=\"1\"}) or vector(1)"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "noValue": "N/A"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 8,
+      "title": "Operation Rate",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 4,
+        "y": 6
+      },
+      "datasource": {
+        "uid": "${sre_datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "min(dashboard_panel_status{dashboard_uid=\"mongodb-live-ops-01\", panel_id=\"2\"}) or vector(1)"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "noValue": "N/A"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 9,
+      "title": "Current Connections",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 8,
+        "y": 6
+      },
+      "datasource": {
+        "uid": "${sre_datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "min(dashboard_panel_status{dashboard_uid=\"mongodb-live-ops-01\", panel_id=\"3\"}) or vector(1)"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "noValue": "N/A"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 10,
+      "title": "Resident Memory",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 12,
+        "y": 6
+      },
+      "datasource": {
+        "uid": "${sre_datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "min(dashboard_panel_status{dashboard_uid=\"mongodb-live-ops-01\", panel_id=\"4\"}) or vector(1)"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "noValue": "N/A"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 11,
+      "title": "Read Latency",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 16,
+        "y": 6
+      },
+      "datasource": {
+        "uid": "${sre_datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "min(dashboard_panel_status{dashboard_uid=\"mongodb-live-ops-01\", panel_id=\"5\"}) or vector(1)"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "noValue": "N/A"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 12,
+      "title": "Page Faults",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 20,
+        "y": 6
+      },
+      "datasource": {
+        "uid": "${sre_datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "min(dashboard_panel_status{dashboard_uid=\"mongodb-live-ops-01\", panel_id=\"6\"}) or vector(1)"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "noValue": "N/A"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 13,
+      "title": "Probe Layers",
+      "type": "row",
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 10
+      },
+      "collapsed": false,
+      "panels": []
+    },
+    {
+      "id": 14,
+      "title": "Datasource API",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 8,
+        "x": 0,
+        "y": 11
+      },
+      "datasource": {
+        "uid": "${sre_datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "min(dashboard_panel_status{dashboard_uid=\"mongodb-live-ops-01\", probe_type=\"datasource_api\"})"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "noValue": "N/A"
+        },
+        "overrides": []
+      },
+      "description": "Probe engine queries the target datasource or proxy directly with Prometheus GET /api/v1/query. This turns red when the direct datasource path returns errors or no usable data."
+    },
+    {
+      "id": 15,
+      "title": "Grafana Panel Path",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 8,
+        "x": 8,
+        "y": 11
+      },
+      "datasource": {
+        "uid": "${sre_datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "min(dashboard_panel_status{dashboard_uid=\"mongodb-live-ops-01\", probe_type=\"grafana_panel_path\"})"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "noValue": "N/A"
+        },
+        "overrides": []
+      },
+      "description": "Probe engine asks Grafana /api/ds/query to run the panel query through Grafana's datasource plugin path. This catches user-facing panel failures even when the direct datasource query is healthy."
+    },
+    {
+      "id": 16,
+      "title": "Variable Dependency",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 8,
+        "x": 16,
+        "y": 11
+      },
+      "datasource": {
+        "uid": "${sre_datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "min(dashboard_panel_status{dashboard_uid=\"mongodb-live-ops-01\", probe_type=\"variable_dependency\"}) or vector(1)"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "noValue": "N/A"
+        },
+        "overrides": []
+      },
+      "description": "Probe engine maps failed dashboard variables back to panels that reference them. This turns red when a panel is user-blocked by variable interpolation even though underlying data queries may be healthy."
+    },
+    {
+      "id": 17,
+      "title": "Query Performance",
+      "type": "row",
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 15
+      },
+      "collapsed": false,
+      "panels": []
+    },
+    {
+      "id": 18,
+      "title": "Query Duration \u2014 p50 / p95",
+      "type": "timeseries",
+      "gridPos": {
+        "h": 8,
+        "w": 16,
+        "x": 0,
+        "y": 16
+      },
+      "datasource": {
+        "uid": "${sre_datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "p50_1",
+          "expr": "histogram_quantile(0.5, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"mongodb-live-ops-01\", panel_id=\"1\"}[5m]))",
+          "legendFormat": "MongoDB Up p50"
+        },
+        {
+          "refId": "p50_2",
+          "expr": "histogram_quantile(0.5, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"mongodb-live-ops-01\", panel_id=\"2\"}[5m]))",
+          "legendFormat": "Operation Rate p50"
+        },
+        {
+          "refId": "p50_3",
+          "expr": "histogram_quantile(0.5, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"mongodb-live-ops-01\", panel_id=\"3\"}[5m]))",
+          "legendFormat": "Current Connections p50"
+        },
+        {
+          "refId": "p50_4",
+          "expr": "histogram_quantile(0.5, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"mongodb-live-ops-01\", panel_id=\"4\"}[5m]))",
+          "legendFormat": "Resident Memory p50"
+        },
+        {
+          "refId": "p50_5",
+          "expr": "histogram_quantile(0.5, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"mongodb-live-ops-01\", panel_id=\"5\"}[5m]))",
+          "legendFormat": "Read Latency p50"
+        },
+        {
+          "refId": "p50_6",
+          "expr": "histogram_quantile(0.5, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"mongodb-live-ops-01\", panel_id=\"6\"}[5m]))",
+          "legendFormat": "Page Faults p50"
+        },
+        {
+          "refId": "p95_1",
+          "expr": "histogram_quantile(0.95, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"mongodb-live-ops-01\", panel_id=\"1\"}[5m]))",
+          "legendFormat": "MongoDB Up p95"
+        },
+        {
+          "refId": "p95_2",
+          "expr": "histogram_quantile(0.95, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"mongodb-live-ops-01\", panel_id=\"2\"}[5m]))",
+          "legendFormat": "Operation Rate p95"
+        },
+        {
+          "refId": "p95_3",
+          "expr": "histogram_quantile(0.95, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"mongodb-live-ops-01\", panel_id=\"3\"}[5m]))",
+          "legendFormat": "Current Connections p95"
+        },
+        {
+          "refId": "p95_4",
+          "expr": "histogram_quantile(0.95, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"mongodb-live-ops-01\", panel_id=\"4\"}[5m]))",
+          "legendFormat": "Resident Memory p95"
+        },
+        {
+          "refId": "p95_5",
+          "expr": "histogram_quantile(0.95, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"mongodb-live-ops-01\", panel_id=\"5\"}[5m]))",
+          "legendFormat": "Read Latency p95"
+        },
+        {
+          "refId": "p95_6",
+          "expr": "histogram_quantile(0.95, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"mongodb-live-ops-01\", panel_id=\"6\"}[5m]))",
+          "legendFormat": "Page Faults p95"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "options": {
+        "tooltip": {
+          "mode": "multi"
+        }
+      }
+    },
+    {
+      "id": 19,
+      "title": "Query Duration Heatmap",
+      "type": "heatmap",
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 16
+      },
+      "datasource": {
+        "uid": "${sre_datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(increase(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"mongodb-live-ops-01\"}[5m])) by (le)",
+          "format": "heatmap",
+          "legendFormat": "{{le}}"
+        }
+      ],
+      "options": {
+        "calculate": false,
+        "yAxis": {
+          "unit": "s"
+        }
+      }
+    },
+    {
+      "id": 20,
+      "title": "Variable Health",
+      "type": "row",
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 24
+      },
+      "collapsed": false,
+      "panels": []
+    },
+    {
+      "id": 21,
+      "title": "$instance",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 8,
+        "x": 0,
+        "y": 25
+      },
+      "datasource": {
+        "uid": "${sre_datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "dashboard_variable_status{dashboard_uid=\"mongodb-live-ops-01\", variable_name=\"instance\"}"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "noValue": "N/A"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 22,
+      "title": "Variable Query Duration",
+      "type": "timeseries",
+      "gridPos": {
+        "h": 4,
+        "w": 8,
+        "x": 0,
+        "y": 29
+      },
+      "datasource": {
+        "uid": "${sre_datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "instance",
+          "expr": "histogram_quantile(0.95, rate(dashboard_variable_query_duration_seconds_bucket{dashboard_uid=\"mongodb-live-ops-01\", variable_name=\"instance\"}[5m]))",
+          "legendFormat": "$instance p95"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "options": {
+        "tooltip": {
+          "mode": "multi"
+        }
+      }
+    },
+    {
+      "id": 23,
+      "title": "Variable Error Types",
+      "type": "table",
+      "gridPos": {
+        "h": 4,
+        "w": 8,
+        "x": 8,
+        "y": 29
+      },
+      "datasource": {
+        "uid": "${sre_datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by (variable_name, error_type) (increase(dashboard_variable_error_total{dashboard_uid=\"mongodb-live-ops-01\"}[1h]))",
+          "format": "table",
+          "instant": true
+        }
+      ],
+      "options": {},
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true
+            },
+            "indexByName": {
+              "variable_name": 0,
+              "error_type": 1,
+              "Value": 2
+            },
+            "renameByName": {
+              "variable_name": "Variable",
+              "error_type": "Type",
+              "Value": "Events"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": 24,
+      "title": "Variable Blast Radius",
+      "type": "table",
+      "gridPos": {
+        "h": 4,
+        "w": 8,
+        "x": 16,
+        "y": 29
+      },
+      "datasource": {
+        "uid": "${sre_datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "dashboard_variable_dependency_impact{dashboard_uid=\"mongodb-live-ops-01\"} == 1",
+          "format": "table",
+          "instant": true
+        }
+      ],
+      "options": {},
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true,
+              "__name__": true,
+              "dashboard_uid": true,
+              "panel_id": true
+            },
+            "indexByName": {
+              "variable_name": 0,
+              "panel_title": 1,
+              "error_type": 2,
+              "Value": 3
+            },
+            "renameByName": {
+              "variable_name": "Variable",
+              "panel_title": "Panel",
+              "error_type": "Variable Error",
+              "Value": "Impacted"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": 25,
+      "title": "Issue Log",
+      "type": "row",
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 33
+      },
+      "collapsed": false,
+      "panels": []
+    },
+    {
+      "id": 26,
+      "title": "Recent Issue Events",
+      "type": "table",
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 34
+      },
+      "datasource": {
+        "uid": "${sre_datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "dashboard_issue_event_timestamp_seconds{dashboard_uid=\"mongodb-live-ops-01\"} * 1000",
+          "format": "table",
+          "instant": true
+        }
+      ],
+      "options": {},
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Event Time"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "dateTimeAsIso"
+              }
+            ]
+          }
+        ]
+      },
+      "transformations": [
+        {
+          "id": "sortBy",
+          "options": {
+            "fields": {},
+            "sort": [
+              {
+                "field": "Value",
+                "desc": true
+              }
+            ]
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true,
+              "__name__": true,
+              "dashboard_uid": true,
+              "event_id": true,
+              "instance": true,
+              "job": true,
+              "panel_id": true
+            },
+            "indexByName": {
+              "Value": 0,
+              "panel_title": 1,
+              "probe_type": 2,
+              "error_type": 3,
+              "message": 4
+            },
+            "renameByName": {
+              "Value": "Event Time",
+              "panel_title": "Panel",
+              "probe_type": "Path",
+              "error_type": "Type",
+              "message": "Message"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": 27,
+      "title": "Alerts",
+      "type": "row",
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 42
+      },
+      "collapsed": false,
+      "panels": []
+    },
+    {
+      "id": 28,
+      "title": "Active Alerts",
+      "type": "alertlist",
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 43
+      },
+      "datasource": {
+        "uid": "-- Grafana --",
+        "type": "datasource"
+      },
+      "options": {
+        "showOptions": "current",
+        "maxItems": 20,
+        "sortOrder": 1,
+        "alertName": "",
+        "dashboardAlerts": false,
+        "stateFilter": {
+          "firing": true,
+          "pending": true,
+          "noData": true,
+          "normal": false,
+          "error": true
+        },
+        "folder": null,
+        "alertInstanceLabelFilter": "dashboard_uid=\"mongodb-live-ops-01\""
+      }
+    }
+  ]
+}

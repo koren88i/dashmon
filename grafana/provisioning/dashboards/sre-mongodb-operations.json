@@ -579,7 +579,7 @@
     },
     {
       "id": 13,
-      "title": "Query Performance",
+      "title": "Probe Layers",
       "type": "row",
       "gridPos": {
         "h": 1,
@@ -592,13 +592,179 @@
     },
     {
       "id": 14,
+      "title": "Datasource API",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 8,
+        "x": 0,
+        "y": 11
+      },
+      "datasource": {
+        "uid": "${sre_datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "min(dashboard_panel_status{dashboard_uid=\"mongodb-ops-01\", probe_type=\"datasource_api\"})"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "noValue": "N/A"
+        },
+        "overrides": []
+      },
+      "description": "Probe engine queries the target datasource or proxy directly with Prometheus GET /api/v1/query. This turns red when the direct datasource path returns errors or no usable data."
+    },
+    {
+      "id": 15,
+      "title": "Grafana Panel Path",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 8,
+        "x": 8,
+        "y": 11
+      },
+      "datasource": {
+        "uid": "${sre_datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "min(dashboard_panel_status{dashboard_uid=\"mongodb-ops-01\", probe_type=\"grafana_panel_path\"})"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "noValue": "N/A"
+        },
+        "overrides": []
+      },
+      "description": "Probe engine asks Grafana /api/ds/query to run the panel query through Grafana's datasource plugin path. This catches user-facing panel failures even when the direct datasource query is healthy."
+    },
+    {
+      "id": 16,
+      "title": "Variable Dependency",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 8,
+        "x": 16,
+        "y": 11
+      },
+      "datasource": {
+        "uid": "${sre_datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "min(dashboard_panel_status{dashboard_uid=\"mongodb-ops-01\", probe_type=\"variable_dependency\"}) or vector(1)"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "noValue": "N/A"
+        },
+        "overrides": []
+      },
+      "description": "Probe engine maps failed dashboard variables back to panels that reference them. This turns red when a panel is user-blocked by variable interpolation even though underlying data queries may be healthy."
+    },
+    {
+      "id": 17,
+      "title": "Query Performance",
+      "type": "row",
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 15
+      },
+      "collapsed": false,
+      "panels": []
+    },
+    {
+      "id": 18,
       "title": "Query Duration \u2014 p50 / p95",
       "type": "timeseries",
       "gridPos": {
         "h": 8,
         "w": 16,
         "x": 0,
-        "y": 11
+        "y": 16
       },
       "datasource": {
         "uid": "${sre_datasource}",
@@ -679,14 +845,14 @@
       }
     },
     {
-      "id": 15,
+      "id": 19,
       "title": "Query Duration Heatmap",
       "type": "heatmap",
       "gridPos": {
         "h": 8,
         "w": 8,
         "x": 16,
-        "y": 11
+        "y": 16
       },
       "datasource": {
         "uid": "${sre_datasource}",
@@ -708,27 +874,27 @@
       }
     },
     {
-      "id": 16,
+      "id": 20,
       "title": "Variable Health",
       "type": "row",
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 19
+        "y": 24
       },
       "collapsed": false,
       "panels": []
     },
     {
-      "id": 17,
+      "id": 21,
       "title": "$instance",
       "type": "stat",
       "gridPos": {
         "h": 4,
         "w": 8,
         "x": 0,
-        "y": 20
+        "y": 25
       },
       "datasource": {
         "uid": "${sre_datasource}",
@@ -771,14 +937,14 @@
       }
     },
     {
-      "id": 18,
+      "id": 22,
       "title": "$replset",
       "type": "stat",
       "gridPos": {
         "h": 4,
         "w": 8,
         "x": 8,
-        "y": 20
+        "y": 25
       },
       "datasource": {
         "uid": "${sre_datasource}",
@@ -821,14 +987,14 @@
       }
     },
     {
-      "id": 19,
+      "id": 23,
       "title": "Variable Query Duration",
       "type": "timeseries",
       "gridPos": {
         "h": 4,
-        "w": 24,
+        "w": 8,
         "x": 0,
-        "y": 24
+        "y": 29
       },
       "datasource": {
         "uid": "${sre_datasource}",
@@ -859,27 +1025,128 @@
       }
     },
     {
-      "id": 20,
+      "id": 24,
+      "title": "Variable Error Types",
+      "type": "table",
+      "gridPos": {
+        "h": 4,
+        "w": 8,
+        "x": 8,
+        "y": 29
+      },
+      "datasource": {
+        "uid": "${sre_datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by (variable_name, error_type) (increase(dashboard_variable_error_total{dashboard_uid=\"mongodb-ops-01\"}[1h]))",
+          "format": "table",
+          "instant": true
+        }
+      ],
+      "options": {},
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true
+            },
+            "indexByName": {
+              "variable_name": 0,
+              "error_type": 1,
+              "Value": 2
+            },
+            "renameByName": {
+              "variable_name": "Variable",
+              "error_type": "Type",
+              "Value": "Events"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": 25,
+      "title": "Variable Blast Radius",
+      "type": "table",
+      "gridPos": {
+        "h": 4,
+        "w": 8,
+        "x": 16,
+        "y": 29
+      },
+      "datasource": {
+        "uid": "${sre_datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "dashboard_variable_dependency_impact{dashboard_uid=\"mongodb-ops-01\"} == 1",
+          "format": "table",
+          "instant": true
+        }
+      ],
+      "options": {},
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true,
+              "__name__": true,
+              "dashboard_uid": true,
+              "panel_id": true
+            },
+            "indexByName": {
+              "variable_name": 0,
+              "panel_title": 1,
+              "error_type": 2,
+              "Value": 3
+            },
+            "renameByName": {
+              "variable_name": "Variable",
+              "panel_title": "Panel",
+              "error_type": "Variable Error",
+              "Value": "Impacted"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": 26,
       "title": "Issue Log",
       "type": "row",
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 28
+        "y": 33
       },
       "collapsed": false,
       "panels": []
     },
     {
-      "id": 21,
+      "id": 27,
       "title": "Recent Issue Events",
       "type": "table",
       "gridPos": {
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 29
+        "y": 34
       },
       "datasource": {
         "uid": "${sre_datasource}",
@@ -939,12 +1206,14 @@
             "indexByName": {
               "Value": 0,
               "panel_title": 1,
-              "error_type": 2,
-              "message": 3
+              "probe_type": 2,
+              "error_type": 3,
+              "message": 4
             },
             "renameByName": {
               "Value": "Event Time",
               "panel_title": "Panel",
+              "probe_type": "Path",
               "error_type": "Type",
               "message": "Message"
             }
@@ -953,27 +1222,27 @@
       ]
     },
     {
-      "id": 22,
+      "id": 28,
       "title": "Alerts",
       "type": "row",
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 37
+        "y": 42
       },
       "collapsed": false,
       "panels": []
     },
     {
-      "id": 23,
+      "id": 29,
       "title": "Active Alerts",
       "type": "alertlist",
       "gridPos": {
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 38
+        "y": 43
       },
       "datasource": {
         "uid": "-- Grafana --",

@@ -1,14 +1,24 @@
 global:
   scrape_interval: 15s
   evaluation_interval: 15s
-
 scrape_configs:
-  - job_name: "probe-engine"
-    metrics_path: /metrics
-    static_configs:
-      - targets: ["probe-engine:8000"]
-
-  - job_name: "probe-engine-mongo"
-    metrics_path: /metrics
-    static_configs:
-      - targets: ["probe-engine-mongo:8000"]
+- job_name: probe-engine
+  metrics_path: /metrics
+  static_configs:
+  - targets:
+    - probe-engine:8000
+- job_name: probe-engine-mongo
+  metrics_path: /metrics
+  static_configs:
+  - targets:
+    - probe-engine-mongo:8000
+- job_name: probe-engine-mongo-atlas
+  metrics_path: /metrics
+  static_configs:
+  - targets:
+    - probe-engine-mongo-atlas:8000
+- job_name: probe-engine-mongo-live
+  metrics_path: /metrics
+  static_configs:
+  - targets:
+    - probe-engine-mongo-live:8000

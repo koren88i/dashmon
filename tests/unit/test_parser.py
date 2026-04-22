@@ -31,6 +31,16 @@ def mongodb_dash():
     return json.loads((REPO_ROOT / "demo" / "mongodb_dashboard.json").read_text())
 
 
+@pytest.fixture(scope="module")
+def mongodb_atlas_dash():
+    return json.loads((REPO_ROOT / "demo" / "mongodb_atlas_system_metrics_dashboard.json").read_text())
+
+
+@pytest.fixture(scope="module")
+def mongodb_live_dash():
+    return json.loads((REPO_ROOT / "demo" / "mongodb_live_dashboard.json").read_text())
+
+
 # ---------------------------------------------------------------------------
 # Panel parsing — mini dashboard
 # ---------------------------------------------------------------------------
@@ -57,6 +67,13 @@ def test_variable_substitution(mini_dash):
     """$env in a query should be replaced with .* ."""
     panels, _ = parse_dashboard(mini_dash)
     assert panels[0].queries[0] == 'up{job=~".*"}'
+
+
+def test_panel_preserves_raw_query_and_variable_dependencies(mini_dash):
+    panels, _ = parse_dashboard(mini_dash)
+
+    assert panels[0].raw_queries[0] == 'up{job=~"$env"}'
+    assert panels[0].variable_dependencies == ["env"]
 
 
 def test_panel_datasource_uid(mini_dash):
@@ -103,6 +120,60 @@ def test_mongodb_variable_substitution(mongodb_dash):
     assert 'replset=~".*"' in op_rate.queries[0]
 
 
+def test_panel_count_mongodb_atlas(mongodb_atlas_dash):
+    panels, _ = parse_dashboard(mongodb_atlas_dash)
+    assert len(panels) == 39
+
+
+def test_all_mongodb_atlas_panels_have_datasource(mongodb_atlas_dash):
+    panels, _ = parse_dashboard(mongodb_atlas_dash)
+    assert {p.datasource_uid for p in panels} == {"prometheus-mongo-atlas"}
+
+
+def test_mongodb_atlas_queries_have_default_interval(mongodb_atlas_dash):
+    panels, _ = parse_dashboard(mongodb_atlas_dash)
+    all_queries = [query for panel in panels for query in panel.queries]
+    assert not any("$Interval" in query for query in all_queries)
+    assert any("[1m]" in query for query in all_queries)
+
+
+def test_panel_count_mongodb_live(mongodb_live_dash):
+    panels, _ = parse_dashboard(mongodb_live_dash)
+    assert len(panels) == 6
+
+
+def test_all_mongodb_live_panels_have_datasource(mongodb_live_dash):
+    panels, _ = parse_dashboard(mongodb_live_dash)
+    assert {p.datasource_uid for p in panels} == {"prometheus-mongo-live"}
+    assert any("mongodb_op_counters_total" in query for p in panels for query in p.queries)
+
+
+def test_mongodb_live_queries_have_safe_instance_default(mongodb_live_dash):
+    source_queries = [
+        target["expr"]
+        for panel in mongodb_live_dash["panels"]
+        for target in panel.get("targets", [])
+        if target.get("expr")
+    ]
+    assert all("${instance:regex}" in query for query in source_queries)
+
+    panels, _ = parse_dashboard(mongodb_live_dash)
+    parsed_queries = [query for panel in panels for query in panel.queries]
+    assert all('instance=~".*"' in query for query in parsed_queries)
+    assert not any(":regex}" in query or "$instance" in query for query in parsed_queries)
+
+
+def test_mongodb_live_panel_dependencies_are_preserved_before_substitution(mongodb_live_dash):
+    panels, _ = parse_dashboard(mongodb_live_dash)
+
+    assert all(panel.variable_dependencies == ["instance"] for panel in panels)
+    assert all(
+        "${instance:regex}" in raw_query
+        for panel in panels
+        for raw_query in panel.raw_queries
+    )
+
+
 # ---------------------------------------------------------------------------
 # Variable parsing
 # ---------------------------------------------------------------------------
@@ -122,11 +193,33 @@ def test_variable_count_mongodb(mongodb_dash):
     assert len(variables) == 2
 
 
+def test_variable_count_mongodb_atlas(mongodb_atlas_dash):
+    _, variables = parse_dashboard(mongodb_atlas_dash)
+    assert len(variables) == 6
+
+
+def test_variable_count_mongodb_live(mongodb_live_dash):
+    _, variables = parse_dashboard(mongodb_live_dash)
+    assert len(variables) == 1
+    assert variables[0].name == "instance"
+    source_var = next(var for var in mongodb_live_dash["templating"]["list"] if var["name"] == "instance")
+    assert source_var["allValue"] == ".*"
+    assert source_var["current"]["value"] == "$__all"
+
+
 def test_mongodb_variable_chaining(mongodb_dash):
     _, variables = parse_dashboard(mongodb_dash)
     by_name = {v.name: v for v in variables}
     assert not by_name["instance"].is_chained
     assert by_name["replset"].is_chained
+
+
+def test_mongodb_atlas_variable_chaining(mongodb_atlas_dash):
+    _, variables = parse_dashboard(mongodb_atlas_dash)
+    by_name = {v.name: v for v in variables}
+    assert not by_name["job"].is_chained
+    assert by_name["group_id"].is_chained
+    assert by_name["process_port"].is_chained
 
 
 def test_variable_chaining(example_dash):
@@ -193,6 +286,16 @@ def test_mixed_label_and_numeric_substitution():
     dash = _make_dash('up{job=~"$env"} > $threshold', var_names={"env", "threshold"})
     panels, _ = parse_dashboard(dash)
     assert panels[0].queries[0] == 'up{job=~".*"} > 0'
+
+
+def test_formatted_variable_substitution():
+    """Grafana variable formatters should not leak into probe PromQL."""
+    dash = _make_dash(
+        'up{instance=~"${instance:regex}"} > ${threshold:raw}',
+        var_names={"instance", "threshold"},
+    )
+    panels, _ = parse_dashboard(dash)
+    assert panels[0].queries[0] == 'up{instance=~".*"} > 0'
 
 
 def test_non_query_variables_skipped(example_dash):

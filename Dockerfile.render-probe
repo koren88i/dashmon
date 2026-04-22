@@ -1,0 +1,26 @@
+FROM mcr.microsoft.com/playwright/python:v1.51.0-noble
+
+RUN apt-get update && apt-get install -y --no-install-recommends curl \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN groupadd --system --gid 1001 appgroup \
+    && useradd --system --uid 1001 --gid appgroup --no-create-home appuser
+
+WORKDIR /app
+
+COPY render_probe/requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY --chown=appuser:appgroup render_probe/ ./render_probe/
+COPY --chown=appuser:appgroup generator/ ./generator/
+COPY --chown=appuser:appgroup probe/ ./probe/
+COPY --chown=appuser:appgroup dashboard_targets.yaml .
+COPY --chown=appuser:appgroup demo/example_dashboard.json ./demo/example_dashboard.json
+COPY --chown=appuser:appgroup demo/mongodb_dashboard.json ./demo/mongodb_dashboard.json
+COPY --chown=appuser:appgroup demo/mongodb_atlas_system_metrics_dashboard.json ./demo/mongodb_atlas_system_metrics_dashboard.json
+COPY --chown=appuser:appgroup demo/mongodb_live_dashboard.json ./demo/mongodb_live_dashboard.json
+COPY --chown=appuser:appgroup grafana/provisioning/dashboards/service-health.json ./grafana/provisioning/dashboards/service-health.json
+
+USER appuser
+
+CMD ["uvicorn", "render_probe.app:app", "--host", "0.0.0.0", "--port", "8012"]

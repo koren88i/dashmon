@@ -24,6 +24,13 @@ def yaml_dict():
             {"uid": "prom-a", "url": "http://prom-a:9090", "type": "prometheus"},
             {"uid": "prom-b", "url": "http://prom-b:9090", "type": "prometheus"},
         ],
+        "grafana": {
+            "enabled": True,
+            "url": "http://grafana:3000",
+            "query_range_seconds": 1800,
+            "step_seconds": 15,
+            "max_data_points": 600,
+        },
     }
 
 
@@ -64,6 +71,21 @@ def test_from_dict_datasources(yaml_dict):
     assert len(cfg.datasources) == 2
     assert cfg.datasources[0].uid == "prom-a"
     assert cfg.datasources[1].url == "http://prom-b:9090"
+
+
+def test_from_dict_grafana_probe_config(yaml_dict):
+    cfg = ProbeConfig.from_dict(yaml_dict)
+    assert cfg.grafana.enabled is True
+    assert cfg.grafana.url == "http://grafana:3000"
+    assert cfg.grafana.query_range_seconds == 1800
+    assert cfg.grafana.step_seconds == 15
+    assert cfg.grafana.max_data_points == 600
+
+
+def test_grafana_probe_config_defaults_disabled():
+    cfg = ProbeConfig.from_dict({})
+    assert cfg.grafana.enabled is False
+    assert cfg.grafana.url == "http://localhost:3000"
 
 
 def test_url_for_datasource_found(yaml_dict):

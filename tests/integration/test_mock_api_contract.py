@@ -85,6 +85,56 @@ async def test_get_series_supported(mock_backend_url):
     assert "__name__" in body["data"][0]
 
 
+async def test_variable_fault_breaks_grafana_series_discovery(mock_backend_url):
+    """Grafana dropdowns use /series for label_values, so var faults must hit it too."""
+    async with httpx.AsyncClient() as client:
+        await client.post(
+            f"{mock_backend_url}/faults/inject",
+            json={"type": "var_resolution_fail", "target": "instance", "duration_seconds": 60},
+        )
+        try:
+            resp = await client.get(
+                f"{mock_backend_url}/api/v1/series",
+                params={"match[]": "up"},
+            )
+        finally:
+            await client.post(f"{mock_backend_url}/faults/clear", json={"target": "all"})
+
+    assert resp.status_code == 200
+    body = resp.json()
+    assert body["status"] == "success"
+    assert body["data"] == []
+
+
+@pytest.mark.parametrize(
+    ("path", "params"),
+    [
+        ("/api/v1/label/instance/values", None),
+        ("/api/v1/series", {"match[]": "up"}),
+    ],
+)
+async def test_variable_query_error_breaks_variable_discovery_with_http_error(
+    mock_backend_url,
+    path,
+    params,
+):
+    """Hard variable failures should look like endpoint errors, not empty success."""
+    async with httpx.AsyncClient() as client:
+        await client.post(
+            f"{mock_backend_url}/faults/inject",
+            json={"type": "variable_query_error", "target": "instance", "duration_seconds": 60},
+        )
+        try:
+            resp = await client.get(f"{mock_backend_url}{path}", params=params)
+        finally:
+            await client.post(f"{mock_backend_url}/faults/clear", json={"target": "all"})
+
+    assert resp.status_code == 500
+    body = resp.json()
+    assert body["status"] == "error"
+    assert body["error"] == "simulated variable query failure"
+
+
 async def test_mongodb_metrics_supported(mock_backend_url):
     """The second dashboard's MongoDB metric surface should return data."""
     async with httpx.AsyncClient() as client:
@@ -97,6 +147,51 @@ async def test_mongodb_metrics_supported(mock_backend_url):
     assert body["status"] == "success"
     assert len(body["data"]["result"]) > 0
     assert body["data"]["result"][0]["metric"]["__name__"] == "mongodb_up"
+
+
+async def test_mongodb_atlas_metrics_supported(mock_backend_url):
+    """The official MongoDB Atlas template metric surface should return data."""
+    async with httpx.AsyncClient() as client:
+        resp = await client.get(
+            f"{mock_backend_url}/api/v1/query",
+            params={"query": "mongodb_opcounters_query"},
+        )
+    assert resp.status_code == 200
+    body = resp.json()
+    assert body["status"] == "success"
+    assert len(body["data"]["result"]) > 0
+    labels = body["data"]["result"][0]["metric"]
+    assert labels["__name__"] == "mongodb_opcounters_query"
+    assert "group_id" in labels
+    assert "cl_name" in labels
+
+
+async def test_mongodb_atlas_label_values_supported(mock_backend_url):
+    """Atlas dashboard variables need Atlas-specific labels."""
+    async with httpx.AsyncClient() as client:
+        resp = await client.post(
+            f"{mock_backend_url}/api/v1/label/group_id/values",
+        )
+    assert resp.status_code == 200
+    body = resp.json()
+    assert body["status"] == "success"
+    assert "demo-group" in body["data"]
+
+
+async def test_mongodb_live_metric_surface_supported(mock_backend_url):
+    """The live Mongo dashboard metrics are also supported by the test mock upstream."""
+    async with httpx.AsyncClient() as client:
+        resp = await client.get(
+            f"{mock_backend_url}/api/v1/query",
+            params={"query": "mongodb_ss_connections"},
+        )
+    assert resp.status_code == 200
+    body = resp.json()
+    assert body["status"] == "success"
+    assert len(body["data"]["result"]) > 0
+    labels = body["data"]["result"][0]["metric"]
+    assert labels["__name__"] == "mongodb_ss_connections"
+    assert "conn_type" in labels
 
 
 async def test_post_series_supported(mock_backend_url):

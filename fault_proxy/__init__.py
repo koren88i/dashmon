@@ -1,0 +1,2 @@
+"""Faultable Prometheus API proxy."""
+
