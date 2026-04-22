@@ -25,7 +25,7 @@ def test_slugify_dashboard_title():
 def test_dashboard_url_uses_uid_and_slug():
     assert dashboard_url("http://grafana:3000/", "service-health-01", "Service Health") == (
         "http://grafana:3000/d/service-health-01/service-health"
-        "?orgId=1&from=now-1h&to=now&refresh=off&kiosk"
+        "?orgId=1&from=now-1h&to=now&kiosk"
     )
 
 
@@ -172,4 +172,3 @@ def test_record_result_exports_render_metrics():
     assert 'dashboard_render_time_seconds{dashboard_uid="unit-render-dashboard"} 1.25' in text
     assert 'dashboard_render_last_probe_timestamp{dashboard_uid="unit-render-dashboard"} 12345.0' in text
     assert 'dashboard_render_error_total{dashboard_uid="unit-render-dashboard",error_type="render_no_data"}' in text
-

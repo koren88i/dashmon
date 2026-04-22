@@ -10,7 +10,7 @@ The current metric remains the query critical-path estimate. The new probe repor
 
 - Add a separate `browser-render-probe` service using Playwright, not inside the existing probe engine.
 - Load `dashboard_targets.yaml`, derive dashboard identity from each target, and probe Grafana URLs by dashboard UID.
-- Use the Docker Grafana URL by default: `http://grafana:3000/d/<dashboard_uid>/<slug>?orgId=1&from=now-1h&to=now&refresh=off&kiosk`.
+- Use the Docker Grafana URL by default: `http://grafana:3000/d/<dashboard_uid>/<slug>?orgId=1&from=now-1h&to=now&kiosk`. Do not pass `refresh=off`; Grafana 10.4 treats that as an invalid interval and can leave dashboards stuck loading.
 - Treat "rendered" as: dashboard page loaded, panels scrolled through to trigger lazy rendering, no visible loading spinners, no Grafana panel errors, no visible "No data" states, and at least one panel body observed.
 - Keep render timing separate from query timing:
   - `dashboard_load_time_seconds`: existing max panel query duration.

@@ -81,7 +81,7 @@ def dashboard_url(grafana_url: str, dashboard_uid: str, title: str) -> str:
     slug = slugify(title)
     base = grafana_url.rstrip("/")
     uid = quote(dashboard_uid, safe="")
-    return f"{base}/d/{uid}/{slug}?orgId=1&from=now-1h&to=now&refresh=off&kiosk"
+    return f"{base}/d/{uid}/{slug}?orgId=1&from=now-1h&to=now&kiosk"
 
 
 def slugify(value: str) -> str:
@@ -104,4 +104,3 @@ def _env_float(env: Mapping[str, str], key: str, default: Any) -> float:
 def _env_int(env: Mapping[str, str], key: str, default: Any) -> int:
     raw = env.get(key)
     return int(raw if raw is not None else default)
-

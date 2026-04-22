@@ -9,6 +9,7 @@ from typing import Any
 
 from render_probe.config import RenderProbeSettings, RenderTarget
 from render_probe.readiness import (
+    RENDER_BLANK,
     RENDER_NAVIGATION_ERROR,
     RENDER_TIMEOUT,
     DashboardDomSnapshot,
@@ -60,7 +61,12 @@ class BrowserRenderProbe:
 
         start = time.monotonic()
         timestamp = time.time()
-        page = await self._browser.new_page(viewport={"width": 1440, "height": 1000})
+        context = await self._browser.new_context(
+            viewport={"width": 1440, "height": 1000},
+            locale="en-US",
+            timezone_id="UTC",
+        )
+        page = await context.new_page()
         try:
             await page.goto(
                 target.url,
@@ -94,7 +100,7 @@ class BrowserRenderProbe:
                 timestamp=timestamp,
             )
         finally:
-            await page.close()
+            await context.close()
 
 
 async def wait_for_dashboard_ready(page: Any, timeout_seconds: float) -> RenderReadiness:
@@ -109,6 +115,9 @@ async def wait_for_dashboard_ready(page: Any, timeout_seconds: float) -> RenderR
         snapshot = await collect_snapshot(page)
         last = classify_snapshot(snapshot)
         if last.state == "degraded":
+            if last.error_type == RENDER_BLANK:
+                position = 0
+                continue
             return last
         if last.ready:
             body_height = await _body_height(page)
@@ -119,11 +128,9 @@ async def wait_for_dashboard_ready(page: Any, timeout_seconds: float) -> RenderR
         else:
             position = 0
 
-    return RenderReadiness(
-        "degraded",
-        RENDER_TIMEOUT,
-        last.message or f"Timed out after {timeout_seconds}s",
-    )
+    if last.error_type == RENDER_BLANK:
+        return last
+    return RenderReadiness("degraded", RENDER_TIMEOUT, last.message or f"Timed out after {timeout_seconds}s")
 
 
 async def collect_snapshot(page: Any) -> DashboardDomSnapshot:
@@ -173,11 +180,13 @@ async def collect_snapshot(page: Any) -> DashboardDomSnapshot:
             /No data/i,
             /No data to show/i
           ];
+          const panelCount = all(panelSelectors).length;
+          const panelBodyCount = all(panelBodySelectors).length;
           return {
             documentReady: document.readyState === 'interactive' || document.readyState === 'complete',
-            dashboardSeen: Boolean(document.querySelector('[data-testid="dashboard-container"], .dashboard-container, .react-grid-layout, [aria-label="Dashboard"]')) || /Dashboard/i.test(text),
-            panelCount: all(panelSelectors).length,
-            panelBodyCount: all(panelBodySelectors).length,
+            dashboardSeen: Boolean(document.querySelector('[data-testid="dashboard-container"], .dashboard-container, .react-grid-layout, [aria-label="Dashboard"]')) || panelCount > 0 || panelBodyCount > 0,
+            panelCount: panelCount,
+            panelBodyCount: panelBodyCount,
             loadingCount: all(loadingSelectors).length + (/Loading/i.test(text) ? 1 : 0),
             panelErrorCount: panelErrorPatterns.filter((pattern) => pattern.test(text)).length,
             noDataCount: noDataPatterns.filter((pattern) => pattern.test(text)).length,
