@@ -25,6 +25,24 @@ Then open **http://localhost:8080/simulator.html** in your browser.
 
 ---
 
+## Static demo
+
+The screenshots below show the end-to-end flow: a real Grafana source dashboard, the generated SRE dashboard for that dashboard, and the simulator used to inject faults and inspect the resulting diagnosis.
+
+### Source dashboard in Grafana
+
+![MongoDB Live source dashboard](readme/mongo-live.jpg)
+
+### Generated SRE dashboard in Grafana
+
+![MongoDB Live SRE dashboard](readme/mongo-live-SRE.jpg)
+
+### Simulator with fault injection and issue log
+
+![Dashboard SRE simulator](readme/fault_simulator.jpg)
+
+---
+
 ## Demo walkthrough
 
 The simulator has three sections:
