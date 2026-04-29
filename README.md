@@ -76,7 +76,7 @@ The demo UI has three sections:
 
 - **Target dashboard** - choose Service Health, MongoDB Operations, MongoDB Atlas System Metrics, or MongoDB Live Operations. The selector switches both the SRE health endpoint and the fault surface.
 - **SRE view** — polls the selected probe engine every 5s. Shows health score, canonical issue count, per-panel badges, variable badges, and a scrolling issue log with the detection path for each issue event.
-- **Fault injection** — grouped fault classes. Mock faults mutate synthetic backends, API proxy faults mutate the live Prometheus API response, and Infrastructure faults apply whitelisted Docker-backed actions on the live MongoDB demo path. Fault tooltips separate the origin of the fault from the SRE layer expected to catch it.
+- **Fault injection** — grouped fault classes. Mock faults mutate synthetic backends, API proxy faults mutate the live Prometheus API response, and Infrastructure faults are visible but disabled in this MVP. Fault tooltips separate the origin of the fault from the SRE layer expected to catch it.
 
 **Try it:**
 1. Click a fault button (e.g. "No Data").
@@ -151,14 +151,9 @@ Faults are grouped by class:
 
 - `mock` - deterministic synthetic Prometheus responses.
 - `proxy` - deterministic response mutations in front of a real Prometheus API.
-- `infra` - demo-only, whitelisted Docker service actions applied by the fault controller on the `mongodb_live` path.
+- `infra` - whitelisted infrastructure actions. These are modeled and disabled in this MVP; no Docker-mutating controls are exposed.
 
-Each simulator fault also carries `mode`, `affected_layers`, and `expected_sre_signals`. This keeps the UX honest: a fault can originate in a mock backend, an API proxy, or Docker-backed infrastructure control, while the SRE signal can come from the raw `datasource_api`, the `grafana_panel_path`, `browser_render`, variable resolution, variable dependency impact, staleness, or cardinality checks.
-
-Infra faults intentionally mix two behaviors:
-
-- `stop_exporter` and `workload_spike` are `stateful` toggles. They appear in `GET /faults/active`, stay latched in the simulator, and can be cleared individually or with `target=all`.
-- `restart_exporter` is an `action`. It executes once, never appears in `GET /faults/active`, and `POST /faults/clear` does not try to "undo" it.
+Each simulator fault also carries `affected_layers` and `expected_sre_signals`. This keeps the UX honest: a fault can originate in a mock backend, an API proxy, or future infrastructure control, while the SRE signal can come from the raw `datasource_api`, the `grafana_panel_path`, `browser_render`, variable resolution, variable dependency impact, staleness, or cardinality checks.
 
 ---
 
@@ -216,39 +211,14 @@ curl -s -X POST http://localhost:8010/faults/inject \
 curl -s -X POST http://localhost:8010/faults/inject \
   -H "Content-Type: application/json" \
   -d '{"target_key":"mongodb_live","group_key":"proxy","type":"panel_query_http_500","target":"mongodb_op_counters_total","duration_seconds":60}'
-
-# MongoDB Live infra toggle: stop the exporter and latch it as an active fault
-curl -s -X POST http://localhost:8010/faults/inject \
-  -H "Content-Type: application/json" \
-  -d '{"target_key":"mongodb_live","group_key":"infra","type":"stop_exporter","target":"mongodb-exporter"}'
-
-# MongoDB Live infra action: restart the exporter once; this does not appear in /faults/active
-curl -s -X POST http://localhost:8010/faults/inject \
-  -H "Content-Type: application/json" \
-  -d '{"target_key":"mongodb_live","group_key":"infra","type":"restart_exporter","target":"mongodb-exporter"}'
-
-# MongoDB Live infra toggle: start the dedicated workload spike service
-curl -s -X POST http://localhost:8010/faults/inject \
-  -H "Content-Type: application/json" \
-  -d '{"target_key":"mongodb_live","group_key":"infra","type":"workload_spike","target":"mongo-workload-spike"}'
-
-# /faults/active only lists stateful faults, including infra toggles
-curl -s "http://localhost:8010/faults/active?target_key=mongodb_live"
-
-# Clear all active faults for the selected target
-curl -s -X POST http://localhost:8010/faults/clear \
-  -H "Content-Type: application/json" \
-  -d '{"target_key":"mongodb_live","target":"all"}'
 ```
 
-Supported fault types: `no_data`, `stale_data`, `slow_query`, `metric_rename`, `cardinality_spike`, `var_resolution_fail`, `variable_query_error`, `panel_query_http_500`, `stop_exporter`, `restart_exporter`, `workload_spike`.
+Supported fault types: `no_data`, `stale_data`, `slow_query`, `metric_rename`, `cardinality_spike`, `var_resolution_fail`, `variable_query_error`, `panel_query_http_500`.
 
 Notes on demo behavior:
 - `metric_rename` currently surfaces as `no_data` in `/health` and probe metrics because both conditions produce the same empty Prometheus result in this demo stack.
 - The demo UI is SRE/fault-injection only. Use Grafana **Service Health**, **MongoDB Operations**, **MongoDB Atlas System Metrics**, or **MongoDB Live Operations** for the real dashboard experience.
-- Infrastructure faults only exist on the `mongodb_live` target because they mutate live-demo Docker services rather than synthetic backends.
-- `restart_exporter` returns an action result such as `applied` or `noop`; it is not a clearable fault state.
-- `workload_spike` is backed by the dedicated `mongo-workload-spike` Compose service so the controller only performs whitelisted `start`/`stop`/`restart` service actions.
+- Infrastructure faults are shown as a separate class but rejected by the controller with a disabled response in this MVP.
 
 ---
 
