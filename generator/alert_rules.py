@@ -11,8 +11,26 @@ from typing import Any
 
 from probe.config import PanelProbeSpec, VariableProbeSpec
 
+ALERT_DATASOURCE_UID = "probe-metrics"
+
+# Short codes for UIDs — Grafana enforces a 40-char limit on rule UIDs.
+_UID_SHORT: dict[str, str] = {
+    "no_data": "nd", "stale_data": "sd", "query_timeout": "qt",
+    "slow_query": "sq", "cardinality_spike": "cs", "panel_error": "pe",
+    "var_resolution_fail": "vf", "health_score": "hs", "slow_dashboard": "sl",
+    "datasource_api": "da", "grafana_panel_path": "gp",
+    "variable_dependency": "vd", "browser_render": "br", "slow_render": "sr",
+}
+
 # Probe types that generate per-panel alerts.
 _PANEL_PROBE_TYPES = [
+    ("datasource_api", "Datasource API", "critical",
+     "Raw datasource API checks are failing for this panel."),
+    ("grafana_panel_path", "Grafana Panel Path", "critical",
+     "Grafana's datasource plugin path is failing for this panel, even if raw datasource checks pass."),
+    ("variable_dependency", "Variable Dependency", "critical",
+     "Panel depends on a failed dashboard variable. The underlying data may be healthy, "
+     "but the user-facing dashboard query cannot be rendered with the failed variable."),
     ("no_data", "No Data", "warning",
      "Panel has been returning empty results for >2 minutes. "
      "The source metric may have disappeared or the exporter may be down."),
@@ -32,10 +50,30 @@ _PANEL_PROBE_TYPES = [
 ]
 
 
+def _classic_condition(expression: str, evaluator_type: str, value: int) -> dict[str, Any]:
+    return {
+        "type": "classic_conditions",
+        "refId": "C",
+        "expression": expression,
+        "datasource": {"uid": "__expr__", "type": "__expr__"},
+        "conditions": [
+            {
+                "type": "query",
+                "query": {"params": ["B"]},
+                "reducer": {"params": [], "type": "last"},
+                "evaluator": {"params": [value], "type": evaluator_type},
+                "operator": {"type": "and"},
+            }
+        ],
+    }
+
+
 def generate_alert_rules(
     dashboard: dict[str, Any],
     panels: list[PanelProbeSpec],
     variables: list[VariableProbeSpec],
+    *,
+    datasource_uid: str = ALERT_DATASOURCE_UID,
 ) -> dict[str, Any]:
     """Generate Grafana Alerting provisioning YAML structure."""
     uid = dashboard.get("uid", "unknown")
@@ -46,15 +84,28 @@ def generate_alert_rules(
     # Per-panel × per-probe-type rules.
     for spec in panels:
         for probe_type, label, severity, description in _PANEL_PROBE_TYPES:
-            rules.append(_panel_rule(uid, title, spec, probe_type, label, severity, description))
+            rules.append(
+                _panel_rule(
+                    uid,
+                    title,
+                    spec,
+                    probe_type,
+                    label,
+                    severity,
+                    description,
+                    datasource_uid,
+                )
+            )
 
     # Per-variable rules.
     for var in variables:
-        rules.append(_variable_rule(uid, title, var))
+        rules.append(_variable_rule(uid, title, var, datasource_uid))
 
     # Dashboard-level rules.
-    rules.append(_dashboard_health_rule(uid, title))
-    rules.append(_dashboard_slow_load_rule(uid, title))
+    rules.append(_dashboard_health_rule(uid, title, datasource_uid))
+    rules.append(_dashboard_slow_load_rule(uid, title, datasource_uid))
+    rules.append(_dashboard_render_status_rule(uid, title, datasource_uid))
+    rules.append(_dashboard_slow_render_rule(uid, title, datasource_uid))
 
     return {
         "apiVersion": 1,
@@ -82,29 +133,20 @@ def _panel_rule(
     probe_label: str,
     severity: str,
     description: str,
+    datasource_uid: str,
 ) -> dict:
-    rule_uid = f"sre-{dashboard_uid}-{probe_type}-{spec.panel_id}"
+    short = _UID_SHORT.get(probe_type, probe_type[:4])
+    rule_uid = f"sre-{dashboard_uid[:16]}-{short}-p{spec.panel_id}"
     return {
         "uid": rule_uid,
-        "title": f"[{dashboard_title}] Panel '{spec.panel_title}' — {probe_label}",
+        "title": f"[{dashboard_title}] Panel '{spec.panel_title}' -- {probe_label}",
         "condition": "C",
         "data": [
-            {
-                "refId": "A",
-                "queryType": "",
-                "relativeTimeRange": {"from": 300, "to": 0},
-                "datasourceUid": "__expr__",
-                "model": {
-                    "type": "math",
-                    "expression": "",
-                    "datasource": {"uid": "__expr__", "type": "__expr__"},
-                },
-            },
             {
                 "refId": "B",
                 "queryType": "",
                 "relativeTimeRange": {"from": 300, "to": 0},
-                "datasourceUid": "${datasource}",
+                "datasourceUid": datasource_uid,
                 "model": {
                     "expr": (
                         f'dashboard_panel_status{{dashboard_uid="{dashboard_uid}", '
@@ -118,25 +160,14 @@ def _panel_rule(
                 "queryType": "",
                 "relativeTimeRange": {"from": 300, "to": 0},
                 "datasourceUid": "__expr__",
-                "model": {
-                    "type": "threshold",
-                    "expression": "B",
-                    "conditions": [
-                        {
-                            "evaluator": {"params": [1], "type": "lt"},
-                            "operator": {"type": "and"},
-                            "query": {"params": ["C"]},
-                            "reducer": {"type": "last"},
-                        }
-                    ],
-                },
+                "model": _classic_condition("B", "lt", 1),
             },
         ],
         "noDataState": "Alerting",
         "execErrState": "Alerting",
         "for": "2m",
         "annotations": {
-            "summary": f"Panel '{spec.panel_title}' in dashboard '{dashboard_title}' — {probe_label}",
+            "summary": f"Panel '{spec.panel_title}' in dashboard '{dashboard_title}' -- {probe_label}",
             "description": description,
         },
         "labels": {
@@ -152,29 +183,19 @@ def _variable_rule(
     dashboard_uid: str,
     dashboard_title: str,
     var: VariableProbeSpec,
+    datasource_uid: str,
 ) -> dict:
-    rule_uid = f"sre-{dashboard_uid}-var-{var.name}"
+    rule_uid = f"sre-{dashboard_uid[:16]}-vf-{var.name}"
     return {
         "uid": rule_uid,
-        "title": f"[{dashboard_title}] Variable '${var.name}' — Resolution Failed",
+        "title": f"[{dashboard_title}] Variable '{var.name}' -- Resolution or Query Failed",
         "condition": "C",
         "data": [
-            {
-                "refId": "A",
-                "queryType": "",
-                "relativeTimeRange": {"from": 300, "to": 0},
-                "datasourceUid": "__expr__",
-                "model": {
-                    "type": "math",
-                    "expression": "",
-                    "datasource": {"uid": "__expr__", "type": "__expr__"},
-                },
-            },
             {
                 "refId": "B",
                 "queryType": "",
                 "relativeTimeRange": {"from": 300, "to": 0},
-                "datasourceUid": "${datasource}",
+                "datasourceUid": datasource_uid,
                 "model": {
                     "expr": (
                         f'dashboard_variable_status{{dashboard_uid="{dashboard_uid}", '
@@ -188,61 +209,43 @@ def _variable_rule(
                 "queryType": "",
                 "relativeTimeRange": {"from": 300, "to": 0},
                 "datasourceUid": "__expr__",
-                "model": {
-                    "type": "threshold",
-                    "expression": "B",
-                    "conditions": [
-                        {
-                            "evaluator": {"params": [1], "type": "lt"},
-                            "operator": {"type": "and"},
-                            "query": {"params": ["C"]},
-                            "reducer": {"type": "last"},
-                        }
-                    ],
-                },
+                "model": _classic_condition("B", "lt", 1),
             },
         ],
         "noDataState": "Alerting",
         "execErrState": "Alerting",
         "for": "2m",
         "annotations": {
-            "summary": f"Variable '${var.name}' in dashboard '{dashboard_title}' failed to resolve",
+            "summary": f"Variable '{var.name}' in dashboard '{dashboard_title}' failed to resolve or query",
             "description": (
-                f"Template variable ${var.name} is returning empty results. "
-                "All panels depending on this variable will show broken data."
+                f"Template variable {var.name} is empty or failing to query. "
+                "Panels depending on this variable may show broken data or keep stale selected values."
             ),
         },
         "labels": {
             "severity": "critical",
             "dashboard_uid": dashboard_uid,
             "variable_name": var.name,
-            "probe_type": "var_resolution_fail",
+            "probe_type": "variable_resolution",
         },
     }
 
 
-def _dashboard_health_rule(dashboard_uid: str, dashboard_title: str) -> dict:
+def _dashboard_health_rule(
+    dashboard_uid: str,
+    dashboard_title: str,
+    datasource_uid: str,
+) -> dict:
     return {
-        "uid": f"sre-{dashboard_uid}-health-drop",
+        "uid": f"sre-{dashboard_uid[:16]}-hs",
         "title": f"[{dashboard_title}] Health Score Drop",
         "condition": "C",
         "data": [
             {
-                "refId": "A",
-                "queryType": "",
-                "relativeTimeRange": {"from": 300, "to": 0},
-                "datasourceUid": "__expr__",
-                "model": {
-                    "type": "math",
-                    "expression": "",
-                    "datasource": {"uid": "__expr__", "type": "__expr__"},
-                },
-            },
-            {
                 "refId": "B",
                 "queryType": "",
                 "relativeTimeRange": {"from": 300, "to": 0},
-                "datasourceUid": "${datasource}",
+                "datasourceUid": datasource_uid,
                 "model": {
                     "expr": f'dashboard_health_score{{dashboard_uid="{dashboard_uid}"}}',
                     "refId": "B",
@@ -253,18 +256,7 @@ def _dashboard_health_rule(dashboard_uid: str, dashboard_title: str) -> dict:
                 "queryType": "",
                 "relativeTimeRange": {"from": 300, "to": 0},
                 "datasourceUid": "__expr__",
-                "model": {
-                    "type": "threshold",
-                    "expression": "B",
-                    "conditions": [
-                        {
-                            "evaluator": {"params": [1], "type": "lt"},
-                            "operator": {"type": "and"},
-                            "query": {"params": ["C"]},
-                            "reducer": {"type": "last"},
-                        }
-                    ],
-                },
+                "model": _classic_condition("B", "lt", 1),
             },
         ],
         "noDataState": "Alerting",
@@ -272,7 +264,7 @@ def _dashboard_health_rule(dashboard_uid: str, dashboard_title: str) -> dict:
         "for": "2m",
         "annotations": {
             "summary": f"Dashboard '{dashboard_title}' health score has dropped below 100%",
-            "description": "One or more panels are reporting degraded status.",
+            "description": "One or more panels or variables are reporting degraded status.",
         },
         "labels": {
             "severity": "warning",
@@ -282,28 +274,21 @@ def _dashboard_health_rule(dashboard_uid: str, dashboard_title: str) -> dict:
     }
 
 
-def _dashboard_slow_load_rule(dashboard_uid: str, dashboard_title: str) -> dict:
+def _dashboard_slow_load_rule(
+    dashboard_uid: str,
+    dashboard_title: str,
+    datasource_uid: str,
+) -> dict:
     return {
-        "uid": f"sre-{dashboard_uid}-slow-load",
+        "uid": f"sre-{dashboard_uid[:16]}-sl",
         "title": f"[{dashboard_title}] Slow Dashboard Load",
         "condition": "C",
         "data": [
             {
-                "refId": "A",
-                "queryType": "",
-                "relativeTimeRange": {"from": 300, "to": 0},
-                "datasourceUid": "__expr__",
-                "model": {
-                    "type": "math",
-                    "expression": "",
-                    "datasource": {"uid": "__expr__", "type": "__expr__"},
-                },
-            },
-            {
                 "refId": "B",
                 "queryType": "",
                 "relativeTimeRange": {"from": 300, "to": 0},
-                "datasourceUid": "${datasource}",
+                "datasourceUid": datasource_uid,
                 "model": {
                     "expr": f'dashboard_load_time_seconds{{dashboard_uid="{dashboard_uid}"}}',
                     "refId": "B",
@@ -314,18 +299,7 @@ def _dashboard_slow_load_rule(dashboard_uid: str, dashboard_title: str) -> dict:
                 "queryType": "",
                 "relativeTimeRange": {"from": 300, "to": 0},
                 "datasourceUid": "__expr__",
-                "model": {
-                    "type": "threshold",
-                    "expression": "B",
-                    "conditions": [
-                        {
-                            "evaluator": {"params": [15], "type": "gt"},
-                            "operator": {"type": "and"},
-                            "query": {"params": ["C"]},
-                            "reducer": {"type": "last"},
-                        }
-                    ],
-                },
+                "model": _classic_condition("B", "gt", 15),
             },
         ],
         "noDataState": "OK",
@@ -339,5 +313,91 @@ def _dashboard_slow_load_rule(dashboard_uid: str, dashboard_title: str) -> dict:
             "severity": "warning",
             "dashboard_uid": dashboard_uid,
             "probe_type": "slow_dashboard",
+        },
+    }
+
+
+def _dashboard_render_status_rule(
+    dashboard_uid: str,
+    dashboard_title: str,
+    datasource_uid: str,
+) -> dict:
+    return {
+        "uid": f"sre-{dashboard_uid[:16]}-br",
+        "title": f"[{dashboard_title}] Browser Render Degraded",
+        "condition": "C",
+        "data": [
+            {
+                "refId": "B",
+                "queryType": "",
+                "relativeTimeRange": {"from": 300, "to": 0},
+                "datasourceUid": datasource_uid,
+                "model": {
+                    "expr": f'dashboard_render_status{{dashboard_uid="{dashboard_uid}"}}',
+                    "refId": "B",
+                },
+            },
+            {
+                "refId": "C",
+                "queryType": "",
+                "relativeTimeRange": {"from": 300, "to": 0},
+                "datasourceUid": "__expr__",
+                "model": _classic_condition("B", "lt", 1),
+            },
+        ],
+        "noDataState": "Alerting",
+        "execErrState": "Alerting",
+        "for": "2m",
+        "annotations": {
+            "summary": f"Dashboard '{dashboard_title}' browser render probe is degraded",
+            "description": "A browser could not render the Grafana dashboard without loading, no-data, blank, or panel-error states.",
+        },
+        "labels": {
+            "severity": "critical",
+            "dashboard_uid": dashboard_uid,
+            "probe_type": "browser_render",
+        },
+    }
+
+
+def _dashboard_slow_render_rule(
+    dashboard_uid: str,
+    dashboard_title: str,
+    datasource_uid: str,
+) -> dict:
+    return {
+        "uid": f"sre-{dashboard_uid[:16]}-sr",
+        "title": f"[{dashboard_title}] Slow Browser Render",
+        "condition": "C",
+        "data": [
+            {
+                "refId": "B",
+                "queryType": "",
+                "relativeTimeRange": {"from": 300, "to": 0},
+                "datasourceUid": datasource_uid,
+                "model": {
+                    "expr": f'dashboard_render_time_seconds{{dashboard_uid="{dashboard_uid}"}}',
+                    "refId": "B",
+                },
+            },
+            {
+                "refId": "C",
+                "queryType": "",
+                "relativeTimeRange": {"from": 300, "to": 0},
+                "datasourceUid": "__expr__",
+                "model": _classic_condition("B", "gt", 10),
+            },
+        ],
+        "noDataState": "OK",
+        "execErrState": "Alerting",
+        "for": "5m",
+        "annotations": {
+            "summary": f"Dashboard '{dashboard_title}' browser render is slow (>10s)",
+            "description": "A Playwright browser took more than 10 seconds to render the full Grafana dashboard.",
+        },
+        "labels": {
+            "severity": "warning",
+            "dashboard_uid": dashboard_uid,
+            "probe_type": "slow_render",
         },
     }

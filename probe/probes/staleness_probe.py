@@ -18,10 +18,6 @@ from probe.config import (
     ProbeStatus,
 )
 
-# Assumed scrape interval for staleness calculation.
-SCRAPE_INTERVAL_SECONDS = 15.0
-
-
 class StalenessProbe:
     """Check whether panel data is stale (timestamps too old)."""
 
@@ -56,6 +52,7 @@ class StalenessProbe:
                 panel_id=spec.panel_id,
                 panel_title=spec.panel_title,
                 status=ProbeStatus.UNKNOWN,
+                probe_type="stale_data",
                 duration_seconds=time.monotonic() - start,
             )
 
@@ -67,17 +64,19 @@ class StalenessProbe:
                 panel_id=spec.panel_id,
                 panel_title=spec.panel_title,
                 status=ProbeStatus.UNKNOWN,
+                probe_type="stale_data",
                 duration_seconds=duration,
             )
 
         age = time.time() - max_ts
-        threshold = SCRAPE_INTERVAL_SECONDS * config.stale_data_multiplier
+        threshold = config.scrape_interval_seconds * config.stale_data_multiplier
 
         if age > threshold:
             return ProbeResult(
                 panel_id=spec.panel_id,
                 panel_title=spec.panel_title,
                 status=ProbeStatus.DEGRADED,
+                probe_type="stale_data",
                 error_type=ErrorType.STALE_DATA,
                 message=f"Data is {age:.0f}s old (threshold: {threshold:.0f}s)",
                 duration_seconds=duration,
@@ -88,6 +87,7 @@ class StalenessProbe:
             panel_id=spec.panel_id,
             panel_title=spec.panel_title,
             status=ProbeStatus.HEALTHY,
+            probe_type="stale_data",
             duration_seconds=duration,
             max_timestamp=max_ts,
         )

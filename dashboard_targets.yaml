@@ -1,0 +1,365 @@
+probe_defaults:
+  probe_interval_seconds: 15
+  max_concurrency: 10
+  thresholds:
+    slow_query_seconds: 5.0
+    slow_dashboard_seconds: 15.0
+    stale_data_multiplier: 3.0
+    scrape_interval_seconds: 15
+    cardinality_spike_ratio: 1.5
+    query_timeout_seconds: 25.0
+  grafana:
+    docker_url: http://grafana:3000
+    local_url: http://localhost:3000
+    enabled_in_docker: true
+    enabled_locally: false
+    query_range_seconds: 3600
+    step_seconds: 30
+    max_data_points: 1200
+
+render_probe_defaults:
+  enabled: true
+  interval_seconds: 15
+  timeout_seconds: 15
+  slow_render_seconds: 10
+  max_concurrency: 2
+  url_mode: docker
+  grafana:
+    docker_url: http://grafana:3000
+    local_url: http://localhost:3000
+
+probe_metrics_datasource:
+  name: Probe Metrics
+  type: prometheus
+  uid: probe-metrics
+  url: http://prometheus:9090
+
+fault_controller:
+  service: fault-controller
+  host_port_env: FAULT_CONTROLLER_PORT
+  host_port: 8010
+  container_port: 8010
+  browser_url: http://localhost:8010
+
+render_probe:
+  service: browser-render-probe
+  host_port_env: BROWSER_RENDER_PROBE_PORT
+  host_port: 8012
+  container_port: 8012
+  browser_url: http://localhost:8012
+
+targets:
+  - key: service
+    title: Service Health
+    dashboard_uid: service-health-01
+    source_dashboard_path: demo/example_dashboard.json
+    grafana_source_dashboard_path: grafana/provisioning/dashboards/service-health.json
+    sre_dashboard_path: grafana/provisioning/dashboards/sre-meta.json
+    alert_rules_path: grafana/provisioning/alerting/rules.yaml
+    probe_config_path: config.docker.yaml
+    local_probe_config_path: config.yaml
+    datasource:
+      name: Mock Prometheus
+      type: prometheus
+      uid: prometheus-main
+      docker_url: http://mock-prometheus:9090
+      local_url: http://localhost:9090
+      grafana_url: http://mock-prometheus:9090
+    mock:
+      service: mock-prometheus
+      host_port_env: MOCK_BACKEND_PORT
+      host_port: 9090
+      container_port: 9090
+      browser_url: http://localhost:9090
+    probe:
+      service: probe-engine
+      host_port_env: PROBE_ENGINE_PORT
+      host_port: 8000
+      container_port: 8000
+      browser_url: http://localhost:8000
+    fault_groups:
+      - key: mock
+        label: Mock faults
+        kind: mock
+        enabled: true
+        description: Synthetic mock Prometheus responses for the Service Health dashboard.
+        controller:
+          docker_url: http://mock-prometheus:9090
+          local_url: http://localhost:9090
+          browser_url: http://localhost:9090
+        faults:
+          - type: no_data
+            label: No Data
+            target: http_requests_total
+          - type: stale_data
+            label: Stale Data
+            target: http_requests_total
+          - type: slow_query
+            label: Slow Query
+            target: http_requests_total
+          - type: var_resolution_fail
+            label: Var Fail
+            target: instance
+          - type: variable_query_error
+            label: Var Query Error
+            target: instance
+          - type: metric_rename
+            label: Metric Rename
+            target: process_resident_memory_bytes
+          - type: cardinality_spike
+            label: Cardinality Spike
+            target: http_requests_total
+    surfaces:
+      http_requests_total: "Grafana panels: Request Rate, Error Rate %"
+      process_resident_memory_bytes: "Grafana panel: Memory Usage"
+      up: "Grafana panel: Active Instances"
+      kube_pod_status_ready: "Grafana panel: Pod Readiness"
+      instance: "Grafana variable $pod"
+      namespace: "Grafana variable $namespace"
+
+  - key: mongodb
+    title: MongoDB Operations
+    dashboard_uid: mongodb-ops-01
+    source_dashboard_path: demo/mongodb_dashboard.json
+    grafana_source_dashboard_path: demo/mongodb_dashboard.json
+    sre_dashboard_path: grafana/provisioning/dashboards/sre-mongodb-operations.json
+    alert_rules_path: grafana/provisioning/alerting/rules-mongodb.yaml
+    probe_config_path: config.mongo.docker.yaml
+    datasource:
+      name: MongoDB Mock Prometheus
+      type: prometheus
+      uid: prometheus-mongo
+      docker_url: http://mock-mongo-prometheus:9090
+      local_url: http://localhost:9093
+      grafana_url: http://mock-mongo-prometheus:9090
+    mock:
+      service: mock-mongo-prometheus
+      host_port_env: MOCK_MONGO_PORT
+      host_port: 9093
+      container_port: 9090
+      browser_url: http://localhost:9093
+    probe:
+      service: probe-engine-mongo
+      host_port_env: PROBE_ENGINE_MONGO_PORT
+      host_port: 8002
+      container_port: 8000
+      browser_url: http://localhost:8002
+    fault_groups:
+      - key: mock
+        label: Mock faults
+        kind: mock
+        enabled: true
+        description: Synthetic mock Prometheus responses for the MongoDB Operations dashboard.
+        controller:
+          docker_url: http://mock-mongo-prometheus:9090
+          local_url: http://localhost:9093
+          browser_url: http://localhost:9093
+        faults:
+          - type: no_data
+            label: No Data
+            target: mongodb_op_counters_total
+          - type: stale_data
+            label: Stale Data
+            target: mongodb_op_counters_total
+          - type: slow_query
+            label: Slow Query
+            target: mongodb_op_counters_total
+          - type: var_resolution_fail
+            label: Var Fail
+            target: instance
+          - type: variable_query_error
+            label: Var Query Error
+            target: instance
+          - type: metric_rename
+            label: Metric Rename
+            target: mongodb_memory_resident_bytes
+          - type: cardinality_spike
+            label: Cardinality Spike
+            target: mongodb_op_counters_total
+    surfaces:
+      mongodb_up: "Grafana panel: MongoDB Up"
+      mongodb_op_counters_total: "Grafana panel: Operation Rate"
+      mongodb_connections: "Grafana panel: Current Connections"
+      mongodb_memory_resident_bytes: "Grafana panel: Resident Memory"
+      mongodb_mongod_replset_member_replication_lag: "Grafana panel: Replication Lag"
+      mongodb_mongod_replset_member_health: "Grafana panel: Replica Member Health"
+      instance: "Grafana variable $instance"
+      replset: "Grafana variable $replset"
+
+  - key: mongodb_atlas
+    title: MongoDB Atlas System Metrics
+    dashboard_uid: mongodb-atlas-system-metrics
+    source_url: https://grafana.com/grafana/dashboards/19654-mongodb-atlas-system-metrics/
+    source_dashboard_path: demo/mongodb_atlas_system_metrics_dashboard.json
+    grafana_source_dashboard_path: demo/mongodb_atlas_system_metrics_dashboard.json
+    sre_dashboard_path: grafana/provisioning/dashboards/sre-mongodb-atlas-system-metrics.json
+    alert_rules_path: grafana/provisioning/alerting/rules-mongodb-atlas.yaml
+    probe_config_path: config.mongo-atlas.docker.yaml
+    datasource:
+      name: MongoDB Atlas Mock Prometheus
+      type: prometheus
+      uid: prometheus-mongo-atlas
+      docker_url: http://mock-mongo-atlas-prometheus:9090
+      local_url: http://localhost:9095
+      grafana_url: http://mock-mongo-atlas-prometheus:9090
+    mock:
+      service: mock-mongo-atlas-prometheus
+      host_port_env: MOCK_MONGO_ATLAS_PORT
+      host_port: 9095
+      container_port: 9090
+      browser_url: http://localhost:9095
+    probe:
+      service: probe-engine-mongo-atlas
+      host_port_env: PROBE_ENGINE_MONGO_ATLAS_PORT
+      host_port: 8004
+      container_port: 8000
+      browser_url: http://localhost:8004
+    fault_groups:
+      - key: mock
+        label: Mock faults
+        kind: mock
+        enabled: true
+        description: Synthetic mock Prometheus responses for the official MongoDB Atlas dashboard.
+        controller:
+          docker_url: http://mock-mongo-atlas-prometheus:9090
+          local_url: http://localhost:9095
+          browser_url: http://localhost:9095
+        faults:
+          - type: no_data
+            label: No Data
+            target: mongodb_opcounters_query
+          - type: stale_data
+            label: Stale Data
+            target: mongodb_opcounters_query
+          - type: slow_query
+            label: Slow Query
+            target: mongodb_opcounters_query
+          - type: var_resolution_fail
+            label: Var Fail
+            target: group_id
+          - type: variable_query_error
+            label: Var Query Error
+            target: group_id
+          - type: metric_rename
+            label: Metric Rename
+            target: mongodb_mem_virtual
+          - type: cardinality_spike
+            label: Cardinality Spike
+            target: mongodb_opcounters_query
+    surfaces:
+      mongodb_up: "Grafana panels: Group Metadata, Cluster host list"
+      mongodb_opcounters_query: "Grafana panel: Opcounter - Query"
+      mongodb_mem_resident: "Grafana panel: Memory - Resident"
+      mongodb_mem_virtual: "Grafana panel: Memory - Virtual"
+      mongodb_network_numRequests: "Grafana panel: Network - Requests"
+      mongodb_wiredTiger_cache_bytes_currently_in_the_cache: "Grafana panel: WT Cache - Bytes Currently in Cache"
+      group_id: "Grafana variable $group_id"
+      cl_name: "Grafana variable $cl_name"
+      rs_nm: "Grafana variable $rs_nm"
+      host: "Grafana variable $host"
+      process_port: "Grafana variable $process_port"
+
+  - key: mongodb_live
+    title: MongoDB Live Operations
+    dashboard_uid: mongodb-live-ops-01
+    source_dashboard_path: demo/mongodb_live_dashboard.json
+    grafana_source_dashboard_path: demo/mongodb_live_dashboard.json
+    sre_dashboard_path: grafana/provisioning/dashboards/sre-mongodb-live-operations.json
+    alert_rules_path: grafana/provisioning/alerting/rules-mongodb-live.yaml
+    probe_config_path: config.mongo-live.docker.yaml
+    live_prometheus_config_path: prometheus/mongo-live.yml
+    datasource:
+      name: MongoDB Live Proxy Prometheus
+      type: prometheus
+      uid: prometheus-mongo-live
+      docker_url: http://fault-proxy-mongo-live:9090
+      local_url: http://localhost:9098
+      grafana_url: http://fault-proxy-mongo-live:9090
+    live_prometheus:
+      service: prometheus-mongo-live
+      host_port_env: PROMETHEUS_MONGO_LIVE_PORT
+      host_port: 9097
+      container_port: 9090
+      browser_url: http://localhost:9097
+      scrape_interval: 5s
+      evaluation_interval: 5s
+    exporter:
+      service: mongodb-exporter
+      host_port_env: MONGODB_EXPORTER_PORT
+      host_port: 9216
+      container_port: 9216
+      browser_url: http://localhost:9216
+      metrics_path: /metrics
+    proxy:
+      service: fault-proxy-mongo-live
+      host_port_env: FAULT_PROXY_MONGO_LIVE_PORT
+      host_port: 9098
+      container_port: 9090
+      browser_url: http://localhost:9098
+    probe:
+      service: probe-engine-mongo-live
+      host_port_env: PROBE_ENGINE_MONGO_LIVE_PORT
+      host_port: 8006
+      container_port: 8000
+      browser_url: http://localhost:8006
+    fault_groups:
+      - key: proxy
+        label: API proxy faults
+        kind: proxy
+        enabled: true
+        description: Faults injected between the real Prometheus API and Grafana/probe-engine.
+        controller:
+          docker_url: http://fault-proxy-mongo-live:9090
+          local_url: http://localhost:9098
+          browser_url: http://localhost:9098
+        faults:
+          - type: no_data
+            label: No Data
+            target: mongodb_op_counters_total
+          - type: stale_data
+            label: Stale Data
+            target: mongodb_op_counters_total
+          - type: slow_query
+            label: Slow Query
+            target: mongodb_op_counters_total
+          - type: var_resolution_fail
+            label: Var Fail
+            target: instance
+          - type: variable_query_error
+            label: Var Query Error
+            target: instance
+          - type: metric_rename
+            label: Metric Rename
+            target: mongodb_memory
+          - type: cardinality_spike
+            label: Cardinality Spike
+            target: mongodb_op_counters_total
+          - type: panel_query_http_500
+            label: Grafana Panel 500
+            target: mongodb_op_counters_total
+      - key: infra
+        label: Infrastructure faults
+        kind: infra
+        enabled: false
+        description: Whitelisted Docker infrastructure actions planned for the next slice.
+        disabled_reason: Infra actions are modeled only in this MVP; no Docker-mutating controls are exposed yet.
+        faults:
+          - type: stop_exporter
+            label: Stop Exporter
+            target: mongodb-exporter
+          - type: restart_exporter
+            label: Restart Exporter
+            target: mongodb-exporter
+          - type: workload_spike
+            label: Workload Spike
+            target: mongo-workload
+    surfaces:
+      mongodb_up: "Grafana panel: MongoDB Up"
+      mongodb_op_counters_total: "Grafana panel: Operation Rate"
+      mongodb_ss_connections: "Grafana panel: Current Connections"
+      mongodb_memory: "Grafana panel: Resident Memory"
+      mongodb_mongod_op_latencies_latency_total: "Grafana panel: Read Latency"
+      mongodb_extra_info_page_faults_total: "Grafana panel: Page Faults"
+      instance: "Grafana variable $instance"
+      mongodb-exporter: "Docker service: mongodb-exporter"
+      mongo-workload: "Docker service: mongo-workload"

@@ -2,6 +2,20 @@
 # 9090  — mock-prometheus API     (override: MOCK_BACKEND_PORT)
 # 8000  — probe-engine API        (override: PROBE_ENGINE_PORT)
 # 8080  — demo UI / simulator     (override: SIMULATOR_PORT)
+# 9091  — real Prometheus          (override: PROMETHEUS_PORT)
+# 3000  — Grafana                  (override: GRAFANA_PORT)
+
+# 9093  - MongoDB mock API         (override: MOCK_MONGO_PORT)
+# 8002  - MongoDB probe API        (override: PROBE_ENGINE_MONGO_PORT)
+# 9095  - MongoDB Atlas mock API   (override: MOCK_MONGO_ATLAS_PORT)
+# 8004  - MongoDB Atlas probe API  (override: PROBE_ENGINE_MONGO_ATLAS_PORT)
+# 27018 - Live MongoDB             (override: MONGO_LIVE_PORT)
+# 9216  - Live MongoDB exporter    (override: MONGODB_EXPORTER_PORT)
+# 9097  - Live MongoDB Prometheus  (override: PROMETHEUS_MONGO_LIVE_PORT)
+# 9098  - Live MongoDB fault proxy (override: FAULT_PROXY_MONGO_LIVE_PORT)
+# 8006  - Live MongoDB probe API   (override: PROBE_ENGINE_MONGO_LIVE_PORT)
+# 8010  - Fault controller API     (override: FAULT_CONTROLLER_PORT)
+# 8012  - Browser render probe API (override: BROWSER_RENDER_PROBE_PORT)
 
 x-logging: &default-logging
   driver: json-file
@@ -9,14 +23,278 @@ x-logging: &default-logging
     max-size: "10m"
     max-file: "3"
 
+x-mock-prometheus-base: &mock-prometheus-base
+  build: ./mock_backend
+  healthcheck:
+    test: ["CMD", "curl", "-f", "http://localhost:9090/-/healthy"]
+    interval: 10s
+    timeout: 5s
+    retries: 3
+    start_period: 10s
+  restart: unless-stopped
+  logging: *default-logging
+  deploy:
+    resources:
+      limits:
+        cpus: "0.5"
+        memory: 128M
+      reservations:
+        cpus: "0.1"
+        memory: 32M
+
+x-probe-engine-base: &probe-engine-base
+  build:
+    context: .
+    dockerfile: Dockerfile.probe
+  healthcheck:
+    test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+    interval: 10s
+    timeout: 5s
+    retries: 3
+    start_period: 20s
+  restart: unless-stopped
+  logging: *default-logging
+  deploy:
+    resources:
+      limits:
+        cpus: "1.0"
+        memory: 256M
+      reservations:
+        cpus: "0.25"
+        memory: 64M
+
+x-fault-services-base: &fault-services-base
+  build:
+    context: .
+    dockerfile: Dockerfile.fault-services
+  restart: unless-stopped
+  logging: *default-logging
+  deploy:
+    resources:
+      limits:
+        cpus: "0.5"
+        memory: 192M
+      reservations:
+        cpus: "0.1"
+        memory: 32M
+
 services:
 
   mock-prometheus:
-    build: ./mock_backend
+    <<: *mock-prometheus-base
     ports:
       - "${MOCK_BACKEND_PORT:-9090}:9090"
+
+  mock-mongo-prometheus:
+    <<: *mock-prometheus-base
+    ports:
+      - "${MOCK_MONGO_PORT:-9093}:9090"
+
+  mock-mongo-atlas-prometheus:
+    <<: *mock-prometheus-base
+    ports:
+      - "${MOCK_MONGO_ATLAS_PORT:-9095}:9090"
+
+  probe-engine:
+    <<: *probe-engine-base
+    ports:
+      - "${PROBE_ENGINE_PORT:-8000}:8000"
+    environment:
+      CONFIG_PATH: /app/config.docker.yaml
+      DASHBOARD_PATH: /app/demo/example_dashboard.json
+    depends_on:
+      mock-prometheus:
+        condition: service_healthy
+        restart: true
+
+  probe-engine-mongo:
+    <<: *probe-engine-base
+    ports:
+      - "${PROBE_ENGINE_MONGO_PORT:-8002}:8000"
+    environment:
+      CONFIG_PATH: /app/config.mongo.docker.yaml
+      DASHBOARD_PATH: /app/demo/mongodb_dashboard.json
+    depends_on:
+      mock-mongo-prometheus:
+        condition: service_healthy
+        restart: true
+
+  probe-engine-mongo-atlas:
+    <<: *probe-engine-base
+    ports:
+      - "${PROBE_ENGINE_MONGO_ATLAS_PORT:-8004}:8000"
+    environment:
+      CONFIG_PATH: /app/config.mongo-atlas.docker.yaml
+      DASHBOARD_PATH: /app/demo/mongodb_atlas_system_metrics_dashboard.json
+    depends_on:
+      mock-mongo-atlas-prometheus:
+        condition: service_healthy
+        restart: true
+
+  mongo-live:
+    image: mongo:7.0
+    command: ["mongod", "--replSet", "rs0", "--bind_ip_all"]
+    ports:
+      - "${MONGO_LIVE_PORT:-27018}:27017"
+    healthcheck:
+      test: ["CMD-SHELL", "mongosh --quiet --eval 'db.adminCommand({ ping: 1 }).ok' | grep 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    restart: unless-stopped
+    logging: *default-logging
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
+        reservations:
+          cpus: "0.25"
+          memory: 128M
+
+  mongo-init:
+    image: mongo:7.0
+    command:
+      - bash
+      - -lc
+      - |
+        until mongosh --host mongo-live:27017 --quiet --eval 'db.adminCommand({ ping: 1 }).ok'; do sleep 1; done
+        mongosh --host mongo-live:27017 --quiet --eval 'try { rs.status().ok } catch (e) { rs.initiate({_id:"rs0", members:[{_id:0, host:"mongo-live:27017"}]}) }'
+        mongosh --host mongo-live:27017 --quiet --eval 'db = db.getSiblingDB("demo"); db.orders.createIndex({customer: 1, createdAt: -1}); db.orders.insertMany(Array.from({length: 50}, (_, i) => ({customer: "customer-" + (i % 10), total: i * 3, createdAt: new Date()})), {ordered: false})'
+    depends_on:
+      mongo-live:
+        condition: service_healthy
+    restart: "no"
+    logging: *default-logging
+
+  mongo-workload:
+    image: mongo:7.0
+    command:
+      - bash
+      - -lc
+      - |
+        until mongosh --host mongo-live:27017 --quiet --eval 'db.adminCommand({ ping: 1 }).ok'; do sleep 1; done
+        while true; do
+          mongosh --host mongo-live:27017 --quiet --eval 'db = db.getSiblingDB("demo"); db.orders.insertOne({customer: "customer-" + Math.floor(Math.random() * 10), total: Math.floor(Math.random() * 500), createdAt: new Date()}); db.orders.find({customer: "customer-" + Math.floor(Math.random() * 10)}).limit(10).toArray(); db.orders.updateOne({}, {$$inc: {touches: 1}});'
+          sleep 2
+        done
+    depends_on:
+      mongo-init:
+        condition: service_completed_successfully
+    restart: unless-stopped
+    logging: *default-logging
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 128M
+        reservations:
+          cpus: "0.05"
+          memory: 32M
+
+  mongodb-exporter:
+    image: percona/mongodb_exporter:0.50.0
+    command:
+      - --mongodb.uri=mongodb://mongo-live:27017/admin?directConnection=true
+      - --compatible-mode
+      - --collect-all
+      - --web.listen-address=:9216
+    ports:
+      - "${MONGODB_EXPORTER_PORT:-9216}:9216"
+    depends_on:
+      mongo-init:
+        condition: service_completed_successfully
+    restart: unless-stopped
+    logging: *default-logging
+
+  prometheus-mongo-live:
+    image: prom/prometheus:v2.53.0
+    ports:
+      - "${PROMETHEUS_MONGO_LIVE_PORT:-9097}:9090"
+    volumes:
+      - ./prometheus/mongo-live.yml:/etc/prometheus/prometheus.yml:ro
+    depends_on:
+      mongodb-exporter:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:9090/-/healthy"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+    logging: *default-logging
+
+  fault-proxy-mongo-live:
+    <<: *fault-services-base
+    command: ["uvicorn", "fault_proxy.prometheus_proxy:app", "--host", "0.0.0.0", "--port", "9090"]
+    ports:
+      - "${FAULT_PROXY_MONGO_LIVE_PORT:-9098}:9090"
+    environment:
+      UPSTREAM_PROMETHEUS_URL: http://prometheus-mongo-live:9090
+    depends_on:
+      prometheus-mongo-live:
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9090/-/healthy"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  probe-engine-mongo-live:
+    <<: *probe-engine-base
+    ports:
+      - "${PROBE_ENGINE_MONGO_LIVE_PORT:-8006}:8000"
+    environment:
+      CONFIG_PATH: /app/config.mongo-live.docker.yaml
+      DASHBOARD_PATH: /app/demo/mongodb_live_dashboard.json
+    depends_on:
+      fault-proxy-mongo-live:
+        condition: service_healthy
+        restart: true
+
+  fault-controller:
+    <<: *fault-services-base
+    ports:
+      - "${FAULT_CONTROLLER_PORT:-8010}:8010"
+    environment:
+      DASHBOARD_TARGETS_PATH: /app/dashboard_targets.yaml
+      FAULT_CONTROLLER_URL_MODE: docker
+    depends_on:
+      mock-prometheus:
+        condition: service_healthy
+      mock-mongo-prometheus:
+        condition: service_healthy
+      mock-mongo-atlas-prometheus:
+        condition: service_healthy
+      fault-proxy-mongo-live:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8010/-/healthy"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  prometheus:
+    image: prom/prometheus:v2.53.0
+    ports:
+      - "${PROMETHEUS_PORT:-9091}:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    depends_on:
+      probe-engine:
+        condition: service_healthy
+      probe-engine-mongo:
+        condition: service_healthy
+      probe-engine-mongo-atlas:
+        condition: service_healthy
+      probe-engine-mongo-live:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:9090/-/healthy"]
       interval: 10s
       timeout: 5s
       retries: 3
@@ -27,29 +305,44 @@ services:
       resources:
         limits:
           cpus: "0.5"
-          memory: 128M
+          memory: 256M
         reservations:
           cpus: "0.1"
-          memory: 32M
+          memory: 64M
 
-  probe-engine:
-    build:
-      context: .
-      dockerfile: Dockerfile.probe
+  grafana:
+    image: grafana/grafana:10.4.2
     ports:
-      - "${PROBE_ENGINE_PORT:-8000}:8000"
-    environment:
-      CONFIG_PATH: /app/config.docker.yaml
-      DASHBOARD_PATH: /app/demo/example_dashboard.json
+      - "${GRAFANA_PORT:-3000}:3000"
+    volumes:
+      - ./grafana/grafana.ini:/etc/grafana/grafana.ini:ro
+      - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources:ro
+      - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./grafana/provisioning/dashboards/service-health.json:/var/lib/grafana/dashboards/service-health.json:ro
+      - ./grafana/provisioning/dashboards/sre-meta.json:/var/lib/grafana/dashboards/sre-meta.json:ro
+      - ./demo/mongodb_dashboard.json:/var/lib/grafana/dashboards/mongodb-operations.json:ro
+      - ./grafana/provisioning/dashboards/sre-mongodb-operations.json:/var/lib/grafana/dashboards/sre-mongodb-operations.json:ro
+      - ./demo/mongodb_atlas_system_metrics_dashboard.json:/var/lib/grafana/dashboards/mongodb-atlas-system-metrics.json:ro
+      - ./grafana/provisioning/dashboards/sre-mongodb-atlas-system-metrics.json:/var/lib/grafana/dashboards/sre-mongodb-atlas-system-metrics.json:ro
+      - ./demo/mongodb_live_dashboard.json:/var/lib/grafana/dashboards/mongodb-live-operations.json:ro
+      - ./grafana/provisioning/dashboards/sre-mongodb-live-operations.json:/var/lib/grafana/dashboards/sre-mongodb-live-operations.json:ro
+      - ./grafana/provisioning/alerting:/etc/grafana/provisioning/alerting:ro
     depends_on:
+      prometheus:
+        condition: service_healthy
       mock-prometheus:
         condition: service_healthy
-        restart: true
+      mock-mongo-prometheus:
+        condition: service_healthy
+      mock-mongo-atlas-prometheus:
+        condition: service_healthy
+      fault-proxy-mongo-live:
+        condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000/api/health"]
       interval: 10s
       timeout: 5s
-      retries: 3
+      retries: 5
       start_period: 20s
     restart: unless-stopped
     logging: *default-logging
@@ -62,12 +355,50 @@ services:
           cpus: "0.25"
           memory: 64M
 
+  browser-render-probe:
+    build:
+      context: .
+      dockerfile: Dockerfile.render-probe
+    ports:
+      - "${BROWSER_RENDER_PROBE_PORT:-8012}:8012"
+    environment:
+      DASHBOARD_TARGETS_PATH: /app/dashboard_targets.yaml
+      RENDER_PROBE_URL_MODE: docker
+    depends_on:
+      grafana:
+        condition: service_healthy
+        restart: true
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8012/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    restart: unless-stopped
+    logging: *default-logging
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
+        reservations:
+          cpus: "0.25"
+          memory: 128M
+
   demo-ui:
     build: ./demo
     ports:
       - "${SIMULATOR_PORT:-8080}:80"
     depends_on:
       probe-engine:
+        condition: service_healthy
+      probe-engine-mongo:
+        condition: service_healthy
+      probe-engine-mongo-atlas:
+        condition: service_healthy
+      probe-engine-mongo-live:
+        condition: service_healthy
+      fault-controller:
         condition: service_healthy
     restart: unless-stopped
     logging: *default-logging

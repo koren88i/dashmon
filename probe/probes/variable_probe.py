@@ -1,7 +1,8 @@
-"""Variable probe — checks that template variable queries return values.
+"""Variable probe checks that template variable queries return values.
 
-Detects: VAR_RESOLUTION_FAIL when a variable's label_values query returns
-an empty list (the dropdown in the dashboard would be blank).
+Detects:
+- VAR_RESOLUTION_FAIL when label_values returns an empty list.
+- VARIABLE_QUERY_ERROR when the variable query endpoint itself fails.
 """
 
 from __future__ import annotations
@@ -43,6 +44,7 @@ class VariableProbeResult:
             "name": self.name,
             "status": self.status.value,
             "error": self.error_type.value if self.error_type else None,
+            "message": self.message,
             "duration": self.duration_seconds,
             "values_count": self.values_count,
         }
@@ -67,13 +69,15 @@ class VariableProbe:
                 )
                 resp.raise_for_status()
                 body = resp.json()
+                if body.get("status") == "error":
+                    raise ValueError(body.get("error") or "Prometheus variable query returned error")
                 values = body.get("data", [])
-        except Exception as exc:
+        except (httpx.HTTPError, ValueError) as exc:
             return VariableProbeResult(
                 name=spec.name,
                 status=ProbeStatus.DEGRADED,
-                error_type=ErrorType.VAR_RESOLUTION_FAIL,
-                message=str(exc),
+                error_type=ErrorType.VARIABLE_QUERY_ERROR,
+                message=f"Variable ${spec.name} query failed: {exc}",
                 duration_seconds=time.monotonic() - start,
             )
 

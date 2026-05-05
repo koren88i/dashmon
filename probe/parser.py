@@ -11,8 +11,11 @@ from typing import Any
 
 from probe.config import PanelProbeSpec, VariableProbeSpec
 
-# Replace $variable references with .* so probes can match any value.
-_VAR_RE = re.compile(r"\$\{?(\w+)\}?")
+# Replace $variable references with safe sentinels so probes produce valid PromQL.
+# Label/string context  → .*  (regex wildcard)
+# Numeric context (after >, >=, <, <=) → 0  (valid scalar operand)
+_VAR_RE = re.compile(r"\$(?:\{(\w+)(?::[^}]+)?\}|(\w+))")
+_NUMERIC_OP_RE = re.compile(r"((?:>=|<=|>|<)\s*)\$(?:\{(\w+)(?::[^}]+)?\}|(\w+))")
 
 
 def parse_dashboard(
@@ -57,13 +60,17 @@ def _panel_to_spec(
     ds_uid = ds.get("uid", "unknown")
     ds_type = ds.get("type", "prometheus")
 
+    raw_queries: list[str] = []
     queries: list[str] = []
+    variable_dependencies: set[str] = set()
     for target in targets:
-        expr = target.get("expr", "")
-        if not expr:
+        raw_expr = target.get("expr", "")
+        if not raw_expr:
             continue
+        raw_queries.append(raw_expr)
+        variable_dependencies.update(_extract_variable_dependencies(raw_expr, var_names))
         # Substitute template variables with .* for probing.
-        expr = _substitute_variables(expr, var_names)
+        expr = _substitute_variables(raw_expr, var_names)
         queries.append(expr)
 
     if not queries:
@@ -76,6 +83,8 @@ def _panel_to_spec(
         datasource_type=ds_type,
         queries=queries,
         expected_min_series=1,
+        raw_queries=raw_queries,
+        variable_dependencies=sorted(variable_dependencies),
     )
 
 
@@ -100,7 +109,8 @@ def _parse_variables(
             query = query.get("query", "")
 
         # Detect chaining: does this variable's query reference another variable?
-        referenced = set(_VAR_RE.findall(query))
+        referenced = {_match_var_name(match) for match in _VAR_RE.finditer(query)}
+        referenced.discard("")
         is_chained = bool(referenced & all_names)
         chain_depth = 1 if is_chained else 0
 
@@ -127,7 +137,8 @@ def _resolve_chain_depths(variables: list[VariableProbeSpec]) -> None:
         visited: set[str] = set()
         current = var
         while current.is_chained:
-            refs = set(_VAR_RE.findall(current.query))
+            refs = {_match_var_name(match) for match in _VAR_RE.finditer(current.query)}
+            refs.discard("")
             parent_names = refs & set(by_name.keys())
             if not parent_names or parent_names & visited:
                 break
@@ -139,9 +150,36 @@ def _resolve_chain_depths(variables: list[VariableProbeSpec]) -> None:
 
 
 def _substitute_variables(expr: str, var_names: set[str]) -> str:
-    """Replace $variable / ${variable} with .* in PromQL expressions."""
-    def replacer(m: re.Match) -> str:
-        if m.group(1) in var_names:
+    """Replace $variable / ${variable} with safe sentinels in PromQL expressions.
+
+    Numeric comparison context (after >, >=, <, <=): substitute 0 so the
+    expression remains valid PromQL (e.g. ``latency > $slo`` → ``latency > 0``).
+    All other contexts: substitute .* for label/string matching.
+    """
+    # Pass 1: numeric comparison contexts → 0
+    def numeric_replacer(m: re.Match) -> str:
+        if (m.group(2) or m.group(3)) in var_names:
+            return m.group(1) + "0"
+        return m.group(0)
+    expr = _NUMERIC_OP_RE.sub(numeric_replacer, expr)
+
+    # Pass 2: remaining references (label/string contexts) → .*
+    def string_replacer(m: re.Match) -> str:
+        if _match_var_name(m) in var_names:
             return ".*"
         return m.group(0)
-    return _VAR_RE.sub(replacer, expr)
+    return _VAR_RE.sub(string_replacer, expr)
+
+
+def _extract_variable_dependencies(expr: str, var_names: set[str]) -> set[str]:
+    """Return dashboard variables referenced by a raw panel expression."""
+    return {
+        name
+        for name in (_match_var_name(match) for match in _VAR_RE.finditer(expr))
+        if name in var_names
+    }
+
+
+def _match_var_name(match: re.Match) -> str:
+    """Return the variable name from either $name or ${name:formatter}."""
+    return match.group(1) or match.group(2) or ""
