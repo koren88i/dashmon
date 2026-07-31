@@ -12,8 +12,9 @@ from __future__ import annotations
 import asyncio
 import time
 
-from fastapi import FastAPI, Query
+from fastapi import FastAPI, Form, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
 from mock_backend.fault_injector import FAULT_INFO, FaultInjector, FaultType
@@ -24,6 +25,7 @@ from mock_backend.fixtures.metrics import (
     get_instant_query_result,
     get_label_values,
     get_range_query_result,
+    get_series,
 )
 
 app = FastAPI(title="Mock Prometheus")
@@ -56,8 +58,7 @@ async def healthy():
     return "Prometheus Server is Healthy.\n"
 
 
-@app.get("/api/v1/query")
-async def instant_query(query: str = Query(...)):
+async def _handle_instant(query: str) -> dict:
     metric_name = extract_metric_name(query)
     fault = injector.get_fault_for_metric(metric_name) if metric_name else None
 
@@ -72,13 +73,7 @@ async def instant_query(query: str = Query(...)):
     }
 
 
-@app.get("/api/v1/query_range")
-async def range_query(
-    query: str = Query(...),
-    start: float = Query(...),
-    end: float = Query(...),
-    step: float = Query(15),
-):
+async def _handle_range(query: str, start: float, end: float, step: float) -> dict:
     metric_name = extract_metric_name(query)
     fault = injector.get_fault_for_metric(metric_name) if metric_name else None
 
@@ -93,14 +88,98 @@ async def range_query(
     }
 
 
-@app.get("/api/v1/label/{label_name}/values")
-async def label_values(label_name: str):
+# Prometheus HTTP API accepts both GET and POST for query endpoints.
+# Grafana uses POST with form-encoded body by default.
+
+@app.get("/api/v1/query")
+async def instant_query_get(query: str = Query(...)):
+    return await _handle_instant(query)
+
+
+@app.post("/api/v1/query")
+async def instant_query_post(query: str = Form(...)):
+    return await _handle_instant(query)
+
+
+@app.get("/api/v1/query_range")
+async def range_query_get(
+    query: str = Query(...),
+    start: float = Query(...),
+    end: float = Query(...),
+    step: float = Query(15),
+):
+    return await _handle_range(query, start, end, step)
+
+
+@app.post("/api/v1/query_range")
+async def range_query_post(
+    query: str = Form(...),
+    start: float = Form(...),
+    end: float = Form(...),
+    step: float = Form(15),
+):
+    return await _handle_range(query, start, end, step)
+
+
+async def _handle_label_values(label_name: str) -> dict | JSONResponse:
     fault = injector.get_fault_for_label(label_name)
     if fault is not None:
+        if fault.fault_type == FaultType.VARIABLE_QUERY_ERROR:
+            return _variable_query_error_response()
         return {"status": "success", "data": []}
 
     values = get_label_values(label_name)
     return {"status": "success", "data": values}
+
+
+@app.get("/api/v1/label/{label_name}/values")
+async def label_values_get(label_name: str):
+    return await _handle_label_values(label_name)
+
+
+@app.post("/api/v1/label/{label_name}/values")
+async def label_values_post(label_name: str):
+    return await _handle_label_values(label_name)
+
+
+# Grafana resolves label_values(metric, label) by fetching all series
+# for the metric via /api/v1/series, then extracting label values client-side.
+
+@app.get("/api/v1/series")
+async def series_get(request: Request):
+    match = request.query_params.getlist("match[]")
+    return _handle_series(match)
+
+
+@app.post("/api/v1/series")
+async def series_post(request: Request):
+    form = await request.form()
+    match = form.getlist("match[]")
+    return _handle_series(match)
+
+
+def _handle_series(match: list[str]) -> dict | JSONResponse:
+    fault = injector.get_variable_discovery_fault()
+    if fault is not None:
+        if fault.fault_type == FaultType.VARIABLE_QUERY_ERROR:
+            return _variable_query_error_response()
+        return {"status": "success", "data": []}
+
+    results: list[dict] = []
+    for m in match:
+        results.extend(get_series(m))
+    return {"status": "success", "data": results}
+
+
+def _variable_query_error_response() -> JSONResponse:
+    return JSONResponse(
+        status_code=500,
+        content={
+            "status": "error",
+            "errorType": "execution",
+            "error": "simulated variable query failure",
+        },
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -170,7 +249,7 @@ async def _apply_fault_instant(
     if fault_type == FaultType.CARDINALITY_SPIKE:
         return _spike_instant(metric_name, query)
 
-    # VAR_RESOLUTION_FAIL only applies to label_values; pass through here.
+    # Variable-discovery faults only affect label/series endpoints; pass through here.
     return get_instant_query_result(query)
 
 

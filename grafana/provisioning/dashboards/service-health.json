@@ -1,0 +1,146 @@
+{
+  "id": null,
+  "uid": "service-health-01",
+  "title": "Service Health",
+  "description": "Overview of service health metrics",
+  "schemaVersion": 39,
+  "version": 1,
+  "timezone": "browser",
+  "editable": true,
+  "graphTooltip": 1,
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "refresh": "30s",
+  "templating": {
+    "list": [
+      {
+        "name": "pod",
+        "type": "query",
+        "datasource": {
+          "uid": "prometheus-main",
+          "type": "prometheus"
+        },
+        "query": "label_values(up, instance)",
+        "refresh": 2,
+        "includeAll": true,
+        "multi": true,
+        "current": {},
+        "sort": 1
+      },
+      {
+        "name": "namespace",
+        "type": "query",
+        "datasource": {
+          "uid": "prometheus-main",
+          "type": "prometheus"
+        },
+        "query": "label_values(kube_pod_status_ready{instance=~\"$pod\"}, namespace)",
+        "refresh": 2,
+        "includeAll": true,
+        "multi": false,
+        "current": {},
+        "sort": 1
+      }
+    ]
+  },
+  "panels": [
+    {
+      "id": 1,
+      "title": "Request Rate",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 0 },
+      "datasource": {
+        "uid": "prometheus-main",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "rate(http_requests_total[5m])"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Error Rate %",
+      "type": "stat",
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 0 },
+      "datasource": {
+        "uid": "prometheus-main",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "rate(http_requests_total{status=~\"5..\"}[5m]) / rate(http_requests_total[5m])"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "P99 Latency",
+      "type": "gauge",
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 0 },
+      "datasource": {
+        "uid": "prometheus-main",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "histogram_quantile(0.99, rate(http_request_duration_seconds_bucket[5m]))"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Memory Usage",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+      "datasource": {
+        "uid": "prometheus-main",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "process_resident_memory_bytes{namespace=\"$namespace\"}"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Pod Readiness",
+      "type": "table",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+      "datasource": {
+        "uid": "prometheus-main",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "kube_pod_status_ready{namespace=\"$namespace\"}"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Active Instances",
+      "type": "stat",
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 16 },
+      "datasource": {
+        "uid": "prometheus-main",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "up{instance=~\"$pod\"}"
+        }
+      ]
+    }
+  ]
+}

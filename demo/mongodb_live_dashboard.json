@@ -1,0 +1,137 @@
+{
+  "id": null,
+  "uid": "mongodb-live-ops-01",
+  "title": "MongoDB Live Operations",
+  "description": "Operational view of a local MongoDB workload through a real exporter",
+  "schemaVersion": 39,
+  "version": 1,
+  "timezone": "browser",
+  "editable": true,
+  "graphTooltip": 1,
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "refresh": "30s",
+  "templating": {
+    "list": [
+      {
+        "name": "instance",
+        "type": "query",
+        "datasource": {
+          "uid": "prometheus-mongo-live",
+          "type": "prometheus"
+        },
+        "query": "label_values(mongodb_up, instance)",
+        "refresh": 2,
+        "includeAll": true,
+        "allValue": ".*",
+        "multi": true,
+        "current": {
+          "selected": true,
+          "text": "All",
+          "value": "$__all"
+        },
+        "sort": 1
+      }
+    ]
+  },
+  "panels": [
+    {
+      "id": 1,
+      "title": "MongoDB Up",
+      "type": "stat",
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 0 },
+      "datasource": {
+        "uid": "prometheus-mongo-live",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "mongodb_up{instance=~\"${instance:regex}\"}"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Operation Rate",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 0 },
+      "datasource": {
+        "uid": "prometheus-mongo-live",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(rate(mongodb_op_counters_total{instance=~\"${instance:regex}\"}[5m])) by (type)"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Current Connections",
+      "type": "gauge",
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 0 },
+      "datasource": {
+        "uid": "prometheus-mongo-live",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "mongodb_ss_connections{instance=~\"${instance:regex}\", conn_type=\"current\"}"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Resident Memory",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 8 },
+      "datasource": {
+        "uid": "prometheus-mongo-live",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "mongodb_memory{instance=~\"${instance:regex}\", type=\"resident\"}"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Read Latency",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 8 },
+      "datasource": {
+        "uid": "prometheus-mongo-live",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "rate(mongodb_mongod_op_latencies_latency_total{instance=~\"${instance:regex}\", type=\"read\"}[5m]) / clamp_min(rate(mongodb_mongod_op_latencies_ops_total{instance=~\"${instance:regex}\", type=\"read\"}[5m]), 1)"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Page Faults",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 8 },
+      "datasource": {
+        "uid": "prometheus-mongo-live",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "rate(mongodb_extra_info_page_faults_total{instance=~\"${instance:regex}\"}[5m])"
+        }
+      ]
+    }
+  ]
+}

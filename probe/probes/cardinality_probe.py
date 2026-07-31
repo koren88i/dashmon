@@ -54,6 +54,7 @@ class CardinalityProbe:
                 panel_id=spec.panel_id,
                 panel_title=spec.panel_title,
                 status=ProbeStatus.UNKNOWN,
+                probe_type="cardinality_spike",
                 duration_seconds=time.monotonic() - start,
             )
 
@@ -65,6 +66,7 @@ class CardinalityProbe:
                 panel_id=spec.panel_id,
                 panel_title=spec.panel_title,
                 status=ProbeStatus.DEGRADED,
+                probe_type="cardinality_spike",
                 error_type=ErrorType.METRIC_RENAME,
                 message="Query returned 0 series — metric may have been renamed",
                 duration_seconds=duration,
@@ -84,6 +86,7 @@ class CardinalityProbe:
                     panel_id=spec.panel_id,
                     panel_title=spec.panel_title,
                     status=ProbeStatus.DEGRADED,
+                    probe_type="cardinality_spike",
                     error_type=ErrorType.CARDINALITY_SPIKE,
                     message=f"Series count {total_series} is {ratio:.1f}x baseline ({baseline})",
                     duration_seconds=duration,
@@ -94,6 +97,7 @@ class CardinalityProbe:
             panel_id=spec.panel_id,
             panel_title=spec.panel_title,
             status=ProbeStatus.HEALTHY,
+            probe_type="cardinality_spike",
             duration_seconds=duration,
             series_count=total_series,
         )

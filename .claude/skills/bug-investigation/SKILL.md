@@ -55,17 +55,25 @@ Look for:
 - inconsistent invariants,
 - state shared across tests or requests.
 
+**Trace the actual user flow, not a plausible-sounding code path.** Before committing to a root cause, verify it by observing what the system actually does — check logs, network traffic, or debug output from the real failing scenario. A fix for a bug the user isn't hitting is worse than no fix: it wastes time and leaves the real bug open.
+
 Explain the likely root cause in plain language.
 
 ### 4) Protect against recurrence
-When practical, add a failing test before the fix.
-Preferred order:
+**Always add a failing test before applying the fix.** This is not optional, even when the bug feels obvious. Run the test and confirm it fails — this proves the test actually catches the bug.
+
+The test name and comments must explain **why the test exists** — what broke and what assumption it guards against. A reader who sees the test a year from now should understand the story without reading git blame.
+
+Bad: `test_post_query`
+Good: `test_post_query_supported` with a comment: "Grafana sends POST by default; mock originally only handled GET, breaking all Grafana panels."
+
+Preferred test type:
 - unit test,
 - integration test,
 - end-to-end test,
 - deterministic repro script if automated test is not practical.
 
-If a test is not feasible, explain why and provide the next-best verification method.
+If a test is truly not feasible, explain why and provide the next-best verification method. Do not proceed to step 5 without completing this step.
 
 ### 5) Apply the smallest safe fix
 - Fix the identified cause, not only the symptom.
@@ -76,7 +84,7 @@ If a test is not feasible, explain why and provide the next-best verification me
 Run the relevant checks and report:
 - failing test now passing,
 - nearby tests still passing,
-- manual repro now fixed if applicable.
+- **the user-facing bug is actually gone** — not just the test passing. A test can pass while the real bug remains if you tested the wrong thing. Go back to the original reproduction and confirm it works.
 
 ### 7) Refactor only after protection exists
 Once the bug is understood and guarded, optional cleanup is allowed:
@@ -93,10 +101,16 @@ If the bug reveals a reusable pattern, update the project's guidance:
 - add a short rule to `CLAUDE.md`, or
 - enrich this skill with a recurring pitfall.
 
+**Write the principle, not the fix.** The lesson should be the reasoning error or blind spot that caused the bug — not the specific code change that fixed it. Ask: "what thinking pattern, if applied earlier, would have prevented this class of bug?" The fix is already in the code; the lesson should change how you think next time.
+
+Bad: "Mock backend must support POST for query endpoints."
+Good: "Mock APIs must implement the spec, not just the subset our own code exercises. Real consumers will use different parts of the contract."
+
 Examples of reusable lessons:
 - "Empty arrays arrive from the API and must not be treated as null."
 - "Timezone conversion must happen before date bucketing."
 - "Retries must be idempotent."
+- "Mock the spec, not your usage of it — real consumers exercise different contract surfaces."
 
 ## Output format
 For a bug task, structure the response like this:

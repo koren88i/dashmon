@@ -1,0 +1,19 @@
+probe_interval_seconds: 15
+max_concurrency: 10
+thresholds:
+  slow_query_seconds: 5.0
+  slow_dashboard_seconds: 15.0
+  stale_data_multiplier: 3.0
+  scrape_interval_seconds: 15
+  cardinality_spike_ratio: 1.5
+  query_timeout_seconds: 25.0
+grafana:
+  enabled: true
+  url: http://grafana:3000
+  query_range_seconds: 3600
+  step_seconds: 30
+  max_data_points: 1200
+datasources:
+- uid: prometheus-mongo-live
+  url: http://fault-proxy-mongo-live:9090
+  type: prometheus

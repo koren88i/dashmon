@@ -54,11 +54,13 @@ curl -s -X POST http://localhost:9090/faults/clear \
 
 | Port | Service |
 |---|---|
+| 3000 | Grafana (anonymous auth, provisioned dashboards + alerts) |
 | 8080 | Demo UI simulator (nginx) |
 | 8000 | Probe engine (`/health`, `/metrics`) |
+| 9091 | Real Prometheus (scrapes probe engine) |
 | 9090 | Mock Prometheus backend + fault injection |
 
-Override via `.env` (copy from `.env.example`): `SIMULATOR_PORT`, `PROBE_ENGINE_PORT`, `MOCK_BACKEND_PORT`.
+Override via `.env` (copy from `.env.example`): `GRAFANA_PORT`, `PROMETHEUS_PORT`, `SIMULATOR_PORT`, `PROBE_ENGINE_PORT`, `MOCK_BACKEND_PORT`.
 
 ## Architecture
 
@@ -105,6 +107,9 @@ Grafana Dashboard JSON
 - Docker Compose must work on Mac and Linux
 - Probe engine handles errors gracefully — one panel failure doesn't crash others
 - No external databases, no heavy frameworks
+- Mock APIs must implement the spec, not just the subset our own code uses. Real consumers (e.g. Grafana) will exercise different parts of the contract (e.g. POST instead of GET). If we only test against our own code, we miss what breaks for everyone else.
+- Grafana alert rule UIDs must be ≤40 characters; rule titles must not contain `$` (interpreted as template variables)
+- Stateful systems don't forget what you told them. If your code changes what it writes (metric labels, DB rows, cache keys, file paths), it must also clean up what it previously wrote — old state outlives the code path that created it.
 
 ## Step verification approach
 
@@ -122,21 +127,40 @@ Every implementation step must be independently verifiable before moving on. No 
 
 **Timing budget:** probe_interval=15s + UI poll=5s → worst-case ~20s detection (within 30s requirement).
 
-## Implementation order
+## Doc hierarchy
 
-Follow `DASHBOARD_SRE_BRIEF.md` §"Start here" for sequencing. In short: mock_backend → parser → first probe (query) → engine+metrics → remaining probes → generators → demo UI → docker-compose → examples → ARCHITECTURE.md.
+Use the repo docs this way:
 
-## Plan tracking
-- After completing a plan step, mark it done in `PLAN.md` (e.g., `✅` prefix).
-- If the implementation deviated from the plan, add a short **"Deviation"** note under that step explaining what changed and why.
-- If something was learned that affects future steps, update the relevant future step in `PLAN.md` and/or add it to this file under the appropriate section.
+- `README.md` for current setup and operator usage
+- `ARCHITECTURE.md` for current system behavior and topology
+- `CLAUDE.md` for repository working conventions
+
+Historical context only:
+
+- `DASHBOARD_SRE_BRIEF.md`
+
+Do not treat the historical docs as the current implementation contract.
 
 ## Session management
-End a session after completing and verifying a full plan step — never mid-step.
+End a session after completing and verifying a coherent slice of work.
 To close gracefully, use the `session-close` skill.
 
 ## Purpose (engineering behavior)
 Keep it short, stable, and high-signal. Put reusable deep playbooks in `.claude/skills/*/SKILL.md`.
+
+## Engineering mindset
+
+Before planning or implementing any feature, think like a **senior engineer on the platform infra team of a 300-developer company**:
+
+- **Assume multi-tenancy from day one.** Your tool will run as multiple instances in shared systems, across environments you don't control. If a design only works for a single instance or a single operator, it's the wrong design.
+
+- **Identity must be derived, not declared.** Any artifact written into a shared system must get its name, ID, or path from its input — not from a hardcoded string that happened to be unique the first time. Ask: "what breaks when a second instance runs alongside this one?"
+
+- **Config owns the environment; code owns the logic.** Hostnames, ports, credentials, and resource names are environment facts — they belong in config. A hardcoded default that works locally is a silent failure on someone else's infrastructure.
+
+- **Design for the operator, not the author.** Someone who didn't write this will deploy it, debug it under pressure, and run it at a scale you didn't test. Names, logs, and error messages should make their life easier.
+
+- **Think day-2.** What happens when a second tenant is added? When one is removed? When a new version is deployed over the old one? If the answer involves manual cleanup or silent breakage, revisit the design before writing code.
 
 ## Default working style
 - Optimize for simplicity, readability, and maintainability over cleverness.
@@ -279,7 +303,7 @@ fix(mock-backend): prevent fault injection from crashing on empty target
 ### Bug fixes on main (post-merge)
 - Create a hotfix branch (`fix/<description>`), fix, verify, merge back. Same trunk-based workflow.
 
-### Workflow example (tied to PLAN.md)
+### Workflow example
 ```
 main ─────●────────────────●────────────────●───
           │                │                │
@@ -311,17 +335,18 @@ The repo `.gitignore` covers Python, Docker, and IDE artifacts. Keep it updated 
 pip install -r tests/requirements.txt
 
 # Run by layer
-pytest -m unit          # 36 tests, no network, <1s
-pytest -m integration   # 14 tests, mock backend subprocess, ~90s
-pytest -m e2e           # 8 tests, full engine + mock backend, ~115s
-pytest                  # all 58
+pytest -m unit
+pytest -m integration
+pytest -m e2e
+pytest
+pytest --collect-only -q
 ```
 
-See `TEST_PLAN.md` for what is and isn't covered.
+Treat the collected tests and the files under `tests/` as the current source of truth for coverage.
 
 ## Skills available
 - `.claude/skills/bug-investigation/SKILL.md`
 - `.claude/skills/refactor-safely/SKILL.md`
 - `.claude/skills/deliverable-verification/SKILL.md`
 - `.claude/skills/docker/SKILL.md` — port management, resource sizing, networking, Dockerfile rules, dev/prod patterns
-- `.claude/skills/session-close/SKILL.md` — end-of-session checklist: PLAN.md, CLAUDE.md, memory, git, handoff
+- `.claude/skills/session-close/SKILL.md` — end-of-session checklist for docs, memory, git, and handoff

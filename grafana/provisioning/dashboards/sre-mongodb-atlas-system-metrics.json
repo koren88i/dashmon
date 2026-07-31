@@ -1,0 +1,3632 @@
+{
+  "id": null,
+  "uid": "sre-mongodb-atlas-system-metrics",
+  "title": "[SRE] MongoDB Atlas System Metrics",
+  "description": "Meta-dashboard monitoring the health of 'MongoDB Atlas System Metrics'",
+  "schemaVersion": 39,
+  "version": 1,
+  "timezone": "browser",
+  "editable": true,
+  "graphTooltip": 1,
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "refresh": "10s",
+  "templating": {
+    "list": [
+      {
+        "name": "sre_datasource",
+        "type": "datasource",
+        "query": "prometheus",
+        "current": {
+          "selected": true,
+          "text": "Probe Metrics",
+          "value": "probe-metrics"
+        },
+        "hide": 0
+      }
+    ]
+  },
+  "panels": [
+    {
+      "id": 1,
+      "title": "Overview",
+      "type": "row",
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "collapsed": false,
+      "panels": []
+    },
+    {
+      "id": 2,
+      "title": "Health Score",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 0,
+        "y": 1
+      },
+      "datasource": {
+        "uid": "${sre_datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "dashboard_health_score{dashboard_uid=\"mongodb-atlas-system-metrics\"}"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 0.8
+              },
+              {
+                "color": "green",
+                "value": 1.0
+              }
+            ]
+          },
+          "noValue": "N/A",
+          "unit": "percentunit",
+          "decimals": 0
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 3,
+      "title": "Active Issues",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 4,
+        "y": 1
+      },
+      "datasource": {
+        "uid": "${sre_datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "dashboard_issue_count{dashboard_uid=\"mongodb-atlas-system-metrics\"}"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 1
+              },
+              {
+                "color": "red",
+                "value": 3
+              }
+            ]
+          },
+          "noValue": "N/A"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 4,
+      "title": "Estimated Load Time",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 8,
+        "y": 1
+      },
+      "datasource": {
+        "uid": "${sre_datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "dashboard_load_time_seconds{dashboard_uid=\"mongodb-atlas-system-metrics\"}"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 5
+              },
+              {
+                "color": "red",
+                "value": 15
+              }
+            ]
+          },
+          "noValue": "N/A",
+          "unit": "s",
+          "decimals": 1
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 5,
+      "title": "Browser Render Time",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 12,
+        "y": 1
+      },
+      "datasource": {
+        "uid": "${sre_datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "dashboard_render_time_seconds{dashboard_uid=\"mongodb-atlas-system-metrics\"}"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 5
+              },
+              {
+                "color": "red",
+                "value": 10
+              }
+            ]
+          },
+          "noValue": "N/A",
+          "unit": "s",
+          "decimals": 1
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 6,
+      "title": "Last Probe Run",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 16,
+        "y": 1
+      },
+      "datasource": {
+        "uid": "${sre_datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "time() - dashboard_last_probe_timestamp{dashboard_uid=\"mongodb-atlas-system-metrics\"}"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 30
+              },
+              {
+                "color": "red",
+                "value": 60
+              }
+            ]
+          },
+          "noValue": "No data yet",
+          "unit": "s",
+          "decimals": 0
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 7,
+      "title": "Last Render Run",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 20,
+        "y": 1
+      },
+      "datasource": {
+        "uid": "${sre_datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "time() - dashboard_render_last_probe_timestamp{dashboard_uid=\"mongodb-atlas-system-metrics\"}"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 30
+              },
+              {
+                "color": "red",
+                "value": 60
+              }
+            ]
+          },
+          "noValue": "No data yet",
+          "unit": "s",
+          "decimals": 0
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 8,
+      "title": "Panel Health",
+      "type": "row",
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 5
+      },
+      "collapsed": false,
+      "panels": []
+    },
+    {
+      "id": 9,
+      "title": "Group Metadata",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 0,
+        "y": 6
+      },
+      "datasource": {
+        "uid": "${sre_datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "min(dashboard_panel_status{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"41\"}) or vector(1)"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "noValue": "N/A"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 10,
+      "title": "Cluster host list",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 4,
+        "y": 6
+      },
+      "datasource": {
+        "uid": "${sre_datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "min(dashboard_panel_status{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"42\"}) or vector(1)"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "noValue": "N/A"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 11,
+      "title": "Memory - Resident",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 8,
+        "y": 6
+      },
+      "datasource": {
+        "uid": "${sre_datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "min(dashboard_panel_status{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"2\"}) or vector(1)"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "noValue": "N/A"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 12,
+      "title": "Memory - Virtual",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 12,
+        "y": 6
+      },
+      "datasource": {
+        "uid": "${sre_datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "min(dashboard_panel_status{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"72\"}) or vector(1)"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "noValue": "N/A"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 13,
+      "title": "Asserts - Regular",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 16,
+        "y": 6
+      },
+      "datasource": {
+        "uid": "${sre_datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "min(dashboard_panel_status{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"73\"}) or vector(1)"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "noValue": "N/A"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 14,
+      "title": "Asserts - Warning",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 20,
+        "y": 6
+      },
+      "datasource": {
+        "uid": "${sre_datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "min(dashboard_panel_status{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"74\"}) or vector(1)"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "noValue": "N/A"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 15,
+      "title": "Asserts - Message",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 0,
+        "y": 10
+      },
+      "datasource": {
+        "uid": "${sre_datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "min(dashboard_panel_status{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"75\"}) or vector(1)"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "noValue": "N/A"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 16,
+      "title": "Asserts - User",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 4,
+        "y": 10
+      },
+      "datasource": {
+        "uid": "${sre_datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "min(dashboard_panel_status{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"76\"}) or vector(1)"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "noValue": "N/A"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 17,
+      "title": "Cache Activity - Read Into",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 8,
+        "y": 10
+      },
+      "datasource": {
+        "uid": "${sre_datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "min(dashboard_panel_status{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"77\"}) or vector(1)"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "noValue": "N/A"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 18,
+      "title": "Cache Activity - Write From",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 12,
+        "y": 10
+      },
+      "datasource": {
+        "uid": "${sre_datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "min(dashboard_panel_status{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"78\"}) or vector(1)"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "noValue": "N/A"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 19,
+      "title": "Cache Usage - Used",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 16,
+        "y": 10
+      },
+      "datasource": {
+        "uid": "${sre_datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "min(dashboard_panel_status{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"79\"}) or vector(1)"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "noValue": "N/A"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 20,
+      "title": "Cache Usage - Dirty",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 20,
+        "y": 10
+      },
+      "datasource": {
+        "uid": "${sre_datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "min(dashboard_panel_status{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"80\"}) or vector(1)"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "noValue": "N/A"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 21,
+      "title": "Connections - Current",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 0,
+        "y": 14
+      },
+      "datasource": {
+        "uid": "${sre_datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "min(dashboard_panel_status{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"81\"}) or vector(1)"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "noValue": "N/A"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 22,
+      "title": "Cursors - Total Open",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 4,
+        "y": 14
+      },
+      "datasource": {
+        "uid": "${sre_datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "min(dashboard_panel_status{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"82\"}) or vector(1)"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "noValue": "N/A"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 23,
+      "title": "Cursors - Timed Out",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 8,
+        "y": 14
+      },
+      "datasource": {
+        "uid": "${sre_datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "min(dashboard_panel_status{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"83\"}) or vector(1)"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "noValue": "N/A"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 24,
+      "title": "Document Metrics - Returned",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 12,
+        "y": 14
+      },
+      "datasource": {
+        "uid": "${sre_datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "min(dashboard_panel_status{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"84\"}) or vector(1)"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "noValue": "N/A"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 25,
+      "title": "Document Metrics - Inserted",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 16,
+        "y": 14
+      },
+      "datasource": {
+        "uid": "${sre_datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "min(dashboard_panel_status{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"87\"}) or vector(1)"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "noValue": "N/A"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 26,
+      "title": "Document Metrics - Updated",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 20,
+        "y": 14
+      },
+      "datasource": {
+        "uid": "${sre_datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "min(dashboard_panel_status{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"86\"}) or vector(1)"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "noValue": "N/A"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 27,
+      "title": "Document Metrics - Deleted",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 0,
+        "y": 18
+      },
+      "datasource": {
+        "uid": "${sre_datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "min(dashboard_panel_status{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"85\"}) or vector(1)"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "noValue": "N/A"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 28,
+      "title": "Network - Num Requests",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 4,
+        "y": 18
+      },
+      "datasource": {
+        "uid": "${sre_datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "min(dashboard_panel_status{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"88\"}) or vector(1)"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "noValue": "N/A"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 29,
+      "title": "Network - Bytes In",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 8,
+        "y": 18
+      },
+      "datasource": {
+        "uid": "${sre_datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "min(dashboard_panel_status{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"90\"}) or vector(1)"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "noValue": "N/A"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 30,
+      "title": "Opcounters - Command",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 12,
+        "y": 18
+      },
+      "datasource": {
+        "uid": "${sre_datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "min(dashboard_panel_status{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"96\"}) or vector(1)"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "noValue": "N/A"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 31,
+      "title": "Opcounters - Query",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 16,
+        "y": 18
+      },
+      "datasource": {
+        "uid": "${sre_datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "min(dashboard_panel_status{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"101\"}) or vector(1)"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "noValue": "N/A"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 32,
+      "title": "Opcounters - Update",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 20,
+        "y": 18
+      },
+      "datasource": {
+        "uid": "${sre_datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "min(dashboard_panel_status{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"100\"}) or vector(1)"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "noValue": "N/A"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 33,
+      "title": "Opcounters - Delete",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 0,
+        "y": 22
+      },
+      "datasource": {
+        "uid": "${sre_datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "min(dashboard_panel_status{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"99\"}) or vector(1)"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "noValue": "N/A"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 34,
+      "title": "Opcounters - Getmore",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 4,
+        "y": 22
+      },
+      "datasource": {
+        "uid": "${sre_datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "min(dashboard_panel_status{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"97\"}) or vector(1)"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "noValue": "N/A"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 35,
+      "title": "Opcounters - Insert",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 8,
+        "y": 22
+      },
+      "datasource": {
+        "uid": "${sre_datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "min(dashboard_panel_status{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"98\"}) or vector(1)"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "noValue": "N/A"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 36,
+      "title": "Operation Execution Times - Avg Ms/Read",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 12,
+        "y": 22
+      },
+      "datasource": {
+        "uid": "${sre_datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "min(dashboard_panel_status{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"102\"}) or vector(1)"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "noValue": "N/A"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 37,
+      "title": "Operation Execution Times - Avg Ms/Write",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 16,
+        "y": 22
+      },
+      "datasource": {
+        "uid": "${sre_datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "min(dashboard_panel_status{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"104\"}) or vector(1)"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "noValue": "N/A"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 38,
+      "title": "Operation Execution Times - Avg Ms/Command",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 20,
+        "y": 22
+      },
+      "datasource": {
+        "uid": "${sre_datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "min(dashboard_panel_status{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"103\"}) or vector(1)"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "noValue": "N/A"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 39,
+      "title": "Page Faults",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 0,
+        "y": 26
+      },
+      "datasource": {
+        "uid": "${sre_datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "min(dashboard_panel_status{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"107\"}) or vector(1)"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "noValue": "N/A"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 40,
+      "title": "Query Executor - Scanned",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 4,
+        "y": 26
+      },
+      "datasource": {
+        "uid": "${sre_datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "min(dashboard_panel_status{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"108\"}) or vector(1)"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "noValue": "N/A"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 41,
+      "title": "Query Executor - Scanned Objects",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 8,
+        "y": 26
+      },
+      "datasource": {
+        "uid": "${sre_datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "min(dashboard_panel_status{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"109\"}) or vector(1)"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "noValue": "N/A"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 42,
+      "title": "Queues - Total",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 12,
+        "y": 26
+      },
+      "datasource": {
+        "uid": "${sre_datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "min(dashboard_panel_status{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"114\"}) or vector(1)"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "noValue": "N/A"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 43,
+      "title": "Queues - Readers",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 16,
+        "y": 26
+      },
+      "datasource": {
+        "uid": "${sre_datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "min(dashboard_panel_status{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"115\"}) or vector(1)"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "noValue": "N/A"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 44,
+      "title": "Queues - Writers",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 20,
+        "y": 26
+      },
+      "datasource": {
+        "uid": "${sre_datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "min(dashboard_panel_status{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"116\"}) or vector(1)"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "noValue": "N/A"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 45,
+      "title": "Scan and Order",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 0,
+        "y": 30
+      },
+      "datasource": {
+        "uid": "${sre_datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "min(dashboard_panel_status{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"119\"}) or vector(1)"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "noValue": "N/A"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 46,
+      "title": "Tickets Available - Reads",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 4,
+        "y": 30
+      },
+      "datasource": {
+        "uid": "${sre_datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "min(dashboard_panel_status{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"120\"}) or vector(1)"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "noValue": "N/A"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 47,
+      "title": "Tickets Available - Writes",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 8,
+        "y": 30
+      },
+      "datasource": {
+        "uid": "${sre_datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "min(dashboard_panel_status{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"121\"}) or vector(1)"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "noValue": "N/A"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 48,
+      "title": "Probe Layers",
+      "type": "row",
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 34
+      },
+      "collapsed": false,
+      "panels": []
+    },
+    {
+      "id": 49,
+      "title": "Datasource API",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 0,
+        "y": 35
+      },
+      "datasource": {
+        "uid": "${sre_datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "min(dashboard_panel_status{dashboard_uid=\"mongodb-atlas-system-metrics\", probe_type=\"datasource_api\"})"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "noValue": "N/A"
+        },
+        "overrides": []
+      },
+      "description": "Probe engine queries the target datasource or proxy directly with Prometheus GET /api/v1/query. This turns red when the direct datasource path returns errors or no usable data."
+    },
+    {
+      "id": 50,
+      "title": "Grafana Panel Path",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 6,
+        "y": 35
+      },
+      "datasource": {
+        "uid": "${sre_datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "min(dashboard_panel_status{dashboard_uid=\"mongodb-atlas-system-metrics\", probe_type=\"grafana_panel_path\"})"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "noValue": "N/A"
+        },
+        "overrides": []
+      },
+      "description": "Probe engine asks Grafana /api/ds/query to run the panel query through Grafana's datasource plugin path. This catches user-facing panel failures even when the direct datasource query is healthy."
+    },
+    {
+      "id": 51,
+      "title": "Variable Dependency",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 12,
+        "y": 35
+      },
+      "datasource": {
+        "uid": "${sre_datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "min(dashboard_panel_status{dashboard_uid=\"mongodb-atlas-system-metrics\", probe_type=\"variable_dependency\"}) or vector(1)"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "noValue": "N/A"
+        },
+        "overrides": []
+      },
+      "description": "Probe engine maps failed dashboard variables back to panels that reference them. This turns red when a panel is user-blocked by variable interpolation even though underlying data queries may be healthy."
+    },
+    {
+      "id": 52,
+      "title": "Browser Render",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 18,
+        "y": 35
+      },
+      "datasource": {
+        "uid": "${sre_datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "dashboard_render_status{dashboard_uid=\"mongodb-atlas-system-metrics\"}"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "noValue": "N/A"
+        },
+        "overrides": []
+      },
+      "description": "A Playwright browser opens the real Grafana dashboard and checks that visible panels finish rendering without loading, no-data, blank, or panel-error states."
+    },
+    {
+      "id": 53,
+      "title": "Query Performance",
+      "type": "row",
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 39
+      },
+      "collapsed": false,
+      "panels": []
+    },
+    {
+      "id": 54,
+      "title": "Query Duration \u2014 p50 / p95",
+      "type": "timeseries",
+      "gridPos": {
+        "h": 8,
+        "w": 16,
+        "x": 0,
+        "y": 40
+      },
+      "datasource": {
+        "uid": "${sre_datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "p50_41",
+          "expr": "histogram_quantile(0.5, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"41\"}[5m]))",
+          "legendFormat": "Group Metadata p50"
+        },
+        {
+          "refId": "p50_42",
+          "expr": "histogram_quantile(0.5, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"42\"}[5m]))",
+          "legendFormat": "Cluster host list p50"
+        },
+        {
+          "refId": "p50_2",
+          "expr": "histogram_quantile(0.5, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"2\"}[5m]))",
+          "legendFormat": "Memory - Resident p50"
+        },
+        {
+          "refId": "p50_72",
+          "expr": "histogram_quantile(0.5, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"72\"}[5m]))",
+          "legendFormat": "Memory - Virtual p50"
+        },
+        {
+          "refId": "p50_73",
+          "expr": "histogram_quantile(0.5, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"73\"}[5m]))",
+          "legendFormat": "Asserts - Regular p50"
+        },
+        {
+          "refId": "p50_74",
+          "expr": "histogram_quantile(0.5, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"74\"}[5m]))",
+          "legendFormat": "Asserts - Warning p50"
+        },
+        {
+          "refId": "p50_75",
+          "expr": "histogram_quantile(0.5, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"75\"}[5m]))",
+          "legendFormat": "Asserts - Message p50"
+        },
+        {
+          "refId": "p50_76",
+          "expr": "histogram_quantile(0.5, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"76\"}[5m]))",
+          "legendFormat": "Asserts - User p50"
+        },
+        {
+          "refId": "p50_77",
+          "expr": "histogram_quantile(0.5, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"77\"}[5m]))",
+          "legendFormat": "Cache Activity - Read Into p50"
+        },
+        {
+          "refId": "p50_78",
+          "expr": "histogram_quantile(0.5, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"78\"}[5m]))",
+          "legendFormat": "Cache Activity - Write From p50"
+        },
+        {
+          "refId": "p50_79",
+          "expr": "histogram_quantile(0.5, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"79\"}[5m]))",
+          "legendFormat": "Cache Usage - Used p50"
+        },
+        {
+          "refId": "p50_80",
+          "expr": "histogram_quantile(0.5, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"80\"}[5m]))",
+          "legendFormat": "Cache Usage - Dirty p50"
+        },
+        {
+          "refId": "p50_81",
+          "expr": "histogram_quantile(0.5, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"81\"}[5m]))",
+          "legendFormat": "Connections - Current p50"
+        },
+        {
+          "refId": "p50_82",
+          "expr": "histogram_quantile(0.5, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"82\"}[5m]))",
+          "legendFormat": "Cursors - Total Open p50"
+        },
+        {
+          "refId": "p50_83",
+          "expr": "histogram_quantile(0.5, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"83\"}[5m]))",
+          "legendFormat": "Cursors - Timed Out p50"
+        },
+        {
+          "refId": "p50_84",
+          "expr": "histogram_quantile(0.5, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"84\"}[5m]))",
+          "legendFormat": "Document Metrics - Returned p50"
+        },
+        {
+          "refId": "p50_87",
+          "expr": "histogram_quantile(0.5, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"87\"}[5m]))",
+          "legendFormat": "Document Metrics - Inserted p50"
+        },
+        {
+          "refId": "p50_86",
+          "expr": "histogram_quantile(0.5, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"86\"}[5m]))",
+          "legendFormat": "Document Metrics - Updated p50"
+        },
+        {
+          "refId": "p50_85",
+          "expr": "histogram_quantile(0.5, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"85\"}[5m]))",
+          "legendFormat": "Document Metrics - Deleted p50"
+        },
+        {
+          "refId": "p50_88",
+          "expr": "histogram_quantile(0.5, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"88\"}[5m]))",
+          "legendFormat": "Network - Num Requests p50"
+        },
+        {
+          "refId": "p50_90",
+          "expr": "histogram_quantile(0.5, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"90\"}[5m]))",
+          "legendFormat": "Network - Bytes In p50"
+        },
+        {
+          "refId": "p50_96",
+          "expr": "histogram_quantile(0.5, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"96\"}[5m]))",
+          "legendFormat": "Opcounters - Command p50"
+        },
+        {
+          "refId": "p50_101",
+          "expr": "histogram_quantile(0.5, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"101\"}[5m]))",
+          "legendFormat": "Opcounters - Query p50"
+        },
+        {
+          "refId": "p50_100",
+          "expr": "histogram_quantile(0.5, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"100\"}[5m]))",
+          "legendFormat": "Opcounters - Update p50"
+        },
+        {
+          "refId": "p50_99",
+          "expr": "histogram_quantile(0.5, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"99\"}[5m]))",
+          "legendFormat": "Opcounters - Delete p50"
+        },
+        {
+          "refId": "p50_97",
+          "expr": "histogram_quantile(0.5, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"97\"}[5m]))",
+          "legendFormat": "Opcounters - Getmore p50"
+        },
+        {
+          "refId": "p50_98",
+          "expr": "histogram_quantile(0.5, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"98\"}[5m]))",
+          "legendFormat": "Opcounters - Insert p50"
+        },
+        {
+          "refId": "p50_102",
+          "expr": "histogram_quantile(0.5, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"102\"}[5m]))",
+          "legendFormat": "Operation Execution Times - Avg Ms/Read p50"
+        },
+        {
+          "refId": "p50_104",
+          "expr": "histogram_quantile(0.5, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"104\"}[5m]))",
+          "legendFormat": "Operation Execution Times - Avg Ms/Write p50"
+        },
+        {
+          "refId": "p50_103",
+          "expr": "histogram_quantile(0.5, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"103\"}[5m]))",
+          "legendFormat": "Operation Execution Times - Avg Ms/Command p50"
+        },
+        {
+          "refId": "p50_107",
+          "expr": "histogram_quantile(0.5, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"107\"}[5m]))",
+          "legendFormat": "Page Faults p50"
+        },
+        {
+          "refId": "p50_108",
+          "expr": "histogram_quantile(0.5, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"108\"}[5m]))",
+          "legendFormat": "Query Executor - Scanned p50"
+        },
+        {
+          "refId": "p50_109",
+          "expr": "histogram_quantile(0.5, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"109\"}[5m]))",
+          "legendFormat": "Query Executor - Scanned Objects p50"
+        },
+        {
+          "refId": "p50_114",
+          "expr": "histogram_quantile(0.5, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"114\"}[5m]))",
+          "legendFormat": "Queues - Total p50"
+        },
+        {
+          "refId": "p50_115",
+          "expr": "histogram_quantile(0.5, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"115\"}[5m]))",
+          "legendFormat": "Queues - Readers p50"
+        },
+        {
+          "refId": "p50_116",
+          "expr": "histogram_quantile(0.5, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"116\"}[5m]))",
+          "legendFormat": "Queues - Writers p50"
+        },
+        {
+          "refId": "p50_119",
+          "expr": "histogram_quantile(0.5, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"119\"}[5m]))",
+          "legendFormat": "Scan and Order p50"
+        },
+        {
+          "refId": "p50_120",
+          "expr": "histogram_quantile(0.5, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"120\"}[5m]))",
+          "legendFormat": "Tickets Available - Reads p50"
+        },
+        {
+          "refId": "p50_121",
+          "expr": "histogram_quantile(0.5, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"121\"}[5m]))",
+          "legendFormat": "Tickets Available - Writes p50"
+        },
+        {
+          "refId": "p95_41",
+          "expr": "histogram_quantile(0.95, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"41\"}[5m]))",
+          "legendFormat": "Group Metadata p95"
+        },
+        {
+          "refId": "p95_42",
+          "expr": "histogram_quantile(0.95, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"42\"}[5m]))",
+          "legendFormat": "Cluster host list p95"
+        },
+        {
+          "refId": "p95_2",
+          "expr": "histogram_quantile(0.95, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"2\"}[5m]))",
+          "legendFormat": "Memory - Resident p95"
+        },
+        {
+          "refId": "p95_72",
+          "expr": "histogram_quantile(0.95, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"72\"}[5m]))",
+          "legendFormat": "Memory - Virtual p95"
+        },
+        {
+          "refId": "p95_73",
+          "expr": "histogram_quantile(0.95, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"73\"}[5m]))",
+          "legendFormat": "Asserts - Regular p95"
+        },
+        {
+          "refId": "p95_74",
+          "expr": "histogram_quantile(0.95, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"74\"}[5m]))",
+          "legendFormat": "Asserts - Warning p95"
+        },
+        {
+          "refId": "p95_75",
+          "expr": "histogram_quantile(0.95, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"75\"}[5m]))",
+          "legendFormat": "Asserts - Message p95"
+        },
+        {
+          "refId": "p95_76",
+          "expr": "histogram_quantile(0.95, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"76\"}[5m]))",
+          "legendFormat": "Asserts - User p95"
+        },
+        {
+          "refId": "p95_77",
+          "expr": "histogram_quantile(0.95, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"77\"}[5m]))",
+          "legendFormat": "Cache Activity - Read Into p95"
+        },
+        {
+          "refId": "p95_78",
+          "expr": "histogram_quantile(0.95, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"78\"}[5m]))",
+          "legendFormat": "Cache Activity - Write From p95"
+        },
+        {
+          "refId": "p95_79",
+          "expr": "histogram_quantile(0.95, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"79\"}[5m]))",
+          "legendFormat": "Cache Usage - Used p95"
+        },
+        {
+          "refId": "p95_80",
+          "expr": "histogram_quantile(0.95, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"80\"}[5m]))",
+          "legendFormat": "Cache Usage - Dirty p95"
+        },
+        {
+          "refId": "p95_81",
+          "expr": "histogram_quantile(0.95, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"81\"}[5m]))",
+          "legendFormat": "Connections - Current p95"
+        },
+        {
+          "refId": "p95_82",
+          "expr": "histogram_quantile(0.95, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"82\"}[5m]))",
+          "legendFormat": "Cursors - Total Open p95"
+        },
+        {
+          "refId": "p95_83",
+          "expr": "histogram_quantile(0.95, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"83\"}[5m]))",
+          "legendFormat": "Cursors - Timed Out p95"
+        },
+        {
+          "refId": "p95_84",
+          "expr": "histogram_quantile(0.95, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"84\"}[5m]))",
+          "legendFormat": "Document Metrics - Returned p95"
+        },
+        {
+          "refId": "p95_87",
+          "expr": "histogram_quantile(0.95, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"87\"}[5m]))",
+          "legendFormat": "Document Metrics - Inserted p95"
+        },
+        {
+          "refId": "p95_86",
+          "expr": "histogram_quantile(0.95, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"86\"}[5m]))",
+          "legendFormat": "Document Metrics - Updated p95"
+        },
+        {
+          "refId": "p95_85",
+          "expr": "histogram_quantile(0.95, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"85\"}[5m]))",
+          "legendFormat": "Document Metrics - Deleted p95"
+        },
+        {
+          "refId": "p95_88",
+          "expr": "histogram_quantile(0.95, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"88\"}[5m]))",
+          "legendFormat": "Network - Num Requests p95"
+        },
+        {
+          "refId": "p95_90",
+          "expr": "histogram_quantile(0.95, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"90\"}[5m]))",
+          "legendFormat": "Network - Bytes In p95"
+        },
+        {
+          "refId": "p95_96",
+          "expr": "histogram_quantile(0.95, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"96\"}[5m]))",
+          "legendFormat": "Opcounters - Command p95"
+        },
+        {
+          "refId": "p95_101",
+          "expr": "histogram_quantile(0.95, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"101\"}[5m]))",
+          "legendFormat": "Opcounters - Query p95"
+        },
+        {
+          "refId": "p95_100",
+          "expr": "histogram_quantile(0.95, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"100\"}[5m]))",
+          "legendFormat": "Opcounters - Update p95"
+        },
+        {
+          "refId": "p95_99",
+          "expr": "histogram_quantile(0.95, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"99\"}[5m]))",
+          "legendFormat": "Opcounters - Delete p95"
+        },
+        {
+          "refId": "p95_97",
+          "expr": "histogram_quantile(0.95, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"97\"}[5m]))",
+          "legendFormat": "Opcounters - Getmore p95"
+        },
+        {
+          "refId": "p95_98",
+          "expr": "histogram_quantile(0.95, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"98\"}[5m]))",
+          "legendFormat": "Opcounters - Insert p95"
+        },
+        {
+          "refId": "p95_102",
+          "expr": "histogram_quantile(0.95, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"102\"}[5m]))",
+          "legendFormat": "Operation Execution Times - Avg Ms/Read p95"
+        },
+        {
+          "refId": "p95_104",
+          "expr": "histogram_quantile(0.95, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"104\"}[5m]))",
+          "legendFormat": "Operation Execution Times - Avg Ms/Write p95"
+        },
+        {
+          "refId": "p95_103",
+          "expr": "histogram_quantile(0.95, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"103\"}[5m]))",
+          "legendFormat": "Operation Execution Times - Avg Ms/Command p95"
+        },
+        {
+          "refId": "p95_107",
+          "expr": "histogram_quantile(0.95, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"107\"}[5m]))",
+          "legendFormat": "Page Faults p95"
+        },
+        {
+          "refId": "p95_108",
+          "expr": "histogram_quantile(0.95, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"108\"}[5m]))",
+          "legendFormat": "Query Executor - Scanned p95"
+        },
+        {
+          "refId": "p95_109",
+          "expr": "histogram_quantile(0.95, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"109\"}[5m]))",
+          "legendFormat": "Query Executor - Scanned Objects p95"
+        },
+        {
+          "refId": "p95_114",
+          "expr": "histogram_quantile(0.95, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"114\"}[5m]))",
+          "legendFormat": "Queues - Total p95"
+        },
+        {
+          "refId": "p95_115",
+          "expr": "histogram_quantile(0.95, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"115\"}[5m]))",
+          "legendFormat": "Queues - Readers p95"
+        },
+        {
+          "refId": "p95_116",
+          "expr": "histogram_quantile(0.95, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"116\"}[5m]))",
+          "legendFormat": "Queues - Writers p95"
+        },
+        {
+          "refId": "p95_119",
+          "expr": "histogram_quantile(0.95, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"119\"}[5m]))",
+          "legendFormat": "Scan and Order p95"
+        },
+        {
+          "refId": "p95_120",
+          "expr": "histogram_quantile(0.95, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"120\"}[5m]))",
+          "legendFormat": "Tickets Available - Reads p95"
+        },
+        {
+          "refId": "p95_121",
+          "expr": "histogram_quantile(0.95, rate(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"mongodb-atlas-system-metrics\", panel_id=\"121\"}[5m]))",
+          "legendFormat": "Tickets Available - Writes p95"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "options": {
+        "tooltip": {
+          "mode": "multi"
+        }
+      }
+    },
+    {
+      "id": 55,
+      "title": "Query Duration Heatmap",
+      "type": "heatmap",
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 40
+      },
+      "datasource": {
+        "uid": "${sre_datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(increase(dashboard_panel_query_duration_seconds_bucket{dashboard_uid=\"mongodb-atlas-system-metrics\"}[5m])) by (le)",
+          "format": "heatmap",
+          "legendFormat": "{{le}}"
+        }
+      ],
+      "options": {
+        "calculate": false,
+        "yAxis": {
+          "unit": "s"
+        }
+      }
+    },
+    {
+      "id": 56,
+      "title": "Variable Health",
+      "type": "row",
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 48
+      },
+      "collapsed": false,
+      "panels": []
+    },
+    {
+      "id": 57,
+      "title": "$job",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 0,
+        "y": 49
+      },
+      "datasource": {
+        "uid": "${sre_datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "dashboard_variable_status{dashboard_uid=\"mongodb-atlas-system-metrics\", variable_name=\"job\"}"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "noValue": "N/A"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 58,
+      "title": "$group_id",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 4,
+        "y": 49
+      },
+      "datasource": {
+        "uid": "${sre_datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "dashboard_variable_status{dashboard_uid=\"mongodb-atlas-system-metrics\", variable_name=\"group_id\"}"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "noValue": "N/A"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 59,
+      "title": "$cl_name",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 8,
+        "y": 49
+      },
+      "datasource": {
+        "uid": "${sre_datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "dashboard_variable_status{dashboard_uid=\"mongodb-atlas-system-metrics\", variable_name=\"cl_name\"}"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "noValue": "N/A"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 60,
+      "title": "$rs_nm",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 12,
+        "y": 49
+      },
+      "datasource": {
+        "uid": "${sre_datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "dashboard_variable_status{dashboard_uid=\"mongodb-atlas-system-metrics\", variable_name=\"rs_nm\"}"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "noValue": "N/A"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 61,
+      "title": "$host",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 16,
+        "y": 49
+      },
+      "datasource": {
+        "uid": "${sre_datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "dashboard_variable_status{dashboard_uid=\"mongodb-atlas-system-metrics\", variable_name=\"host\"}"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "noValue": "N/A"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 62,
+      "title": "$process_port",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 20,
+        "y": 49
+      },
+      "datasource": {
+        "uid": "${sre_datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "dashboard_variable_status{dashboard_uid=\"mongodb-atlas-system-metrics\", variable_name=\"process_port\"}"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "noValue": "N/A"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 63,
+      "title": "Variable Query Duration",
+      "type": "timeseries",
+      "gridPos": {
+        "h": 4,
+        "w": 8,
+        "x": 0,
+        "y": 53
+      },
+      "datasource": {
+        "uid": "${sre_datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "job",
+          "expr": "histogram_quantile(0.95, rate(dashboard_variable_query_duration_seconds_bucket{dashboard_uid=\"mongodb-atlas-system-metrics\", variable_name=\"job\"}[5m]))",
+          "legendFormat": "$job p95"
+        },
+        {
+          "refId": "group_id",
+          "expr": "histogram_quantile(0.95, rate(dashboard_variable_query_duration_seconds_bucket{dashboard_uid=\"mongodb-atlas-system-metrics\", variable_name=\"group_id\"}[5m]))",
+          "legendFormat": "$group_id p95"
+        },
+        {
+          "refId": "cl_name",
+          "expr": "histogram_quantile(0.95, rate(dashboard_variable_query_duration_seconds_bucket{dashboard_uid=\"mongodb-atlas-system-metrics\", variable_name=\"cl_name\"}[5m]))",
+          "legendFormat": "$cl_name p95"
+        },
+        {
+          "refId": "rs_nm",
+          "expr": "histogram_quantile(0.95, rate(dashboard_variable_query_duration_seconds_bucket{dashboard_uid=\"mongodb-atlas-system-metrics\", variable_name=\"rs_nm\"}[5m]))",
+          "legendFormat": "$rs_nm p95"
+        },
+        {
+          "refId": "host",
+          "expr": "histogram_quantile(0.95, rate(dashboard_variable_query_duration_seconds_bucket{dashboard_uid=\"mongodb-atlas-system-metrics\", variable_name=\"host\"}[5m]))",
+          "legendFormat": "$host p95"
+        },
+        {
+          "refId": "process_port",
+          "expr": "histogram_quantile(0.95, rate(dashboard_variable_query_duration_seconds_bucket{dashboard_uid=\"mongodb-atlas-system-metrics\", variable_name=\"process_port\"}[5m]))",
+          "legendFormat": "$process_port p95"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "options": {
+        "tooltip": {
+          "mode": "multi"
+        }
+      }
+    },
+    {
+      "id": 64,
+      "title": "Variable Error Types",
+      "type": "table",
+      "gridPos": {
+        "h": 4,
+        "w": 8,
+        "x": 8,
+        "y": 53
+      },
+      "datasource": {
+        "uid": "${sre_datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by (variable_name, error_type) (increase(dashboard_variable_error_total{dashboard_uid=\"mongodb-atlas-system-metrics\"}[1h]))",
+          "format": "table",
+          "instant": true
+        }
+      ],
+      "options": {},
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true
+            },
+            "indexByName": {
+              "variable_name": 0,
+              "error_type": 1,
+              "Value": 2
+            },
+            "renameByName": {
+              "variable_name": "Variable",
+              "error_type": "Type",
+              "Value": "Events"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": 65,
+      "title": "Variable Blast Radius",
+      "type": "table",
+      "gridPos": {
+        "h": 4,
+        "w": 8,
+        "x": 16,
+        "y": 53
+      },
+      "datasource": {
+        "uid": "${sre_datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "dashboard_variable_dependency_impact{dashboard_uid=\"mongodb-atlas-system-metrics\"} == 1",
+          "format": "table",
+          "instant": true
+        }
+      ],
+      "options": {},
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true,
+              "__name__": true,
+              "dashboard_uid": true,
+              "panel_id": true
+            },
+            "indexByName": {
+              "variable_name": 0,
+              "panel_title": 1,
+              "error_type": 2,
+              "Value": 3
+            },
+            "renameByName": {
+              "variable_name": "Variable",
+              "panel_title": "Panel",
+              "error_type": "Variable Error",
+              "Value": "Impacted"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": 66,
+      "title": "Issue Log",
+      "type": "row",
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 57
+      },
+      "collapsed": false,
+      "panels": []
+    },
+    {
+      "id": 67,
+      "title": "Recent Issue Events",
+      "type": "table",
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 58
+      },
+      "datasource": {
+        "uid": "${sre_datasource}",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "dashboard_issue_event_timestamp_seconds{dashboard_uid=\"mongodb-atlas-system-metrics\"} * 1000",
+          "format": "table",
+          "instant": true
+        }
+      ],
+      "options": {},
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Event Time"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "dateTimeAsIso"
+              }
+            ]
+          }
+        ]
+      },
+      "transformations": [
+        {
+          "id": "sortBy",
+          "options": {
+            "fields": {},
+            "sort": [
+              {
+                "field": "Value",
+                "desc": true
+              }
+            ]
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true,
+              "__name__": true,
+              "dashboard_uid": true,
+              "event_id": true,
+              "instance": true,
+              "job": true,
+              "panel_id": true
+            },
+            "indexByName": {
+              "Value": 0,
+              "panel_title": 1,
+              "probe_type": 2,
+              "error_type": 3,
+              "message": 4
+            },
+            "renameByName": {
+              "Value": "Event Time",
+              "panel_title": "Panel",
+              "probe_type": "Path",
+              "error_type": "Type",
+              "message": "Message"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": 68,
+      "title": "Alerts",
+      "type": "row",
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 66
+      },
+      "collapsed": false,
+      "panels": []
+    },
+    {
+      "id": 69,
+      "title": "Active Alerts",
+      "type": "alertlist",
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 67
+      },
+      "datasource": {
+        "uid": "-- Grafana --",
+        "type": "datasource"
+      },
+      "options": {
+        "showOptions": "current",
+        "maxItems": 20,
+        "sortOrder": 1,
+        "alertName": "",
+        "dashboardAlerts": false,
+        "stateFilter": {
+          "firing": true,
+          "pending": true,
+          "noData": true,
+          "normal": false,
+          "error": true
+        },
+        "folder": null,
+        "alertInstanceLabelFilter": "dashboard_uid=\"mongodb-atlas-system-metrics\""
+      }
+    }
+  ]
+}

@@ -33,3 +33,16 @@ async def test_var_resolution_fail(mock_backend_url, inject_fault):
     assert result.status == ProbeStatus.DEGRADED
     assert result.error_type == ErrorType.VAR_RESOLUTION_FAIL
     assert result.values_count == 0
+
+
+async def test_variable_query_error(mock_backend_url, inject_fault):
+    """A hard variable endpoint failure is distinct from an empty dropdown."""
+    inject_fault("variable_query_error", "job")
+    config = ProbeConfig.defaults()
+    result = await VariableProbe().probe(_SPEC, mock_backend_url, config)
+
+    assert result.status == ProbeStatus.DEGRADED
+    assert result.error_type == ErrorType.VARIABLE_QUERY_ERROR
+    assert result.values_count == 0
+    assert "query failed" in result.message
+    assert result.to_dict()["message"] == result.message

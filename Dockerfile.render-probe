@@ -1,0 +1,20 @@
+FROM mcr.microsoft.com/playwright/python:v1.51.0-noble
+
+WORKDIR /app
+
+COPY render_probe/requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY --chown=pwuser:pwuser render_probe/ ./render_probe/
+COPY --chown=pwuser:pwuser generator/ ./generator/
+COPY --chown=pwuser:pwuser probe/ ./probe/
+COPY --chown=pwuser:pwuser dashboard_targets.yaml .
+COPY --chown=pwuser:pwuser demo/example_dashboard.json ./demo/example_dashboard.json
+COPY --chown=pwuser:pwuser demo/mongodb_dashboard.json ./demo/mongodb_dashboard.json
+COPY --chown=pwuser:pwuser demo/mongodb_atlas_system_metrics_dashboard.json ./demo/mongodb_atlas_system_metrics_dashboard.json
+COPY --chown=pwuser:pwuser demo/mongodb_live_dashboard.json ./demo/mongodb_live_dashboard.json
+COPY --chown=pwuser:pwuser grafana/provisioning/dashboards/service-health.json ./grafana/provisioning/dashboards/service-health.json
+
+USER pwuser
+
+CMD ["uvicorn", "render_probe.app:app", "--host", "0.0.0.0", "--port", "8012"]
